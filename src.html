@@ -715,7 +715,10 @@ const RELICS = [
  {id:'scale',   name:'용의 비늘',   icon:'diamond', desc:'원정에서 보석 +1'},
 ];
 const ROOMS = ['이끼 낀 입구','거미줄 복도','지하 호수','잠든 석상','보물 방의 문지기'];
-const N = 25, TW = 64, TH = 32, CLIFF = 20;
+const N = 33, TW = 64, TH = 32, CLIFF = 20;
+// 지도 정의는 25칸 기준 좌표로 쓰고, 실제 섬은 GK배 크게 펼침
+const GD = 25, GK = N/GD, GOC = 12, GNC = (N-1)/2;
+const gsc = v => Math.round((v-GOC)*GK+GNC), gsf = v => (v-GOC)*GK+GNC, ginv = v => (v-GNC)/GK+GOC;
 let CX = 12, CY = 12;
 const FREE_REGIONS = [
  {id:'pine',  name:'소나무 곶',  c:[12,2.2],  r:3.4, need:2, cost:{wood:80,stone:60},             spawn:['pine','pine','wildtree']},
@@ -800,6 +803,15 @@ const MAPS = {
   stones:[{x:6,y:8,t:'말은 쌓이면 길이 되고, 길은 이어지면 마을이 된다.'},{x:12,y:10,t:'틀린 글자는 지우고 다시 쓰면 된다.'},{x:14,y:17,t:'모든 문장에는 쉼이 필요하다.'}],
   maxCastle:4, raids:true, raidScale:1, merchant:true, engRaid:true, start:{res:{wood:160,stone:160,brick:150,wisdom:80,trade:80,gem:8}, castle:3, techs:[...ERA1,...ERA2,'archives','aqueduct'], clock:60}},
 };
+function scalePaths(list){ const pts=(list||[]).map(p=>p.split(',').map(Number)), out=new Set(pts.map(([x,y])=>`${gsc(x)},${gsc(y)}`));
+ for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){ const [ax,ay]=pts[i],[bx,by]=pts[j]; if(Math.max(Math.abs(ax-bx),Math.abs(ay-by))!==1) continue;
+  const x0=gsc(ax),y0=gsc(ay),x1=gsc(bx),y1=gsc(by), n=Math.max(Math.abs(x1-x0),Math.abs(y1-y0)); for(let k=1;k<n;k++) out.add(`${Math.round(x0+(x1-x0)*k/n)},${Math.round(y0+(y1-y0)*k/n)}`); }
+ return [...out]; }
+function scaleMap(d){ const o={...d}, L0=d.land; o.land=(x,y)=>L0(ginv(x),ginv(y)); if(d.sand){ const S0=d.sand; o.sand=(x,y)=>S0(ginv(x),ginv(y)); }
+ o.center=d.center.map(gsf); o.castle=d.castle.map(gsc); if(d.cave) o.cave=d.cave.map(gsc); if(d.tower) o.tower=d.tower.map(gsc);
+ if(d.camps) o.camps=d.camps.map(c=>c.map(gsc)); ['ruins','stones','prebuilt'].forEach(k=>{ if(d[k]) o[k]=d[k].map(u=>({...u,x:gsc(u.x),y:gsc(u.y)})); });
+ if(d.regions) o.regions=d.regions.map(r=>({...r,c:r.c.map(gsf),r:r.r*GK})); o.paths=scalePaths(d.paths); o.trees=Math.round((d.trees??15)*GK*GK); return o; }
+for(const k in MAPS) MAPS[k]=scaleMap(MAPS[k]);
 const L=(w,t,o={})=>Object.assign({w,t},o);
 const bakeryMill=()=>S.objs.some(o=>o.t==='bakery'&&neighbors(o.gx,o.gy,szOf(o),o).windmill);
 const CAMPAIGN = [
@@ -1000,18 +1012,19 @@ function newState(mapId='free'){
  const def=MAPS[mapId]; setupMap(def); const r=rng(def.seed||11);
  const cs=def.castle; const objs=[{t:'castle',gx:cs[0],gy:cs[1],sz:2,seed:1}];
  const taken=new Set([`${cs[0]},${cs[1]}`,`${cs[0]+1},${cs[1]}`,`${cs[0]},${cs[1]+1}`,`${cs[0]+1},${cs[1]+1}`,...(def.paths||[])]);
- const fixed=(t,x,y,extra={})=>{ objs.push({t,gx:x,gy:y,natural:true,seed:Math.floor(r()*1e6),...extra}); taken.add(`${x},${y}`); };
+ const nudge=(x,y)=>{ if(BASE[y*N+x]&&!taken.has(`${x},${y}`)) return [x,y]; let best=[x,y],bd=1e9; for(let yy=0;yy<N;yy++) for(let xx=0;xx<N;xx++) if(BASE[yy*N+xx]&&!taken.has(`${xx},${yy}`)){ const d=Math.hypot(xx-x,yy-y); if(d<bd){ bd=d; best=[xx,yy]; } } return best; };
+ const fixed=(t,x0,y0,extra={})=>{ const [x,y]=nudge(x0,y0); objs.push({t,gx:x,gy:y,natural:true,seed:Math.floor(r()*1e6),...extra}); taken.add(`${x},${y}`); };
  if(def.cave) fixed('cave',def.cave[0],def.cave[1]);
  (def.ruins||[]).forEach(u=>fixed('ruin',u.x,u.y,{becomes:u.b,word:u.t}));
  (def.stones||[]).forEach(u=>fixed('wordstone',u.x,u.y,{word:u.t}));
  if(def.tower) fixed('tower',def.tower[0],def.tower[1]);
- (def.prebuilt||[]).forEach(u=>{ objs.push({t:u.t,gx:u.x,gy:u.y,sz:1,seed:Math.floor(r()*1e6)}); taken.add(`${u.x},${u.y}`); });
+ (def.prebuilt||[]).forEach(u=>{ const [x,y]=nudge(u.x,u.y); objs.push({t:u.t,gx:x,gy:y,sz:1,seed:Math.floor(r()*1e6)}); taken.add(`${x},${y}`); });
  (def.camps||[]).forEach(u=>fixed('camp',u[0],u[1]));
  const spots=[]; for (let y=0;y<N;y++) for (let x=0;x<N;x++) if (BASE[y*N+x] && Math.hypot(x-cs[0]-.5,y-cs[1]-.5)>2.4 && !taken.has(`${x},${y}`)) spots.push([x,y]);
  for (let i=spots.length-1;i>0;i--){ const j=Math.floor(r()*(i+1)); [spots[i],spots[j]]=[spots[j],spots[i]]; }
  const nT=def.trees??15; spots.slice(0,nT).forEach(([x,y],i)=>{ objs.push({t:i<nT*0.4?'wildtree':i<nT*0.75?'pine':'rock',gx:x,gy:y,natural:true,seed:Math.floor(r()*1e6)}); });
  const st=def.start||{};
- return {v:4, map:mapId, res:Object.assign({wood:8,stone:6,brick:0,wisdom:0,trade:0,gem:0},st.res||{}), objs, paths:(def.paths||[]).slice(), castle:st.castle||1, techs:(st.techs||[]).slice(), regions:[], relics:[],
+ return {v:5, map:mapId, res:Object.assign({wood:8,stone:6,brick:0,wisdom:0,trade:0,gem:0},st.res||{}), objs, paths:(def.paths||[]).slice(), castle:st.castle||1, techs:(st.techs||[]).slice(), regions:[], relics:[],
   stats:{words:0,sentences:0,lines:0,poems:0,eng:0,perfects:0,maxCombo:0,chars:0,builtTotal:0,playMs:0,raids:0,kills:0,flawless:0,expeditions:0,bestRooms:0,restored:0,trades:0,
    best:{word:0,sentence:0,long:0,eng:0}, hist:[]},
   combo:0, long:{p:null,l:0}, claimed:[], achs:[], rank:0, clock:st.clock??40, raidNight:-1, expReadyAt:0, speed:1,
@@ -1020,7 +1033,7 @@ function newState(mapId='free'){
 }
 let S=null;
 function hasSave(id='free'){ return !!LS.get(keyFor(id)); }
-function loadSave(id='free'){ try { const d=JSON.parse(LS.get(keyFor(id))||'null'); if(d&&d.v>=2&&d.v<=4){ d.map=d.map||'free'; if(d.v<4&&d.map!=='free') return null; return d; } return null; } catch(e){ return null; } }
+function loadSave(id='free'){ try { const d=JSON.parse(LS.get(keyFor(id))||'null'); if(d&&d.v>=2&&d.v<=5){ d.map=d.map||'free'; if(d.v<4&&d.map!=='free') return null; return d; } return null; } catch(e){ return null; } }
 function save(){ if(!S||!SLOT) return; LS.set(keyFor(S.map||'free'), JSON.stringify(S)); saveProfile(); }
 function wipeSave(id='free'){ LS.del(keyFor(id)); }
 
@@ -1030,14 +1043,19 @@ const centerOf=o=>{ const z=szOf(o); return [o.gx+(z-1)/2,o.gy+(z-1)/2]; };
 function rebuildOcc(){ OCC=new Array(N*N).fill(null); S.objs.forEach(o=>{ const z=szOf(o); for(let dy=0;dy<z;dy++) for(let dx=0;dx<z;dx++){ const x=o.gx+dx,y=o.gy+dy; if(x>=0&&y>=0&&x<N&&y<N) OCC[y*N+x]=o; } }); }
 const objAt=(x,y)=>(x>=0&&y>=0&&x<N&&y<N)?OCC[y*N+x]:null;
 const castleObj=()=>S.objs.find(o=>o.t==='castle');
-function migrate(){ if(S.v>=4) return;
+function migrate(){ if(S.v===4) migrate5(); if(S.v>=4) return;
  const sh=4; S.objs.forEach(o=>{ o.gx+=sh; o.gy+=sh; }); S.paths=S.paths.map(pp=>{ const [x,y]=pp.split(',').map(Number); return `${x+sh},${y+sh}`; });
  if(S.v<3){ S.objs.forEach(o=>{ if(!o.natural&&o.t!=='castle') o.sz=1; });
   const c=castleObj(); if(c){ let ok=null; for(const [ax,ay] of [[11,11],[12,12],[11,12],[12,11]]){ let fine=true; for(let dy=0;dy<2;dy++) for(let dx=0;dx<2;dx++){ const X=ax+dx,Y=ay+dy; if(!BASE[Y*N+X]) fine=false; const o=S.objs.find(q=>q!==c&&q.gx===X&&q.gy===Y); if(o&&!o.natural) fine=false; } if(fine){ ok=[ax,ay]; break; } }
    if(ok){ for(let dy=0;dy<2;dy++) for(let dx=0;dx<2;dx++){ const X=ok[0]+dx,Y=ok[1]+dy; S.objs=S.objs.filter(q=>!(q!==c&&q.natural&&q.gx===X&&q.gy===Y)); S.paths=S.paths.filter(pp=>pp!==`${X},${Y}`); } c.gx=ok[0]; c.gy=ok[1]; c.sz=2; } else c.sz=1; } }
  // the bigger island has room for new nature
  const r=rng(99); for(let y=0;y<N;y++) for(let x=0;x<N;x++) if(BASE[y*N+x]&&Math.hypot(x-12,y-12)>6.2&&!S.objs.some(o=>o.gx===x&&o.gy===y)&&r()<0.18) S.objs.push({t:r()<.5?'wildtree':r()<.6?'pine':'rock',gx:x,gy:y,natural:true,seed:Math.floor(r()*1e6)});
- S.v=4; }
+ S.v=4; migrate5(); }
+// 25칸 섬 저장을 33칸 섬으로: 모든 좌표를 같은 비율로 펼침
+function migrate5(){ S.objs.forEach(o=>{ o.gx=gsc(o.gx); o.gy=gsc(o.gy); }); S.paths=scalePaths(S.paths);
+ const r=rng(7), near=(x,y)=>S.objs.some(o=>!o.natural&&Math.abs(o.gx-x)<=1&&Math.abs(o.gy-y)<=1);
+ for(let y=0;y<N;y++) for(let x=0;x<N;x++) if(BASE[y*N+x]&&!S.objs.some(o=>o.gx===x&&o.gy===y)&&!S.paths.includes(`${x},${y}`)&&!near(x,y)&&r()<0.1) S.objs.push({t:r()<.45?'wildtree':r()<.6?'pine':'rock',gx:x,gy:y,natural:true,seed:Math.floor(r()*1e6)});
+ S.v=5; }
 const isPath = (x,y) => S.paths.includes(`${x},${y}`);
 const built = o => !o.natural && BUILD[o.t];
 function countB(t){ return S.objs.reduce((n,o)=>n+(o.t===t&&!o.natural?1:0),0); }
