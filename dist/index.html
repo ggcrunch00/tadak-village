@@ -2191,7 +2191,10 @@ function profileSummary(pr,sl){ const days=pr.days||{}; let play=0,typeMs=0,stro
 function recordOf(sl){ let pr; try{ pr=JSON.parse(LS.get(`tadak@${sl.id}/profile`)||'null'); }catch(e){} pr=pr||P_DEFAULT(); return {app:'tadak-village',v:1,at:new Date().toISOString(),slot:{num:sl.num,name:sl.name},sum:profileSummary(pr,sl),days:pr.days||{},fb:pr.fb||[],camp:(pr.camp&&pr.camp.done)||{}}; }
 const encRec=r=>'TADAK1:'+btoa(unescape(encodeURIComponent(JSON.stringify(r))));
 function decRec(t){ t=t.trim(); if(t.startsWith('TADAK1:')) t=decodeURIComponent(escape(atob(t.slice(7)))); const r=JSON.parse(t); if(r.app!=='tadak-village') throw 0; return r; }
-function download(name,text,type='application/json'){ try{ const b=new Blob([text],{type}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1000); return true; }catch(e){ return false; } }
+// claude.ai 아티팩트 안에서는 downloads 기능으로, 일반 웹(GitHub Pages)에서는 보통 다운로드 링크로 저장
+let _dl; const dlCap=()=>_dl||(_dl=(window.claude&&window.claude.use)?window.claude.use('downloads').catch(()=>null):Promise.resolve(null));
+async function download(name,text,type='application/json'){ const cap=await dlCap(); if(cap){ try{ await cap.save({filename:name,data:text}); return true; }catch(e){ return false; } } return downloadLink(name,text,type); }
+function downloadLink(name,text,type){ try{ const b=new Blob([text],{type}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1000); return true; }catch(e){ return false; } }
 async function copyText(t){ try{ await navigator.clipboard.writeText(t); return true; }catch(e){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); let ok=false; try{ ok=document.execCommand('copy'); }catch(_){} ta.remove(); return ok; } }
 const DIFF_KO={easy:'쉬움',normal:'보통',hard:'어려움'}, TOPIC_KO={mix:'섞기',virtue:'미덕',study:'교과',village:'마을'}, FEEL_KO={easy:'너무 쉬움',ok:'알맞음',hard:'너무 어려움'};
 function exportMine(){ if(!SLOT) return; save(); const r=recordOf(SLOT), code=encRec(r), fname=`타닥마을_기록_${slotLabel(SLOT).replace(/\s+/g,'_')}_${dateKey()}.json`;
@@ -2199,7 +2202,7 @@ function exportMine(){ if(!SLOT) return; save(); const r=recordOf(SLOT), code=en
   <div class="recsum">${recSumHTML(r.sum)}</div><textarea class="codebox" readonly id="recCode">${code}</textarea><p class="mnote" id="recMsg"></p>
   <div class="foot"><button class="btn sm" data-m="x">닫기</button><div style="display:flex;gap:8px"><button class="btn sm" id="recCopy">코드 복사</button><button class="btn primary sm" id="recFile">파일로 받기</button></div></div>`);
  $('recCopy').onclick=async()=>{ const ok=await copyText(code); $('recMsg').textContent=ok?'복사했어요. 선생님이 알려 준 곳에 붙여 넣어요.':'복사가 안 됐어요. 코드 칸을 눌러 전체 선택한 뒤 복사해요.'; };
- $('recFile').onclick=()=>{ const ok=download(fname,JSON.stringify(r)); $('recMsg').textContent=ok?'파일을 받았어요: '+fname:'이 화면에서는 파일 받기가 막혀 있어요. 코드 복사를 써요.'; };
+ $('recFile').onclick=async()=>{ const ok=await download(fname,JSON.stringify(r)); $('recMsg').textContent=ok?'파일을 받았어요: '+fname:'파일을 받지 못했어요. 코드 복사를 써요.'; };
  $('recCode').onclick=e=>e.target.select(); }
 function recSumHTML(m){ return `<div class="stats"><div class="stat"><small>플레이</small><b>${m.playMin}<em>분</em></b></div><div class="stat"><small>평균 타수</small><b>${m.cpm}</b></div><div class="stat"><small>정확도</small><b>${m.acc}<em>%</em></b></div><div class="stat"><small>캠페인</small><b>${m.chapters}<em>장 · 별 ${m.stars}</em></b></div></div>`; }
 const SAVE_PARTS=['profile','free','camp-ch1','camp-ch2','camp-ch3','camp-ch4','camp-ch5','camp-ch6'];
@@ -2207,7 +2210,7 @@ function exportMove(){ if(!SLOT) return; save(); const items={}; SAVE_PARTS.forE
  const pack={app:'tadak-village-move',v:1,at:new Date().toISOString(),slot:{num:SLOT.num,name:SLOT.name},items}, code='TADAKMOVE1:'+btoa(unescape(encodeURIComponent(JSON.stringify(pack)))), fname=`타닥마을_옮기기_${slotLabel(SLOT).replace(/\s+/g,'_')}.json`;
  showModal(`<h2>다른 컴퓨터로 옮기기</h2><p class="mtext">내 마을, 캠페인 진행, 기록을 통째로 담은 파일이에요. 다른 컴퓨터의 첫 화면에서 "다른 컴퓨터에서 가져오기"를 눌러 불러와요.</p><p class="mnote" id="mvMsg"></p>
   <div class="foot"><button class="btn sm" data-m="x">닫기</button><div style="display:flex;gap:8px"><button class="btn sm" id="mvCopy">코드 복사</button><button class="btn primary sm" id="mvFile">파일로 받기</button></div></div>`);
- $('mvFile').onclick=()=>{ const ok=download(fname,JSON.stringify(pack)); $('mvMsg').textContent=ok?'파일을 받았어요: '+fname:'이 화면에서는 파일 받기가 막혀 있어요. 코드 복사를 써요.'; };
+ $('mvFile').onclick=async()=>{ const ok=await download(fname,JSON.stringify(pack)); $('mvMsg').textContent=ok?'파일을 받았어요: '+fname:'파일을 받지 못했어요. 코드 복사를 써요.'; };
  $('mvCopy').onclick=async()=>{ const ok=await copyText(code); $('mvMsg').textContent=ok?`복사했어요 (${Math.round(code.length/1024)}KB). 메모장이나 학급 게시판에 붙여 두었다가 옮겨요.`:'복사가 안 됐어요. 파일로 받기를 써요.'; }; }
 function importMove(text){ let pack; try{ text=text.trim(); if(text.startsWith('TADAKMOVE1:')) text=decodeURIComponent(escape(atob(text.slice(11)))); pack=JSON.parse(text); if(pack.app!=='tadak-village-move') throw 0; }catch(e){ return '읽을 수 없는 파일이에요. "다른 컴퓨터로 옮기기"로 받은 파일인지 확인해요.'; }
  const all=slotsAll(); let sl=all.find(x=>x.name===pack.slot.name&&(x.num??null)===(pack.slot.num??null));
@@ -2321,7 +2324,7 @@ $('whoCancel').onclick=()=>{ $('whoNew').hidden=true; };
 $('btnSwitch').onclick=()=>{ save(); SLOT=null; S=newState('free'); P=P_DEFAULT(); boot(); showTitle(); };
 $('btnGuest').onclick=()=>{ SLOT=null; P=P_DEFAULT(); S=newState('free'); boot(); $('who').hidden=true; $('tBtns').hidden=false; $('me').hidden=false; $('meName').innerHTML='<b>손님</b> (저장되지 않아요)'; $('btnContinue').hidden=true; };
 $('btnTeacher').onclick=openTeacher; $('tClose').onclick=()=>{ $('teacher').hidden=true; if(!SLOT) renderWho(); };
-$('tCsv').onclick=()=>{ const ok=download(`타닥마을_학급기록_${dateKey()}.csv`,teacherCSV(),'text/csv;charset=utf-8'); $('tMsg').textContent=ok?'CSV를 받았어요. 엑셀에서 바로 열 수 있어요.':'이 화면에서는 파일 받기가 막혀 있어요.'; };
+$('tCsv').onclick=async()=>{ const ok=await download(`타닥마을_학급기록_${dateKey()}.csv`,teacherCSV(),'text/csv;charset=utf-8'); $('tMsg').textContent=ok?'CSV를 받았어요. 엑셀에서 바로 열 수 있어요.':'파일을 받지 못했어요.'; };
 $('tFiles').onchange=async e=>{ const fs=[...e.target.files]; const texts=await Promise.all(fs.map(f=>f.text())); addTeacherRecords(texts); e.target.value=''; };
 $('tPasteGo').onclick=()=>{ addTeacherRecords([$('tPaste').value]); $('tPaste').value=''; };
 $('btnFb').onclick=()=>{ closeSettings(); openFeedback(); }; $('btnMove').onclick=()=>{ closeSettings(); exportMove(); }; $('btnImport').onclick=()=>{ AU.init(); openImport(); }; $('btnExport').onclick=()=>{ closeSettings(); exportMine(); };
