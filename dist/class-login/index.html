@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>학급 로그인 관리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Nanum+Gothic+Coding:wght@700&display=swap">
+<style>
+:root{--paper:#fbf6ea;--paper-2:#f0e7d4;--ink:#2d2925;--ink-2:#5f574c;--ink-3:#a0957f;--line:rgba(45,41,37,.14);--edge:rgba(45,41,37,.86);--accent:#eba416;--accent-ink:#3a2700;--good:#2f9e62;--bad:#c4432f;--sea:#5fb4d0;
+  --shadow:0 0 0 1.5px var(--edge),0 3px 0 1.5px var(--edge),0 14px 24px rgba(14,48,66,.12);--f-ui:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;--f-d:"Bagel Fat One","IBM Plex Sans KR",sans-serif;--f-mono:"Nanum Gothic Coding",ui-monospace,monospace}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--sea);color:var(--ink);font-family:var(--f-ui);font-size:14px}
+main{max-width:1080px;margin:0 auto;padding:20px 16px 60px;display:flex;flex-direction:column;gap:16px}
+.card{background:var(--paper);border-radius:12px;box-shadow:var(--shadow);padding:18px 20px}
+h1{font-family:var(--f-d);font-weight:400;font-size:28px;margin:0}h2{font-size:17px;margin:0 0 10px}h3{font-size:14px;margin:14px 0 6px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+p{margin:0 0 8px;line-height:1.55;color:var(--ink-2)}
+.btn{appearance:none;border:0;cursor:pointer;border-radius:9px;padding:8px 14px;font:inherit;font-weight:600;background:var(--paper-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line),inset 0 -2px 0 rgba(45,41,37,.16)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);box-shadow:0 0 0 1.5px var(--edge),0 2px 0 1.5px var(--edge)}
+.btn.sm{padding:5px 10px;font-size:12.5px}.btn:disabled{opacity:.45;cursor:not-allowed}
+.link{appearance:none;border:0;background:none;color:var(--ink-2);text-decoration:underline;cursor:pointer;font:inherit;font-size:12.5px;padding:0}
+.link.bad{color:var(--bad)}
+input,select,textarea{font:inherit;font-size:14px;border:0;background:var(--paper-2);border-radius:9px;padding:7px 10px;color:var(--ink)}
+textarea{width:100%;min-height:70px;resize:vertical}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.notice{background:#e6f2ea;border-radius:9px;padding:10px 12px;color:#1f5a38;font-size:13px;line-height:1.5}
+.grid{display:grid;grid-template-columns:240px 1fr;gap:16px}
+.cls-list{display:flex;flex-direction:column;gap:6px}
+.cls-list button{appearance:none;border:0;text-align:left;background:var(--paper-2);border-radius:9px;padding:9px 12px;cursor:pointer;font:inherit}
+.cls-list button.on{background:var(--paper);box-shadow:0 0 0 1.5px var(--edge),0 2px 0 1.5px var(--edge)}
+.cls-list small{display:block;color:var(--ink-3);font-family:var(--f-mono)}
+.code{display:flex;gap:14px;align-items:center;background:var(--paper-2);border-radius:10px;padding:10px 14px;margin-bottom:10px}
+.code b{font-family:var(--f-mono);font-size:30px;letter-spacing:.14em}.code small{display:block;font-size:11px;color:var(--ink-2)}
+table{border-collapse:collapse;width:100%;font-size:13px}th{text-align:left;color:var(--ink-2);font-weight:600;padding:6px 8px;background:var(--paper-2);position:sticky;top:0;white-space:nowrap}
+td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:middle;font-variant-numeric:tabular-nums}
+.tbl{overflow:auto;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line);max-height:520px}
+td input.nm{width:120px;background:transparent;box-shadow:inset 0 -1px 0 var(--line);border-radius:0;padding:4px 2px}
+.pic{display:inline-flex;gap:4px;align-items:center}.pic img{width:30px;height:30px;object-fit:contain;background:var(--paper-2);border-radius:7px;padding:2px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}.tabs button{appearance:none;border:0;border-radius:999px;padding:5px 12px;background:var(--paper-2);cursor:pointer;font:inherit;font-size:13px}.tabs button.on{background:var(--ink);color:#fff}
+.props{display:flex;flex-wrap:wrap;gap:6px}.props span{display:inline-flex;gap:6px;align-items:center;background:var(--paper-2);border-radius:8px;padding:4px 9px;font-size:13px}.props em{font-style:normal;font-size:11px;color:var(--ink-3)}
+.msg{font-size:12.5px;color:var(--ink-2);min-height:1em}
+.pk{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pk label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+@media (max-width:820px){.grid{grid-template-columns:1fr}.pk{grid-template-columns:1fr}}
+/* print: login cards only */
+#cards{display:none}
+@media print{body{background:#fff}main{display:none}#cards{display:flex;flex-wrap:wrap;gap:8px;padding:8px}
+ .lc{width:62mm;border:1px dashed #888;border-radius:6px;padding:8px 10px;font-family:var(--f-ui);break-inside:avoid}
+ .lc .t{font-size:11px;color:#555}.lc .n{font-size:20px;font-weight:700}.lc .c{font-family:var(--f-mono);font-size:18px;letter-spacing:.12em}.lc .p{display:flex;gap:6px;margin-top:4px}.lc .p img{width:46px;height:46px}.lc .u{font-size:9px;color:#666;margin-top:4px;word-break:break-all}}
+</style>
+</head>
+<body>
+<main>
+  <section class="card">
+    <div class="top"><h1>학급 로그인 관리</h1><div class="row" id="who"></div></div>
+    <p>학생은 게임 첫 화면에서 <b>학급 코드 + 번호 + 그림 비밀번호(동물 하나, 과일 하나)</b>로 로그인해요. 같은 학급 코드로 이 관리 사이트에 연결된 모든 게임에 들어갈 수 있어요.</p>
+    <div class="notice"><b>학생 이름은 수집하지 않아요.</b> 서버에는 학급 이름, 학생 번호, 그림 비밀번호, 게임 기록만 저장돼요. 아래 표에 적는 학생 이름은 <b>이 컴퓨터의 브라우저에만</b> 저장되고 서버로 보내지 않아요. 다른 컴퓨터에서는 이름 대신 번호만 보여요.</div>
+  </section>
+
+  <section class="card" id="noServer" hidden>
+    <h2>서버가 연결되지 않았어요</h2>
+    <p>이 사이트와 같은 폴더의 <code>server.json</code>에 Supabase 주소와 공개 키를 넣어야 해요. 설정 방법은 SETUP.md를 봐 주세요.</p>
+  </section>
+
+  <section class="card" id="signin" hidden>
+    <h2>로그인</h2>
+    <p>Google 계정으로 로그인하면 바로 학급을 만들 수 있어요. 선생님이 아니어도(학부모, 동아리 지도자 등) 쓸 수 있어요.</p>
+    <button class="btn primary" id="gIn">Google로 로그인</button>
+  </section>
+
+  <section class="grid" id="app" hidden>
+    <aside class="card">
+      <h2>내 학급</h2>
+      <div class="cls-list" id="clsList"></div>
+      <h3>새 학급</h3>
+      <div class="row"><input id="newCls" maxlength="40" placeholder="예: 5학년 2반" style="flex:1;min-width:0"><button class="btn sm" id="addCls">만들기</button></div>
+    </aside>
+    <div class="card" id="clsPanel"><p>왼쪽에서 학급을 고르거나 새로 만들어요.</p></div>
+  </section>
+</main>
+<div id="cards"></div>
+
+<script src="classlogin.js"></script>
+<script>
+(async () => {
+'use strict';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let cfg = null; try { cfg = await (await fetch('server.json', {cache:'no-store'})).json(); } catch (e) {}
+try { const o = JSON.parse(localStorage.getItem('class-login-server') || 'null'); if (o && o.url) cfg = o; } catch (e) {}
+if (!cfg || !cfg.url || !cfg.key) { $('noServer').hidden = false; return; }
+const CL = ClassLogin.init({url: cfg.url, key: cfg.key, app: 'admin'}), T = CL.teacher;
+const GAMES = cfg.games || [{app:'island', title:'이름을 쓰는 섬', url:'https://ggcrunch00.github.io/tadak-village/'}];
+const gameTitle = app => (GAMES.find(g => g.app === app) || {}).title || app;
+await T.handleRedirect();
+let CLS = [], SEL = null, ROSTER = [], APP = GAMES[0] && GAMES[0].app;
+const names = id => { try { return JSON.parse(localStorage.getItem('cl-names:' + id) || '{}'); } catch (e) { return {}; } };
+const setName = (id, num, v) => { const m = names(id); if (v) m[num] = v.slice(0, 20); else delete m[num]; localStorage.setItem('cl-names:' + id, JSON.stringify(m)); };
+const picHTML = s => { const p = CL.parseSecret(s); return p ? `<span class="pic">${CL.icon('a', p[0])}${CL.icon('f', p[1])}</span>` : ''; };
+const when = t => t ? new Date(t).toLocaleString('ko-KR', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '-';
+
+function renderWho() { const s = T.session();
+  $('who').innerHTML = s ? `<span>${esc(s.email || '로그인됨')}</span><button class="link" id="out">로그아웃</button>` : '';
+  if (s) $('out').onclick = () => { T.signOut(); location.reload(); };
+  $('signin').hidden = !!s; $('app').hidden = !s; }
+$('gIn').onclick = () => T.signIn(location.href.split('#')[0]);
+renderWho(); if (!T.session()) return;
+
+async function loadClasses() {
+  try { CLS = await T.get('/rest/v1/cl_classes?select=id,name,code,created_at&order=created_at'); }
+  catch (e) { if (e.code === 'auth') { T.signOut(); renderWho(); return; } $('clsList').innerHTML = `<p>학급을 불러오지 못했어요: ${esc(e.msg || e.code)}</p>`; return; }
+  if (!SEL && CLS.length) SEL = CLS[0].id; renderList(); renderClass(); }
+function renderList() { $('clsList').innerHTML = CLS.length ? CLS.map(c => `<button data-c="${c.id}" class="${c.id === SEL ? 'on' : ''}">${esc(c.name)}<small>${c.code}</small></button>`).join('') : '<p>아직 학급이 없어요.</p>';
+  $('clsList').querySelectorAll('[data-c]').forEach(b => b.onclick = () => { SEL = b.dataset.c; renderList(); renderClass(); }); }
+$('addCls').onclick = async () => { const n = $('newCls').value.trim(); if (!n) return;
+  try { const r = await T.post('/rest/v1/cl_classes', {name: n}, 'return=representation'); CLS.push(r[0]); SEL = r[0].id; $('newCls').value = ''; renderList(); renderClass(); }
+  catch (e) { alert('학급을 만들지 못했어요: ' + (e.msg || e.code)); } };
+
+async function renderClass() { const c = CLS.find(x => x.id === SEL), P = $('clsPanel'); if (!c) { P.innerHTML = '<p>왼쪽에서 학급을 고르거나 새로 만들어요.</p>'; return; }
+  P.innerHTML = `<div class="top"><h2>${esc(c.name)}</h2><span class="row"><button class="link" id="ren">이름 바꾸기</button><button class="link bad" id="delCls">학급 지우기</button></span></div>
+   <div class="code"><div><small>학급 코드</small><b>${c.code}</b></div><p style="margin:0">학생은 게임 첫 화면의 "학급으로 로그인"에 이 코드와 자기 번호를 넣고, 아래 그림 두 개를 눌러요.</p></div>
+   <div class="row"><span>학생 추가: 1번부터</span><input id="upto" inputmode="numeric" maxlength="2" value="25" style="width:60px"><span>번까지</span><button class="btn sm" id="addStu">추가</button><button class="btn sm" id="print">로그인 카드 인쇄</button><span class="msg" id="cMsg"></span></div>
+   <h3>학생 (이름은 이 컴퓨터에만 저장)</h3><div class="tbl" id="roster">불러오는 중...</div>
+   <h3>게임 기록</h3><div class="tabs" id="tabs"></div><div id="recs" class="tbl" style="max-height:none"></div><div id="props"></div>
+   <h3>글감 보내기 <small style="font-weight:400;color:var(--ink-2)">(타자 게임용 낱말, 문장, 긴 글, 영단어)</small></h3>
+   <div class="pk"><label>제목<input id="pkT" maxlength="30"></label><label>낱말 (띄어쓰기로 구분)<textarea id="pkW"></textarea></label><label>문장 (한 줄에 하나)<textarea id="pkS"></textarea></label><label>긴 글 (한 줄에 한 행)<textarea id="pkL"></textarea></label><label>영단어 (한 줄에 "단어=뜻")<textarea id="pkE"></textarea></label></div>
+   <div class="row" style="margin-top:8px"><button class="btn primary sm" id="pkSend">이 학급에 보내기</button><button class="btn sm" id="pkLoad">보낸 글감 불러오기</button><span class="msg" id="pkMsg"></span></div>`;
+  $('ren').onclick = async () => { const n = prompt('새 학급 이름', c.name); if (!n) return; try { await T.patch('/rest/v1/cl_classes?id=eq.' + c.id, {name: n.slice(0, 40)}); c.name = n.slice(0, 40); renderList(); renderClass(); } catch (e) { alert('바꾸지 못했어요'); } };
+  $('delCls').onclick = async () => { if (prompt(`학급과 학생, 기록이 모두 지워져요. 지우려면 학급 코드 ${c.code} 를 입력하세요.`) !== c.code) return; try { await T.del('/rest/v1/cl_classes?id=eq.' + c.id); localStorage.removeItem('cl-names:' + c.id); CLS = CLS.filter(x => x.id !== c.id); SEL = CLS[0] && CLS[0].id; renderList(); renderClass(); } catch (e) { alert('지우지 못했어요'); } };
+  $('addStu').onclick = async () => { const n = Math.min(99, parseInt($('upto').value, 10) || 0); if (n < 1) return; try { await T.rpc('cl_add_students', {p_class: c.id, p_nums: Array.from({length: n}, (_, i) => i + 1)}); $('cMsg').textContent = '추가했어요. 이미 있던 번호는 그대로예요.'; loadRoster(c); } catch (e) { $('cMsg').textContent = '추가하지 못했어요: ' + (e.msg || e.code); } };
+  $('print').onclick = () => printCards(c);
+  $('pkSend').onclick = () => sendPack(c); $('pkLoad').onclick = () => loadPack(c);
+  await loadRoster(c); renderTabs(c); }
+
+async function loadRoster(c) { const el = $('roster');
+  try { ROSTER = await T.get(`/rest/v1/cl_students?select=id,num,secret,last_seen,locked_until&class_id=eq.${c.id}&order=num`); } catch (e) { el.textContent = '학생을 불러오지 못했어요.'; return; }
+  const nm = names(c.id);
+  el.innerHTML = ROSTER.length ? `<table><thead><tr><th>번호</th><th>이름 (이 컴퓨터에만)</th><th>그림 비밀번호</th><th>마지막 접속</th><th></th></tr></thead><tbody>${ROSTER.map(s => `<tr><td>${s.num}</td><td><input class="nm" data-n="${s.num}" value="${esc(nm[s.num] || '')}" placeholder="이름 (선택)"></td><td>${picHTML(s.secret)}</td><td>${when(s.last_seen)}${s.locked_until && new Date(s.locked_until) > new Date() ? ' (잠김)' : ''}</td><td><button class="link" data-re="${s.id}">그림 바꾸기</button> <button class="link bad" data-del="${s.id}">지우기</button></td></tr>`).join('')}</tbody></table>` : '<p style="padding:10px">아직 학생이 없어요. 위에서 "추가"를 눌러요.</p>';
+  el.querySelectorAll('input.nm').forEach(i => i.onchange = () => setName(c.id, i.dataset.n, i.value.trim()));
+  el.querySelectorAll('[data-re]').forEach(b => b.onclick = async () => { try { await T.rpc('cl_set_secret', {p_student: b.dataset.re}); loadRoster(c); } catch (e) { alert('바꾸지 못했어요'); } });
+  el.querySelectorAll('[data-del]').forEach(b => b.onclick = async () => { if (b.dataset.arm !== '1') { b.dataset.arm = '1'; b.textContent = '정말 지우기 (기록도 지워져요)'; return; } try { await T.del('/rest/v1/cl_students?id=eq.' + b.dataset.del); loadRoster(c); } catch (e) { alert('지우지 못했어요'); } }); }
+
+function printCards(c) { const nm = names(c.id), games = GAMES.map(g => g.url).join('  ');
+  $('cards').innerHTML = ROSTER.map(s => { const p = CL.parseSecret(s.secret); return `<div class="lc"><div class="t">${esc(c.name)}</div><div class="n">${s.num}번 ${esc(nm[s.num] || '')}</div><div class="t">학급 코드</div><div class="c">${c.code}</div><div class="t">그림 비밀번호</div><div class="p">${p ? CL.icon('a', p[0]) + CL.icon('f', p[1]) : ''}</div><div class="u">${esc(games)}</div></div>`; }).join('');
+  setTimeout(() => window.print(), 300); }
+
+function renderTabs(c) { $('tabs').innerHTML = GAMES.map(g => `<button data-a="${g.app}" class="${g.app === APP ? 'on' : ''}">${esc(g.title)}</button>`).join('');
+  $('tabs').querySelectorAll('[data-a]').forEach(b => b.onclick = () => { APP = b.dataset.a; renderTabs(c); });
+  loadRecords(c); }
+async function loadRecords(c) { const el = $('recs'), pr = $('props'); el.innerHTML = '불러오는 중...'; pr.innerHTML = '';
+  if (!ROSTER.length) { el.innerHTML = '<p style="padding:10px">학생이 없어요.</p>'; return; }
+  let rows; try { rows = await T.get(`/rest/v1/cl_saves?select=student_id,data,updated_at&app=eq.${APP}&part=eq.summary&student_id=in.(${ROSTER.map(s => s.id).join(',')})`); } catch (e) { el.textContent = '기록을 불러오지 못했어요.'; return; }
+  const by = {}; rows.forEach(r => by[r.student_id] = r); const nm = names(c.id);
+  const cols = []; rows.forEach(r => [...((r.data && r.data.cols) || []), ...Object.keys((r.data && r.data.fields) || {})].forEach(k => { if (!cols.includes(k)) cols.push(k); })); // 게임이 보낸 열 순서를 먼저 따름
+  el.innerHTML = `<table><thead><tr><th>번호</th><th>이름</th>${cols.map(k => `<th>${esc(k)}</th>`).join('')}<th>마지막 저장</th></tr></thead><tbody>${ROSTER.map(s => { const d = (by[s.id] && by[s.id].data) || {}; const f = d.fields || {};
+    return `<tr><td>${s.num}</td><td>${esc(nm[s.num] || '')}</td>${cols.map(k => `<td>${esc(f[k] ?? '')}</td>`).join('')}<td>${by[s.id] ? when(by[s.id].updated_at) : '-'}</td></tr>`; }).join('')}</tbody></table>` + (rows.length ? `<div class="row" style="padding:8px"><button class="btn sm" id="csv">CSV 받기</button></div>` : '<p style="padding:10px">아직 이 게임 기록이 없어요.</p>');
+  const cb = $('csv'); if (cb) cb.onclick = () => { const q = v => { v = String(v ?? ''); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    const lines = [['번호', '이름', ...cols].join(','), ...ROSTER.map(s => { const f = ((by[s.id] || {}).data || {}).fields || {}; return [s.num, nm[s.num] || '', ...cols.map(k => f[k] ?? '')].map(q).join(','); })];
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + lines.join('\r\n')], {type: 'text/csv'})); a.download = `${c.name}_${gameTitle(APP)}_기록.csv`; a.click(); };
+  // 학생이 보낸 낱말 제안 (summary.proposals)
+  const pack = await getPack(c) || {}; const ok = new Set(pack.approved || []), no = new Set(pack.rejected || []); const props = [];
+  ROSTER.forEach(s => (((by[s.id] || {}).data || {}).proposals || []).forEach(t => { if (!ok.has(t) && !no.has(t)) props.push({s, t}); }));
+  if (props.length) { pr.innerHTML = `<h3>학생이 보낸 낱말 제안</h3><div class="props">${props.map((r, k) => `<span>${esc(r.t)}<em>${r.s.num}번 ${esc(nm[r.s.num] || '')}</em><button class="link" data-y="${k}">넣기</button><button class="link" data-x="${k}">빼기</button></span>`).join('')}</div>`;
+    const decide = async (k, yes) => { const r = props[k], d = await getPack(c) || {title: '우리 반 낱말', words: [], sents: [], lines: [], eng: []}; d.approved = d.approved || []; d.rejected = d.rejected || [];
+      if (yes) { d.approved.push(r.t); if (/\s/.test(r.t) && [...r.t].length > 6) { d.sents = d.sents || []; if (!d.sents.includes(r.t)) d.sents.push(r.t); } else { d.words = d.words || []; if (!d.words.includes(r.t)) d.words.push(r.t); } } else d.rejected.push(r.t);
+      await putPack(c, d); loadRecords(c); };
+    pr.querySelectorAll('[data-y]').forEach(b => b.onclick = () => decide(+b.dataset.y, true)); pr.querySelectorAll('[data-x]').forEach(b => b.onclick = () => decide(+b.dataset.x, false)); } }
+
+async function getPack(c) { try { const r = await T.get(`/rest/v1/cl_packs?select=data&class_id=eq.${c.id}&app=eq.${APP}`); return r[0] ? r[0].data : null; } catch (e) { return null; } }
+async function putPack(c, d) { await T.post('/rest/v1/cl_packs?on_conflict=class_id,app', {class_id: c.id, app: APP, data: d}, 'resolution=merge-duplicates'); }
+async function sendPack(c) { const prev = await getPack(c) || {};
+  const d = {title: $('pkT').value.trim() || '선생님 글감', words: [...new Set($('pkW').value.split(/[\s,]+/).filter(Boolean))].slice(0, 300), sents: $('pkS').value.split(/\n+/).map(x => x.trim()).filter(Boolean).slice(0, 200),
+    lines: $('pkL').value.split(/\n+/).map(x => x.trim()).filter(Boolean).slice(0, 40), eng: $('pkE').value.split(/\n+/).map(x => x.split(/\s*[=:]\s*/)).filter(x => /^[a-zA-Z' -]{2,20}$/.test((x[0] || '').trim())).map(x => [x[0].trim().toLowerCase(), (x[1] || '').trim()]).slice(0, 200),
+    approved: prev.approved || [], rejected: prev.rejected || []};
+  try { await putPack(c, d); $('pkMsg').textContent = `${gameTitle(APP)}에 보냈어요. 학생이 다음에 로그인하면 바뀌어요.`; } catch (e) { $('pkMsg').textContent = '보내지 못했어요: ' + (e.msg || e.code); } }
+async function loadPack(c) { const d = await getPack(c); if (!d) { $('pkMsg').textContent = '아직 보낸 글감이 없어요.'; return; }
+  $('pkT').value = d.title || ''; $('pkW').value = (d.words || []).join(' '); $('pkS').value = (d.sents || []).join('\n'); $('pkL').value = (d.lines || []).join('\n'); $('pkE').value = (d.eng || []).map(x => x[0] + '=' + x[1]).join('\n'); $('pkMsg').textContent = '불러왔어요.'; }
+
+loadClasses();
+})();
+</script>
+</body>
+</html>

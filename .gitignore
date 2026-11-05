@@ -4,3 +4,4 @@ __pycache__/
 .DS_Store
 # build.py가 만드는 아티팩트용 사본 (배포본은 dist/)
 /index.html
+spr_*.png

@@ -16,6 +16,9 @@ srv_path=root/'server.json'
 srv=json.loads(srv_path.read_text()) if srv_path.exists() else None
 srv=srv if srv and srv.get('url') and srv.get('key') else None
 out=src.replace('/*__PH__*/',ph).replace('/*__SPRITES__*/','const SPRITE_DATA='+json.dumps(spr)+';').replace('/*__SERVER__*/','const SERVER_CFG='+json.dumps(srv)+';')
+# 공용 학급 로그인 모듈(class-login/classlogin.js)을 한 파일 안에 넣음
+cl_path=root/'class-login'/'classlogin.js'
+out=out.replace('/*__CLASSLOGIN__*/', cl_path.read_text(encoding='utf-8') if cl_path.exists() else '')
 (root/'index.html').write_text(out,encoding='utf-8')
 print('built', len(out)//1024, 'KB')
 
@@ -30,3 +33,13 @@ page=('<!doctype html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n'
 (dist/'index.html').write_text(page,encoding='utf-8')
 with zipfile.ZipFile(dist/'tadak-village-web.zip','w',zipfile.ZIP_DEFLATED) as z: z.write(dist/'index.html','index.html')
 print('dist ready', (dist/'index.html').stat().st_size//1024, 'KB')
+
+# 학급 로그인 관리 사이트(class-login)를 임시로 이 게임 사이트의 /class-login/ 에 함께 배포
+# (공용 저장소 ggcrunch00/class-login 이 생기면 그쪽으로 옮김)
+import shutil
+cl=root/'class-login'
+if (cl/'classlogin.js').exists():
+    out_dir=dist/'class-login'; out_dir.mkdir(exist_ok=True)
+    for f in ('index.html','classlogin.js'): shutil.copy(cl/f, out_dir/f)
+    if srv: (out_dir/'server.json').write_text(json.dumps({**srv,'games':[{'app':'island','title':'이름을 쓰는 섬','url':'https://ggcrunch00.github.io/tadak-village/'}]},ensure_ascii=False))
+    print('class-login site copied')

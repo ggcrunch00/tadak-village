@@ -302,11 +302,11 @@ body.big .tx .next,body.big .tx .prev{font-size:18px}
 .modal .ver{font-size:12px;color:var(--ink-3);margin-top:12px}
 
 /* title */
-.title{position:fixed;inset:0;z-index:100;display:flex;align-items:flex-end;padding:0 var(--gxr) calc(var(--gb) + 6vh) calc(var(--gx) + 3vw);
+.title{position:fixed;inset:0;z-index:100;display:flex;align-items:flex-start;padding:0 var(--gxr) calc(var(--gb) + 6vh) calc(var(--gx) + 3vw);
   background:linear-gradient(90deg,rgba(14,40,58,.62) 0%,rgba(14,40,58,.28) 42%,rgba(14,40,58,0) 70%)}
 .title.out{animation:titleOut .5s ease forwards}
 @keyframes titleOut{to{opacity:0;visibility:hidden}}
-.t-inner{display:flex;flex-direction:column;gap:14px;max-width:520px}
+.t-inner{display:flex;flex-direction:column;gap:14px;max-width:520px;margin-top:auto;padding-top:calc(var(--gt) + 8px)} /* 화면보다 길면 위에서부터 보이고 스크롤 */
 .t-name{font-family:var(--f-display);font-size:clamp(40px,6.4vw,76px);line-height:1;color:var(--ink)}
 /* 로고: 글자 하나하나가 눌리는 키캡. "섬"만 강조색 */
 .t-row{display:flex;gap:.07em;margin-bottom:.14em}
@@ -326,7 +326,8 @@ body.big .tx .next,body.big .tx .prev{font-size:18px}
 
 
 /* students, records, feedback, teacher */
-.cloudbox{margin-bottom:10px}.cl-row{display:flex;gap:6px;flex-wrap:wrap}.cl-row input{font:inherit;font-size:14px;border:0;background:var(--paper-2);border-radius:10px;padding:8px 10px;min-width:0;width:96px}.cl-row #clNum{width:64px}.cl-row #clPin{width:96px;letter-spacing:.2em}
+.cloudbox{margin-bottom:6px}.localopen{margin:0;font-size:12.5px;color:#e4ecf3}.localopen .linkbtn{color:#fff;font-size:12.5px}
+.title{overflow:auto}.cl-row{display:flex;gap:6px;flex-wrap:wrap}.cl-row input{font:inherit;font-size:14px;border:0;background:var(--paper-2);border-radius:10px;padding:8px 10px;min-width:0;width:96px}.cl-row #clNum{width:64px}.cl-row #clPin{width:96px;letter-spacing:.2em}
 .me .cls{font-size:12px;background:rgba(251,246,234,.92);color:var(--ink);border-radius:6px;padding:1px 7px;text-shadow:none}
 .whobox{background:var(--paper);border-radius:var(--r-surface);padding:14px;box-shadow:var(--shadow);width:min(520px,calc(100vw - 32px))}
 .who-h{display:flex;flex-direction:column;gap:2px;margin-bottom:10px}
@@ -601,11 +602,11 @@ body.storying .objtrack{opacity:.4}
     <div class="t-name" aria-label="이름을 쓰는 섬"><div class="t-row"><span>이</span><span style="animation-delay:.06s">름</span><span style="animation-delay:.12s">을</span></div><div class="t-row"><span style="animation-delay:.22s">쓰</span><span style="animation-delay:.28s">는</span><span class="isle" style="animation-delay:.4s">섬</span></div></div>
     <div class="t-sub">말결 군도 이야기</div>
     <div class="t-tag">나무라고 치면 나무가 생기는 섬. 글자로 마을을 지어요.</div>
-    <form class="whobox cloudbox" id="cloudBox" hidden autocomplete="off">
-      <div class="who-h"><b>학급으로 로그인</b><span>선생님이 알려 준 학급 코드, 내 번호, 비밀번호 4자리를 넣어요.</span></div>
-      <div class="cl-row"><input id="clCode" maxlength="6" placeholder="학급 코드" autocapitalize="characters"><input id="clNum" inputmode="numeric" maxlength="2" placeholder="번호"><input id="clPin" inputmode="numeric" maxlength="4" placeholder="비밀번호" type="password"><button class="btn primary sm" type="submit">로그인</button></div>
-      <p class="mnote" id="clMsg"></p>
-    </form>
+    <div class="whobox cloudbox" id="cloudBox" hidden>
+      <div class="who-h"><b>학급으로 로그인</b><span>선생님이 알려 준 학급 코드와 내 번호를 넣고, 내 그림 비밀번호(동물 하나, 과일 하나)를 눌러요.</span></div>
+      <div id="clMount"></div>
+    </div>
+    <p class="localopen" id="localOpen" hidden><button class="linkbtn" id="btnLocal">학급 로그인 없이 이 컴퓨터에 저장하며 하기</button> · <button class="linkbtn" id="btnTeacher2">선생님 화면</button></p>
     <div class="whobox" id="who">
       <div class="who-h"><b>누가 플레이하나요?</b><span>내 번호와 이름을 골라요. 처음이면 새로 만들어요.</span></div>
       <div class="who-list" id="whoList"></div>
@@ -623,6 +624,7 @@ body.storying .objtrack{opacity:.4}
   </div>
 </div>
 
+<script>/*__CLASSLOGIN__*/</script>
 <script>
 (() => {
 'use strict';
@@ -688,52 +690,36 @@ const PACK_KEY='tadak-teacher-pack-v1';
 // ================= 학급 서버 (Supabase REST, 라이브러리 없이 fetch) =================
 const SRV_KEY='tadak-server-v1', TSESS_KEY='tadak-teacher-session', CSESS_KEY='tadak-cloud-session';
 let CLOUD_PACK=null;
+// 공용 학급 로그인(class-login) 모듈을 씀. 게임 이름(app)은 'island'.
 const CLOUD={
  cfg(){ try{ const o=JSON.parse(localStorage.getItem(SRV_KEY)||'null'); if(o&&o.url&&o.key) return o; }catch(e){} return (typeof SERVER_CFG!=='undefined'&&SERVER_CFG&&SERVER_CFG.url&&SERVER_CFG.key)?SERVER_CFG:null; },
- on(){ return !!this.cfg(); },
- async req(path,{method='GET',body,token,prefer}={}){ const c=this.cfg(); if(!c) throw {code:'no_server'}; const h={apikey:c.key,Authorization:'Bearer '+(token||c.key),'Content-Type':'application/json'}; if(prefer) h.Prefer=prefer;
-  let r; try{ r=await fetch(c.url.replace(/\/+$/,'')+path,{method,headers:h,body:body===undefined?undefined:JSON.stringify(body)}); }catch(e){ throw {code:'offline'}; }
-  const txt=await r.text(); let j=null; try{ j=txt?JSON.parse(txt):null; }catch(e){}
-  if(!r.ok) throw {code:r.status===401?'auth':'http', status:r.status, msg:(j&&(j.msg||j.message||j.error_description||j.error))||txt};
-  return j; },
- rpc(fn,args,token){ return this.req('/rest/v1/rpc/'+fn,{method:'POST',body:args,token}); },
- // 학생
- login(code,num,pin){ return this.rpc('student_login',{p_code:code,p_num:num,p_pin:pin}); },
- load(tok){ return this.rpc('student_load',{p_token:tok}); },
- save(tok,part,data){ return this.rpc('student_save',{p_token:tok,p_part:part,p_data:data}); },
- logout(tok){ return this.rpc('student_logout',{p_token:tok}).catch(()=>null); },
- // 선생님
- tsess(){ try{ return JSON.parse(localStorage.getItem(TSESS_KEY)||'null'); }catch(e){ return null; } },
- setT(j){ if(!j){ localStorage.removeItem(TSESS_KEY); return null; } const o={access_token:j.access_token,refresh_token:j.refresh_token,expires_at:Date.now()+((j.expires_in||3600)-60)*1000,email:(j.user&&j.user.email)||(this.tsess()||{}).email}; localStorage.setItem(TSESS_KEY,JSON.stringify(o)); return o; },
- async signIn(email,pw){ return this.setT(await this.req('/auth/v1/token?grant_type=password',{method:'POST',body:{email,password:pw}})); },
- async signUp(email,pw){ const j=await this.req('/auth/v1/signup',{method:'POST',body:{email,password:pw}}); if(j&&j.access_token) return this.setT(j); return null; },
- signOut(){ this.setT(null); },
- async tok(){ let t=this.tsess(); if(!t) throw {code:'auth'}; if(Date.now()>t.expires_at){ try{ t=this.setT(await this.req('/auth/v1/token?grant_type=refresh_token',{method:'POST',body:{refresh_token:t.refresh_token}})); }catch(e){ this.setT(null); throw {code:'auth'}; } } return t.access_token; },
- async t(path,opt={}){ return this.req(path,{...opt,token:await this.tok()}); },
- async trpc(fn,args){ return this.rpc(fn,args,await this.tok()); }
+ on(){ return !!this.cfg()&&typeof ClassLogin!=='undefined'; },
+ init(){ const c=this.cfg(); if(c&&typeof ClassLogin!=='undefined') ClassLogin.init({url:c.url,key:c.key,app:'island'}); },
+ dashboard(){ const c=this.cfg(); return (c&&c.dashboard)||'https://ggcrunch00.github.io/tadak-village/class-login/'; }
 };
 const PART_OF=id=>id==='free'?'free':'camp-'+id;
-function cloudSess(){ try{ return JSON.parse(sessionStorage.getItem(CSESS_KEY)||'null'); }catch(e){ return null; } }
+function cloudSess(){ return typeof ClassLogin!=='undefined'?ClassLogin.session():null; }
 function cloudDirty(){ try{ return JSON.parse(LS.get(nsKey('_dirty'))||'{}'); }catch(e){ return {}; } }
 function markDirty(parts){ const d=cloudDirty(); parts.forEach(x=>d[x]=Date.now()); LS.set(nsKey('_dirty'),JSON.stringify(d)); }
 let syncT=null, syncing=false, lastSyncAt=0, syncErr='';
 function scheduleSync(ms=8000){ clearTimeout(syncT); syncT=setTimeout(syncNow,ms); }
 async function syncNow(){ if(!SLOT||!SLOT.cloud||syncing) return; const ss=cloudSess(); if(!ss) return; syncing=true; clearTimeout(syncT);
  try{ const d=cloudDirty(); for(const part of Object.keys(d)){ const raw=LS.get(nsKey(part)); if(raw==null){ delete d[part]; continue; }
-   const r=await CLOUD.save(ss.token,part,JSON.parse(raw)); if(r&&r.ok){ delete d[part]; } else if(r&&r.error==='bad_token'){ syncErr='login'; toast('학급 로그인이 끝났어요. 다시 로그인하면 이어서 저장돼요'); break; } }
-  LS.set(nsKey('_dirty'),JSON.stringify(d)); if(!Object.keys(d).length){ lastSyncAt=Date.now(); syncErr=''; } }
+   const r=await ClassLogin.save(part,JSON.parse(raw)); if(r&&r.ok){ delete d[part]; } else if(r&&r.error==='bad_token'){ syncErr='login'; toast('학급 로그인이 끝났어요. 다시 로그인하면 이어서 저장돼요'); break; } }
+  LS.set(nsKey('_dirty'),JSON.stringify(d)); if(!Object.keys(d).length){ lastSyncAt=Date.now(); syncErr=''; await ClassLogin.save('summary',islandSummary()).catch(()=>null); } }
  catch(e){ syncErr=e.code==='offline'?'offline':'error'; }
  syncing=false; }
+// 관리 사이트의 "게임 기록" 표에 보이는 요약 (이름 없음)
+function islandSummary(){ const m=profileSummary(P,{num:SLOT&&SLOT.num,name:''});
+ return {title:'이름을 쓰는 섬',fields:{'플레이(분)':m.playMin,'평균 타수':m.cpm,'최고 타수':m.best,'정확도(%)':m.acc,'입력 수':m.items,'끝낸 장':m.chapters,'별':m.stars,'난이도':DIFF_KO[m.diff]||m.diff,'재미':m.fun,'어려움':FEEL_KO[m.feel]||m.feel,'소감':m.note,'마지막 날':m.last},
+  cols:['플레이(분)','평균 타수','최고 타수','정확도(%)','입력 수','끝낸 장','별','난이도','재미','어려움','소감','마지막 날'],
+  proposals:(P.props||[]).filter(x=>x.st==='wait').map(x=>x.t).slice(0,20)}; }
 function syncStatus(){ if(!SLOT||!SLOT.cloud) return ''; if(syncErr==='offline') return '학급 서버에 닿지 않아요. 이 컴퓨터에 저장해 두었다가 다시 보내요'; if(syncErr==='login') return '다시 로그인해야 서버에 저장돼요'; if(syncErr) return '서버 저장 중 문제가 생겼어요. 이 컴퓨터에는 저장돼 있어요'; return lastSyncAt?'학급 서버에 저장됨 '+new Date(lastSyncAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}):'학급 서버와 연결됨'; }
 function applyPackStatus(){ if(!CLOUD_PACK||!P.props) return; const ok=new Set([...(CLOUD_PACK.approved||[])]), no=new Set(CLOUD_PACK.rejected||[]); P.props.forEach(x=>{ if(x.st==='wait'){ if(ok.has(x.t)) x.st='ok'; else if(no.has(x.t)) x.st='no'; } }); }
-async function cloudLogin(code,num,pin){ const r=await CLOUD.login(code,num,pin);
- if(!r||!r.ok) return r||{ok:false,error:'unknown'};
- sessionStorage.setItem(CSESS_KEY,JSON.stringify({token:r.token,student:r.student,cls:r.class}));
- const sl={id:'c_'+r.student.id,num:r.student.num,name:r.student.name,cloud:true,cls:r.class.name};
- await cloudPull(sl,r.token); useSlot(sl); return {ok:true}; }
-async function cloudPull(sl,token){ const prev=SLOT; SLOT=sl; try{ const L=await CLOUD.load(token); if(L&&L.ok){ const dirty=cloudDirty(); for(const part in (L.parts||{})){ if(!dirty[part]) LS.set(nsKey(part),JSON.stringify(L.parts[part])); } CLOUD_PACK=L.pack||null; for(const k in _pool) delete _pool[k]; packApply(); } }catch(e){ syncErr=e.code==='offline'?'offline':'error'; } SLOT=prev; }
-async function cloudLogout(){ const ss=cloudSess(); if(SLOT&&SLOT.cloud){ save(); await syncNow(); const id=SLOT.id; if(!Object.keys(cloudDirty()).length) ['profile','free','camp-toy','camp-ch1','camp-ch2','camp-ch3','camp-ch4','camp-ch5','camp-ch6','_dirty'].forEach(k=>LS.del(`tadak@${id}/${k}`)); /* 못 보낸 것이 있으면 이 컴퓨터에 남겨 두고 다음 로그인 때 보냄 */ }
- if(ss) CLOUD.logout(ss.token); sessionStorage.removeItem(CSESS_KEY); CLOUD_PACK=null; for(const k in _pool) delete _pool[k]; packApply(); }
+async function cloudEnter(ss){ const sl={id:'c_'+ss.student.id,num:ss.student.num,name:'',cloud:true,cls:ss.cls&&ss.cls.name}; await cloudPull(sl); useSlot(sl); }
+async function cloudPull(sl){ const prev=SLOT; SLOT=sl; try{ const L=await ClassLogin.load(); if(L&&L.ok){ const dirty=cloudDirty(); for(const part in (L.parts||{})){ if(part!=='summary'&&!dirty[part]) LS.set(nsKey(part),JSON.stringify(L.parts[part])); } CLOUD_PACK=L.pack||null; for(const k in _pool) delete _pool[k]; packApply(); } }catch(e){ syncErr=e.code==='offline'?'offline':'error'; } SLOT=prev; }
+async function cloudLogout(){ const ss=cloudSess(); if(SLOT&&SLOT.cloud){ save(); await syncNow(); const id=SLOT.id; if(!Object.keys(cloudDirty()).length){ try{ Object.keys(localStorage).filter(k=>k.startsWith(`tadak@${id}/`)).forEach(k=>LS.del(k)); }catch(e){} } /* 못 보낸 것이 있으면 이 컴퓨터에 남겨 두고 다음 로그인 때 보냄 */ }
+ SLOT=null; /* 로그아웃을 기다리는 동안 자동 저장이 캐시를 다시 쓰지 않게 */ if(ss) await ClassLogin.logout(); CLOUD_PACK=null; for(const k in _pool) delete _pool[k]; packApply(); }
 function packGet(){ if(SLOT&&SLOT.cloud&&CLOUD_PACK){ const d=CLOUD_PACK; const n={title:d.title||'선생님 글감',words:d.words||[],sents:d.sents||[],lines:d.lines||[],eng:d.eng||[]}; if(n.words.length||n.sents.length||n.lines.length||n.eng.length) return n; } return packGetLocal(); }
 function packGetLocal(){ try{ const d=JSON.parse(localStorage.getItem(PACK_KEY)||'null'); return d&&(d.words.length||d.sents.length||d.lines.length||d.eng.length)?d:null; }catch(e){ return null; } }
 function packParse(o){ const clean=t=>String(t||'').replace(/[<>]/g,'').trim(); const words=[...new Set(clean(o.words).split(/[\s,]+/).filter(w=>w&&[...w].length<=12))].slice(0,300);
@@ -1123,7 +1109,7 @@ const LS={ get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; 
 function slotsAll(){ try{ return JSON.parse(LS.get(SLOTS_KEY)||'[]'); }catch(e){ return []; } }
 function slotsSave(a){ LS.set(SLOTS_KEY,JSON.stringify(a)); }
 function slotSort(a){ return a.slice().sort((x,y)=>(x.num??999)-(y.num??999)||String(x.name).localeCompare(String(y.name),'ko')); }
-function slotLabel(sl){ return (sl.num!=null&&sl.num!==''?sl.num+'번 ':'')+sl.name; }
+function slotLabel(sl){ return ((sl.num!=null&&sl.num!==''?sl.num+'번 ':'')+(sl.name||'')).trim(); }
 // 예전(학생 칸이 없던 때) 저장을 첫 번째 칸으로 옮기기. 원래 키는 지우지 않음
 function migrateLegacySlots(){ if(slotsAll().length) return; const legacy=LS.get(PROFILE_KEY)||LS.get('tadak-village-v2'); if(!legacy) return;
  const sl={id:'s'+Date.now().toString(36),num:null,name:'처음 영주',made:Date.now(),last:Date.now()};
@@ -2384,56 +2370,9 @@ function renderProps(){ const rows=[]; slotsAll().forEach(sl=>{ let pr; try{ pr=
   if(ok){ const d=packGet()||packParse({}); const isSent=/\s/.test(r.t)&&[...r.t].length>6; if(isSent){ if(!d.sents.includes(r.t)) d.sents.push(r.t); } else if(!d.words.includes(r.t)) d.words.push(r.t); if(!packGet()) d.title='우리 반 낱말'; packSave(d); fillPackForm(); }
   renderProps(); };
  $('tProps').querySelectorAll('[data-pa]').forEach(b=>b.onclick=()=>decide(+b.dataset.pa,true)); $('tProps').querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>decide(+b.dataset.pr,false)); }
-let TCLS=[], TSEL=null, TROSTER=[];
-async function renderSrv(){ const el=$('tSrv');
- if(!CLOUD.on()){ el.innerHTML=`<h3>학급 서버</h3><p class="mtext">학급 서버를 연결하면 학생이 학급 코드와 번호로 로그인하고, 어느 컴퓨터에서든 이어서 하며, 기록이 선생님 화면에 모여요. 설정 방법은 저장소의 SERVER.md에 있어요.</p>
-  <div class="cl-row"><input id="srvUrl" placeholder="Project URL (https://...supabase.co)" style="width:300px"><input id="srvKey" placeholder="anon public key" style="width:300px"><button class="btn sm" id="srvSave">연결</button></div><p class="mnote" id="srvMsg"></p>`;
-  $('srvSave').onclick=()=>{ const url=$('srvUrl').value.trim(), key=$('srvKey').value.trim(); if(!/^https:\/\/.+/.test(url)||key.length<20){ $('srvMsg').textContent='주소와 키를 확인해요.'; return; } localStorage.setItem(SRV_KEY,JSON.stringify({url,key})); renderSrv(); }; return; }
- const ts=CLOUD.tsess();
- if(!ts){ el.innerHTML=`<h3>학급 서버</h3><p class="mtext">선생님 계정으로 로그인해요. 처음이면 이메일과 비밀번호를 넣고 "가입"을 눌러요.</p>
-  <form class="cl-row" id="tLogin"><input id="tEmail" type="email" placeholder="이메일" style="width:220px"><input id="tPw" type="password" placeholder="비밀번호 (6자 이상)" style="width:180px"><button class="btn primary sm" type="submit">로그인</button><button class="btn sm" type="button" id="tSignup">가입</button></form><p class="mnote" id="srvMsg"></p><p class="mnote"><button class="linkbtn" id="srvReset">서버 연결 바꾸기</button></p>`;
-  const go=async up=>{ const em=$('tEmail').value.trim(), pw=$('tPw').value; if(!em||pw.length<6){ $('srvMsg').textContent='이메일과 6자 이상 비밀번호를 넣어요.'; return; } $('srvMsg').textContent='확인하는 중...';
-   try{ const r=up?await CLOUD.signUp(em,pw):await CLOUD.signIn(em,pw); if(!r){ $('srvMsg').textContent='가입했어요. 메일함에서 확인 메일을 누른 뒤 로그인해요.'; return; } renderSrv(); }catch(e){ $('srvMsg').textContent=e.code==='offline'?'서버에 연결할 수 없어요.':'로그인하지 못했어요: '+(e.msg||e.status||e.code); } };
-  $('tLogin').onsubmit=e=>{ e.preventDefault(); go(false); }; $('tSignup').onclick=()=>go(true); $('srvReset').onclick=()=>{ localStorage.removeItem(SRV_KEY); renderSrv(); }; return; }
- el.innerHTML=`<h3>학급 서버</h3><p class="mnote">${esc(ts.email||'')} 로그인됨 · <button class="linkbtn" id="tOut">로그아웃</button></p><div id="tCls" class="mtext">학급을 불러오는 중...</div>`;
- $('tOut').onclick=()=>{ CLOUD.signOut(); TSEL=null; renderSrv(); };
- try{ TCLS=await CLOUD.t('/rest/v1/classes?select=id,name,code,created_at&order=created_at'); }catch(e){ if(e.code==='auth'){ CLOUD.signOut(); renderSrv(); return; } $('tCls').textContent='학급을 불러오지 못했어요: '+(e.msg||e.code); return; }
- if(!TSEL&&TCLS.length) TSEL=TCLS[0].id; renderClass(); }
-async function renderClass(){ const box=$('tCls'); const c=TCLS.find(x=>x.id===TSEL);
- box.innerHTML=`<div class="cl-row" style="align-items:center">${TCLS.length?`<select id="tClsSel">${TCLS.map(x=>`<option value="${x.id}" ${x.id===TSEL?'selected':''}>${esc(x.name)}</option>`).join('')}</select>`:'<span>아직 학급이 없어요.</span>'}<input id="tNewCls" maxlength="40" placeholder="새 학급 이름 (예: 5학년 2반)" style="width:220px"><button class="btn sm" id="tAddCls">학급 만들기</button></div>`+
-  (c?`<div class="clscard"><div><small>학급 코드</small><b>${c.code}</b></div><p>학생은 첫 화면의 "학급으로 로그인"에 이 코드와 자기 번호, 비밀번호를 넣어요.</p></div>
-   <div class="t-table" id="tRoster">불러오는 중...</div>
-   <div class="t-import"><textarea id="tStuIn" placeholder="한 줄에 한 명씩 '번호 이름' (예: 1 김하윤). 같은 번호를 다시 넣으면 이름과 비밀번호가 새로 바뀌어요."></textarea><button class="btn sm" id="tStuAdd">학생 추가</button></div>
-   <div class="cl-row"><button class="btn primary sm" id="tLoadRec">이 학급 기록 불러오기</button><button class="btn sm" id="tPackUp">아래 선생님 글감을 이 학급에 보내기</button><button class="btn sm" id="tPackDown">이 학급 글감 불러오기</button></div><p class="mnote" id="tClsMsg"></p>`:'');
- const sel=$('tClsSel'); if(sel) sel.onchange=()=>{ TSEL=sel.value; renderClass(); };
- $('tAddCls').onclick=async()=>{ const nm=$('tNewCls').value.trim(); if(!nm) return; try{ const r=await CLOUD.t('/rest/v1/classes',{method:'POST',body:{name:nm},prefer:'return=representation'}); TCLS.push(r[0]); TSEL=r[0].id; renderClass(); }catch(e){ alert('학급을 만들지 못했어요: '+(e.msg||e.code)); } };
- if(!c) return; await loadRoster();
- $('tStuAdd').onclick=async()=>{ const rows=$('tStuIn').value.split(/\n+/).map(l=>l.trim().match(/^(\d{1,2})\s*[.,)]?\s*(.+)$/)).filter(Boolean).map(m=>({num:+m[1],name:m[2].trim().slice(0,20)})); if(!rows.length){ $('tClsMsg').textContent='"번호 이름" 형식으로 넣어요.'; return; }
-  try{ const r=await CLOUD.trpc('teacher_add_students',{p_class:TSEL,p_rows:rows}); $('tStuIn').value=''; showPins(c,r.students); loadRoster(); }catch(e){ $('tClsMsg').textContent='추가하지 못했어요: '+(e.msg||e.code); } };
- $('tLoadRec').onclick=loadClassRecords;
- $('tPackUp').onclick=async()=>{ const d=readPackForm(); const prev=await getServerPack(); d.approved=(prev&&prev.approved)||[]; d.rejected=(prev&&prev.rejected)||[]; try{ await CLOUD.t('/rest/v1/packs',{method:'POST',body:{class_id:TSEL,data:d},prefer:'resolution=merge-duplicates'}); $('tClsMsg').textContent='이 학급에 글감을 보냈어요. 학생이 다음에 로그인하면 바뀌어요.'; }catch(e){ $('tClsMsg').textContent='보내지 못했어요: '+(e.msg||e.code); } };
- $('tPackDown').onclick=async()=>{ const d=await getServerPack(); if(!d){ $('tClsMsg').textContent='이 학급에는 아직 글감이 없어요.'; return; } $('pkTitle').value=d.title||''; $('pkWords').value=(d.words||[]).join(' '); $('pkSents').value=(d.sents||[]).join('\n'); $('pkLines').value=(d.lines||[]).join('\n'); $('pkEng').value=(d.eng||[]).map(x=>x[0]+'='+x[1]).join('\n'); $('tClsMsg').textContent='학급 글감을 아래 칸에 불러왔어요.'; }; }
-async function getServerPack(){ try{ const r=await CLOUD.t(`/rest/v1/packs?select=data&class_id=eq.${TSEL}`); return r[0]?r[0].data:null; }catch(e){ return null; } }
-async function loadRoster(){ const el=$('tRoster'); try{ TROSTER=await CLOUD.t(`/rest/v1/students?select=id,num,name,last_seen,locked_until&class_id=eq.${TSEL}&order=num`); }catch(e){ el.textContent='학생 목록을 불러오지 못했어요.'; return; }
- el.innerHTML=TROSTER.length?`<table><thead><tr><th>번호</th><th>이름</th><th>마지막 접속</th><th></th></tr></thead><tbody>${TROSTER.map(s=>`<tr><td>${s.num}</td><td>${esc(s.name)}</td><td>${s.last_seen?new Date(s.last_seen).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'-'}${s.locked_until&&new Date(s.locked_until)>new Date()?' (잠김)':''}</td><td><button class="linkbtn" data-pin="${s.id}">비밀번호 새로</button> <button class="linkbtn" data-sdel="${s.id}">지우기</button></td></tr>`).join('')}</tbody></table>`:'<p class="mtext" style="padding:8px">아직 학생이 없어요. 아래에 "번호 이름"을 넣어 추가해요.</p>';
- el.querySelectorAll('[data-pin]').forEach(b=>b.onclick=async()=>{ try{ const r=await CLOUD.trpc('teacher_reset_pin',{p_student:b.dataset.pin}); const s=TROSTER.find(x=>x.id===b.dataset.pin); showPins(TCLS.find(x=>x.id===TSEL),[{num:s.num,name:s.name,pin:r.pin}]); }catch(e){ alert('바꾸지 못했어요'); } });
- el.querySelectorAll('[data-sdel]').forEach(b=>b.onclick=async()=>{ if(b.dataset.arm!=='1'){ b.dataset.arm='1'; b.textContent='정말 지우기 (기록도 지워져요)'; return; } try{ await CLOUD.t(`/rest/v1/students?id=eq.${b.dataset.sdel}`,{method:'DELETE'}); loadRoster(); }catch(e){ alert('지우지 못했어요'); } }); }
-function showPins(c,list){ const rows=list.map(x=>`<tr><td>${x.num}</td><td>${esc(x.name)}</td><td class="pin">${x.pin}</td></tr>`).join('');
- showModal(`<h2>학생 비밀번호</h2><p class="mtext">이 화면을 닫으면 비밀번호를 다시 볼 수 없어요. 인쇄하거나 적어 두세요. 잊으면 "비밀번호 새로"로 다시 만들어요.</p><div class="t-table pins"><table><thead><tr><th>번호</th><th>이름</th><th>비밀번호</th></tr></thead><tbody>${rows}</tbody></table></div><p class="mnote">학급 코드: <b>${c.code}</b></p><div class="foot"><button class="btn sm" id="pinPrint">인쇄</button><button class="btn primary sm" data-m="x">적어 두었어요</button></div>`);
- $('pinPrint').onclick=()=>{ const w=window.open('','_blank'); if(!w){ alert('팝업이 막혀 있어요. 화면을 직접 인쇄해 주세요.'); return; } w.document.write(`<meta charset="utf-8"><title>${esc(c.name)} 비밀번호</title><style>body{font-family:sans-serif}td{border:1px solid #999;padding:10px 14px;font-size:16px}table{border-collapse:collapse}.pin{font-family:monospace;font-size:20px}.card{display:inline-block;border:1px dashed #999;padding:10px 14px;margin:4px;width:200px}</style><h3>${esc(c.name)} · 학급 코드 ${c.code}</h3>${list.map(x=>`<div class="card">${x.num}번 ${esc(x.name)}<br>학급 코드 <b>${c.code}</b><br>비밀번호 <b class="pin">${x.pin}</b></div>`).join('')}`); w.document.close(); w.print(); }; }
-async function loadClassRecords(){ $('tClsMsg').textContent='불러오는 중...'; try{
- const saves=await CLOUD.t(`/rest/v1/saves?select=student_id,data,updated_at&part=eq.profile&student_id=in.(${TROSTER.map(s=>s.id).join(',')})`);
- teacherRows=teacherRows.filter(r=>r._src!=='학급 서버'); const byId={}; saves.forEach(x=>byId[x.student_id]=x.data);
- TROSTER.forEach(s=>{ const pr=byId[s.id]||P_DEFAULT(); teacherRows.push({...profileSummary(pr,{num:s.num,name:s.name}),_src:'학급 서버'}); });
- renderTeacher(); renderServerProps(byId); $('tClsMsg').textContent=`${TROSTER.length}명의 기록을 위 표에 불러왔어요.`; }catch(e){ $('tClsMsg').textContent='불러오지 못했어요: '+(e.msg||e.code); } }
-async function renderServerProps(byId){ const pack=await getServerPack()||{}; const ok=new Set(pack.approved||[]), no=new Set(pack.rejected||[]); const rows=[];
- TROSTER.forEach(s=>((byId[s.id]||{}).props||[]).forEach(x=>{ if(x.st==='wait'&&!ok.has(x.t)&&!no.has(x.t)) rows.push({s,t:x.t}); }));
- const box=$('tProps'); if(!rows.length){ box.innerHTML+=`<p class="mtext">학급 서버에 기다리는 제안이 없어요.</p>`; return; }
- box.innerHTML=`<p class="mtext"><b>학급 서버</b></p><div class="props">${rows.map((r,k)=>`<span class="wait">${esc(r.t)}<em>${r.s.num}번 ${esc(r.s.name)}</em><button class="linkbtn" data-spa="${k}">넣기</button><button class="linkbtn" data-spr="${k}">빼기</button></span>`).join('')}</div>`+box.innerHTML;
- const decide=async(k,yes)=>{ const r=rows[k]; const d=await getServerPack()||{title:'우리 반 낱말',words:[],sents:[],lines:[],eng:[]}; d.approved=d.approved||[]; d.rejected=d.rejected||[];
-  if(yes){ d.approved.push(r.t); const isSent=/\s/.test(r.t)&&[...r.t].length>6; if(isSent){ d.sents=d.sents||[]; if(!d.sents.includes(r.t)) d.sents.push(r.t); } else { d.words=d.words||[]; if(!d.words.includes(r.t)) d.words.push(r.t); } } else d.rejected.push(r.t);
-  try{ await CLOUD.t('/rest/v1/packs',{method:'POST',body:{class_id:TSEL,data:d},prefer:'resolution=merge-duplicates'}); loadClassRecords(); }catch(e){ alert('저장하지 못했어요'); } };
- box.querySelectorAll('[data-spa]').forEach(b=>b.onclick=()=>decide(+b.dataset.spa,true)); box.querySelectorAll('[data-spr]').forEach(b=>b.onclick=()=>decide(+b.dataset.spr,false)); }
+function renderSrv(){ const el=$('tSrv');
+ el.innerHTML=CLOUD.on()?`<h3>학급 서버</h3><p class="mtext">학급 만들기, 학생 번호와 그림 비밀번호, 로그인 카드 인쇄, 학급 기록, 글감 보내기는 <b>학급 로그인 관리</b> 사이트에서 해요. Google 계정으로 로그인해요. 학생 이름은 서버로 보내지 않아요.</p><div class="cl-row"><a class="btn primary sm" href="${CLOUD.dashboard()}" target="_blank" rel="noopener">학급 로그인 관리 열기</a></div>`
+  :`<h3>학급 서버</h3><p class="mtext">학급 서버를 연결하면 학생이 학급 코드, 번호, 그림 비밀번호로 로그인하고 어느 컴퓨터에서든 이어서 해요. 설정 방법은 저장소의 SERVER.md에 있어요.</p>`; }
 function openTeacher(){ renderSrv(); fillPackForm(); renderProps(); teacherRows=slotsAll().map(sl=>({...recordOf(sl).sum,_id:sl.id,_src:'이 컴퓨터'})); renderTeacher(); $('teacher').hidden=false; }
 function renderTeacher(){ const rows=teacherRows.slice().sort((a,b)=>((a.num===''?999:+a.num)-(b.num===''?999:+b.num))||String(a.name).localeCompare(String(b.name),'ko'));
  const n=rows.length, avg=k=>n?Math.round(rows.reduce((a,r)=>a+(+r[k]||0),0)/n):0, fbs=rows.filter(r=>r.fun!=='');
@@ -2508,7 +2447,7 @@ function useSlot(sl){ if(!sl) return; if(S&&SLOT) save(); SLOT=sl; const all=slo
  loadProfile(); if(sl.cloud){ applyPackStatus(); if(CLOUD_PACK&&packGet()) P.set.topic=P.set.topic==='mix'?'teacher':P.set.topic; }
  if(window.__packJustLoaded){ P.set.topic='teacher'; saveProfile(); toast('선생님 글감 “'+window.__packJustLoaded+'”으로 연습해요'); } S=(P.last&&loadSave(P.last))||loadSave('free')||newState('free'); boot(); showTitle(); }
 function showTitle(){ started=false; document.body.classList.add('titled'); $('camp').hidden=true; const t=$('title'); t.hidden=false; t.classList.remove('out');
- if(SLOT&&SLOT.cloud) syncNow(); $('cloudBox').hidden=!CLOUD.on()||!!SLOT; $('who').hidden=!!SLOT; $('tBtns').hidden=!SLOT; document.querySelector('.t-foot').hidden=!SLOT; $('me').hidden=!SLOT; $('whoNew').hidden=true; if(SLOT){ $('meName').innerHTML=`<b>${esc(slotLabel(SLOT))}</b> 영주님`+(SLOT.cloud?` <small class="cls">${esc(SLOT.cls||'')}</small>`:''); } else renderWho();
+ if(SLOT&&SLOT.cloud) syncNow(); $('cloudBox').hidden=!CLOUD.on()||!!SLOT; $('localOpen').hidden=!CLOUD.on()||!!SLOT; if(CLOUD.on()&&!SLOT) $('who').hidden=true; if(!SLOT&&CLOUD.on()) ClassLogin.mountStudentLogin($('clMount'),{onLogin:ss=>{ AU.init(); cloudEnter(ss); }}); if(!CLOUD.on()) $('who').hidden=!!SLOT; else if(SLOT) $('who').hidden=true; $('tBtns').hidden=!SLOT; document.querySelector('.t-foot').hidden=!SLOT; $('me').hidden=!SLOT; $('whoNew').hidden=true; if(SLOT){ $('meName').innerHTML=`<b>${esc(slotLabel(SLOT))}</b> 영주님`+(SLOT.cloud?` <small class="cls">${esc(SLOT.cls||'')}</small>`:''); } else renderWho();
  const lastId=P.last&&hasSave(P.last)?P.last:null; const cb=$('btnContinue'); cb.hidden=!lastId; if(lastId){ cb.textContent=lastId==='free'?'이어하기 (자유 모드)':lastId==='toy'?'이어하기 (놀이 섬)':`이어하기 (${chapterOf(lastId).no}장 ${chapterOf(lastId).title})`; } renderCoach(); renderObjTrack(); }
 function startGame(){ AU.init(); AU.apply(); document.body.classList.remove('titled'); const t=$('title'); t.classList.add('out'); setTimeout(()=>{ t.hidden=true; },500); started=true; renderCoach(); renderObjTrack(); resize(); refocus(); }
 $('btnCamp').onclick=()=>{ AU.init(); openCampaign(); };
@@ -2517,15 +2456,10 @@ $('whoNew').onsubmit=e=>{ e.preventDefault(); const name=$('whoName').value.trim
  const dup=all.find(x=>x.name===name&&(x.num??null)===num); if(dup){ AU.init(); useSlot(dup); return; }
  const sl={id:'s'+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36),num,name,made:Date.now(),last:Date.now()}; all.push(sl); slotsSave(all); $('whoName').value=''; $('whoNum').value=''; AU.init(); useSlot(sl); };
 $('whoCancel').onclick=()=>{ $('whoNew').hidden=true; };
-$('cloudBox').onsubmit=async e=>{ e.preventDefault(); const code=$('clCode').value.trim().toUpperCase(), num=parseInt($('clNum').value,10), pin=$('clPin').value.trim();
- if(code.length<4||!num||!/^\d{4}$/.test(pin)){ $('clMsg').textContent='학급 코드, 번호, 비밀번호 4자리를 모두 넣어요.'; return; }
- $('clMsg').textContent='확인하는 중...'; AU.init();
- try{ const r=await cloudLogin(code,num,pin); if(r.ok){ $('clPin').value=''; $('clMsg').textContent=''; return; }
-  $('clMsg').textContent={no_class:'그런 학급 코드가 없어요. 다시 확인해요.',no_student:'그 번호의 학생이 학급에 없어요. 선생님께 물어봐요.',bad_pin:'비밀번호가 달라요.',locked:'비밀번호를 여러 번 틀려서 5분 동안 잠겼어요.'}[r.error]||'로그인하지 못했어요.'; }
- catch(err){ $('clMsg').textContent=err.code==='offline'?'학급 서버에 연결할 수 없어요. 인터넷을 확인하거나, 아래에서 이 컴퓨터에 저장하며 해요.':'로그인하지 못했어요 ('+(err.status||err.code)+').'; } };
+if(CLOUD.on()){ CLOUD.init(); ClassLogin.mountStudentLogin($('clMount'),{onLogin:ss=>{ AU.init(); cloudEnter(ss); }}); }
 $('btnSwitch').onclick=async()=>{ save(); if(SLOT&&SLOT.cloud) await cloudLogout(); SLOT=null; S=newState('free'); P=P_DEFAULT(); boot(); showTitle(); };
 $('btnGuest').onclick=()=>{ SLOT=null; P=P_DEFAULT(); S=newState('free'); boot(); $('who').hidden=true; $('tBtns').hidden=false; $('me').hidden=false; $('meName').innerHTML='<b>손님</b> (저장되지 않아요)'; $('btnContinue').hidden=true; };
-$('btnTeacher').onclick=openTeacher; $('tClose').onclick=()=>{ $('teacher').hidden=true; if(!SLOT) renderWho(); };
+$('btnTeacher').onclick=openTeacher; $('btnTeacher2').onclick=openTeacher; $('btnLocal').onclick=()=>{ $('cloudBox').hidden=true; $('localOpen').hidden=true; $('who').hidden=false; renderWho(); }; $('tClose').onclick=()=>{ $('teacher').hidden=true; if(!SLOT) renderWho(); };
 $('tCsv').onclick=async()=>{ const ok=await download(`이름을쓰는섬_학급기록_${dateKey()}.csv`,teacherCSV(),'text/csv;charset=utf-8'); $('tMsg').textContent=ok?'CSV를 받았어요. 엑셀에서 바로 열 수 있어요.':'파일을 받지 못했어요.'; };
 $('tFiles').onchange=async e=>{ const fs=[...e.target.files]; const texts=await Promise.all(fs.map(f=>f.text())); addTeacherRecords(texts); e.target.value=''; };
 $('pkSave').onclick=()=>{ const d=readPackForm(); if(!(d.words.length||d.sents.length||d.lines.length||d.eng.length)){ $('pkMsg').textContent='넣은 내용이 없어요.'; return; } packSave(d); fillPackForm(); };
@@ -2561,7 +2495,7 @@ function start(data){
  try{ if(location.hash.startsWith('#pack=')){ const d=packFromCode('TADAKPACK1:'+location.hash.slice(6)); packSave(d); history.replaceState(null,'',location.href.split('#')[0]); window.__packJustLoaded=d.title; } }catch(e){}
  packApply();
  if(data&&data.slot){ SLOT=slotsAll().find(x=>x.id===data.slot)||null; if(SLOT) loadProfile(); }
- { const cs=cloudSess(); if(!SLOT&&cs&&cs.student){ SLOT={id:'c_'+cs.student.id,num:cs.student.num,name:cs.student.name,cloud:true,cls:cs.cls&&cs.cls.name}; loadProfile(); cloudPull(SLOT,cs.token).then(()=>{ applyPackStatus(); }); } }
+ CLOUD.init(); { const cs=cloudSess(); if(!SLOT&&cs&&cs.student){ SLOT={id:'c_'+cs.student.id,num:cs.student.num,name:'',cloud:true,cls:cs.cls&&cs.cls.name}; loadProfile(); cloudPull(SLOT).then(()=>{ applyPackStatus(); }); } }
  S=(data&&data.s&&data.s.v>=2)?data.s:((SLOT&&((P.last&&loadSave(P.last))||loadSave('free')))||newState('free'));
  $('story').addEventListener('click',()=>{ advanceStory(); refocus(); });
  $('crest').addEventListener('click',()=>{ if(drawerTab==='town') closeDrawer(); else openDrawer('town'); refocus(); });
