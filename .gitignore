@@ -1,0 +1,6 @@
+# 백업과 임시 파일
+*.bak
+__pycache__/
+.DS_Store
+# build.py가 만드는 아티팩트용 사본 (배포본은 dist/)
+/index.html
