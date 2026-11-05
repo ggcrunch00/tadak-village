@@ -19,4 +19,4 @@ jobs:
           if [ ! -f server.json ]; then echo "server.json 없음, 건너뜀"; exit 0; fi
           URL=$(python3 -c "import json;print(json.load(open('server.json'))['url'].rstrip('/'))")
           KEY=$(python3 -c "import json;print(json.load(open('server.json'))['key'])")
-          curl -sS -o /dev/null -w "%{http_code}\n" "$URL/rest/v1/cl_classes?select=id&limit=1" -H "apikey: $KEY" -H "Authorization: Bearer $KEY"
+          curl -sS -o /dev/null -w "%{http_code}\n" "$URL/rest/v1/cl_classes?select=id&limit=1" -H "apikey: $KEY"

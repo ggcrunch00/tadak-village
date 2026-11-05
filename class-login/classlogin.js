@@ -18,7 +18,10 @@
 
   function cfg() { if (!CFG || !CFG.url || !CFG.key) throw { code: 'no_server' }; return CFG; }
   async function req(path, { method = 'GET', body, token, prefer } = {}) {
-    const c = cfg(); const h = { apikey: c.key, Authorization: 'Bearer ' + (token || c.key), 'Content-Type': 'application/json' };
+    const c = cfg(); const h = { apikey: c.key, 'Content-Type': 'application/json' };
+    // 새 공개 키(sb_publishable_...)는 JWT 가 아니라서 apikey 헤더에만 넣어요. Bearer 에는 로그인한 선생님 토큰만.
+    // 예전 anon 키(JWT)는 Bearer 에 넣어도 되지만, 넣지 않아도 anon 으로 처리돼요.
+    if (token) h.Authorization = 'Bearer ' + token;
     if (prefer) h.Prefer = prefer;
     let r; try { r = await fetch(c.url.replace(/\/+$/, '') + path, { method, headers: h, body: body === undefined ? undefined : JSON.stringify(body) }); }
     catch (e) { throw { code: 'offline' }; }
