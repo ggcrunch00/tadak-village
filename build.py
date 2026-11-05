@@ -11,7 +11,11 @@ spr.update(json.loads((root/'assets'/'art3.json').read_text()))
 spr.update(json.loads((root/'assets'/'art4.json').read_text()))  # crest, flag, blank stone fixes
 spr.update(json.loads((root/'assets'/'art5.json').read_text()))  # portraits redrawn in the map sprite style
 assert '/*__PH__*/' in src and '/*__SPRITES__*/' in src
-out=src.replace('/*__PH__*/',ph).replace('/*__SPRITES__*/','const SPRITE_DATA='+json.dumps(spr)+';')
+# 학급 서버 주소와 공개 키(anon/publishable). server.json 이 없으면 서버 기능은 꺼진 채로 빌드됨
+srv_path=root/'server.json'
+srv=json.loads(srv_path.read_text()) if srv_path.exists() else None
+srv=srv if srv and srv.get('url') and srv.get('key') else None
+out=src.replace('/*__PH__*/',ph).replace('/*__SPRITES__*/','const SPRITE_DATA='+json.dumps(spr)+';').replace('/*__SERVER__*/','const SERVER_CFG='+json.dumps(srv)+';')
 (root/'index.html').write_text(out,encoding='utf-8')
 print('built', len(out)//1024, 'KB')
 

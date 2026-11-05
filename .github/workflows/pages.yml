@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Build (server.json 이 있으면 학급 서버 주소를 넣어 빌드)
+        run: python3 build.py
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload dist
