@@ -302,6 +302,39 @@ body.big .tx .next,body.big .tx .prev{font-size:18px}
 .t-foot kbd{background:rgba(255,255,255,.9)}
 
 
+/* students, records, feedback, teacher */
+.who{background:rgba(255,255,255,.95);border-radius:var(--r-surface);padding:14px;box-shadow:var(--shadow);width:min(520px,calc(100vw - 32px))}
+.who-h{display:flex;flex-direction:column;gap:2px;margin-bottom:10px}
+.who-h b{font-size:16px}.who-h span{font-size:12.5px;color:var(--ink-2)}
+.who-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:6px;max-height:min(40vh,300px);overflow:auto;padding:2px}
+.who-list button{appearance:none;border:0;background:var(--paper-2);border-radius:10px;padding:9px 10px;text-align:left;font:inherit;font-size:13.5px;cursor:pointer;color:var(--ink);display:flex;flex-direction:column;gap:1px}
+.who-list button small{font-size:11px;color:var(--ink-3)}
+.who-list button:hover{background:#e2e7ee}.who-list .add{background:transparent;box-shadow:inset 0 0 0 1.5px var(--line);color:var(--ink-2);justify-content:center}
+.who-new{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}.who-new input{font:inherit;font-size:14px;border:0;background:var(--paper-2);border-radius:10px;padding:8px 10px;min-width:0}
+.who-new #whoNum{width:64px}.who-new #whoName{flex:1;min-width:120px}
+.who-foot{display:flex;justify-content:space-between;gap:10px;margin-top:10px;color:var(--ink-2);flex-wrap:wrap}
+.me{display:flex;gap:10px;align-items:center;color:#fff;font-size:15px;text-shadow:0 1px 6px rgba(14,48,66,.7)}.me b{font-weight:700}
+.me .linkbtn{color:#e4ecf3;font-size:13px}
+.mtext{font-size:13.5px;color:var(--ink-2);line-height:1.55;margin:0 0 10px}.mnote{font-size:12.5px;color:var(--ink-2);min-height:1em;margin:6px 0 0}
+.codebox{width:100%;height:64px;font:12px/1.4 var(--f-mono,monospace);border:0;background:var(--paper-2);border-radius:10px;padding:8px;resize:none;color:var(--ink-2);word-break:break-all}
+.recsum{margin:4px 0 10px}
+.fbq{display:flex;flex-direction:column;gap:6px;padding:9px 0;border-top:1px solid var(--line)}.fbq b{font-size:13.5px}
+.fbq .seg{align-self:flex-start;flex-wrap:wrap}.fbscale{display:flex;justify-content:space-between;width:230px;font-size:11px;color:var(--ink-3)}
+.fbfun button{min-width:38px;justify-content:center}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chips button{appearance:none;border:0;background:var(--paper-2);border-radius:999px;padding:6px 11px;font:inherit;font-size:12.5px;cursor:pointer;color:var(--ink-2)}
+.chips button.on{background:var(--ink);color:#fff}
+.fbq textarea,.t-import textarea{font:inherit;font-size:13.5px;border:0;background:var(--paper-2);border-radius:10px;padding:8px 10px;min-height:60px;resize:vertical}
+.teacher{position:fixed;inset:0;z-index:120;background:rgba(14,30,48,.5);display:grid;place-items:center;padding:16px}
+.t-panel{width:min(1100px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--paper);border-radius:var(--r-surface);padding:20px 22px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+.t-top{display:flex;justify-content:space-between;align-items:center}.t-top h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:22px}
+.t-panel .stats{grid-template-columns:repeat(6,1fr)}
+.t-table{overflow:auto;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line)}
+.t-table table{border-collapse:collapse;font-size:12.5px;white-space:nowrap;width:100%}
+.t-table th{position:sticky;top:0;background:var(--paper-2);text-align:left;font-weight:600;padding:7px 9px;color:var(--ink-2)}
+.t-table td{padding:6px 9px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}.t-table td.c-note{white-space:normal;min-width:220px}
+.t-import{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}.t-import textarea{flex:1;min-width:240px;min-height:44px}
+.t-actions{display:flex;justify-content:space-between;align-items:center;gap:10px}
+@media (max-width:760px){ .t-panel .stats{grid-template-columns:repeat(3,1fr)} }
 /* layout v1.1: crest above, rail below it, never overlapping */
 .crest{cursor:pointer;padding:8px 14px 8px 8px;gap:10px}
 .crest canvas{width:44px;height:44px}
@@ -483,6 +516,8 @@ body.storying .objtrack{opacity:.4}
     <div class="set"><label>화면 흔들림<small>건설과 증축 연출</small></label><button class="tog" id="setShake" aria-pressed="true" aria-label="화면 흔들림"></button></div>
     <div class="set"><label>큰 글씨<small>타자 글자를 더 크게 보여줘요</small></label><button class="tog" id="setBig" aria-pressed="false" aria-label="큰 글씨"></button></div>
     <div class="set"><label>고스트 캐럿<small>문장과 긴 글에서 내 최고 속도를 보여줘요</small></label><button class="tog" id="setGhost" aria-pressed="true" aria-label="고스트 캐럿"></button></div>
+    <div class="set"><label>내 기록<small id="setWho">선생님께 기록과 소감을 보내요</small></label><div style="display:flex;gap:6px"><button class="btn sm" id="btnFb">소감 남기기</button><button class="btn sm" id="btnExport">기록 내보내기</button></div></div>
+    <div class="set"><label>다른 컴퓨터로 옮기기<small>내 마을과 진행을 파일로 담아 가요</small></label><button class="btn sm" id="btnMove">옮기기 파일</button></div>
     <div class="foot">
       <button class="btn sm" id="btnReset">마을 초기화</button>
       <div style="display:flex;gap:8px">
@@ -490,7 +525,18 @@ body.storying .objtrack{opacity:.4}
         <button class="btn primary sm" id="btnCloseSet">닫기</button>
       </div>
     </div>
-    <div class="ver">타닥타닥 마을 v1.0 · <button class="linkbtn" id="btnCredits">만든 것들</button></div>
+    <div class="ver">타닥타닥 마을 v1.2 · <button class="linkbtn" id="btnCredits">만든 것들</button></div>
+  </div>
+</div>
+
+<div class="teacher" id="teacher" hidden>
+  <div class="t-panel" role="dialog" aria-labelledby="tTitle">
+    <div class="t-top"><h2 id="tTitle">선생님 화면</h2><button class="btn sm" id="tClose">닫기</button></div>
+    <p class="mtext">이 컴퓨터에 저장된 학생 기록을 모아 봐요. 다른 컴퓨터에서 학생이 낸 기록 파일이나 코드도 불러올 수 있어요. 기록은 이 브라우저 안에만 있고 어디로도 보내지 않아요.</p>
+    <div class="stats" id="tSum"></div>
+    <div class="t-table" id="tTable"></div>
+    <div class="t-import"><label class="btn sm" for="tFiles">기록 파일 불러오기</label><input type="file" id="tFiles" accept=".json,application/json" multiple hidden><textarea id="tPaste" placeholder="학생이 복사한 코드(TADAK1:...)를 여기에 붙여 넣어요. 여러 개도 돼요."></textarea><button class="btn sm" id="tPasteGo">코드 불러오기</button></div>
+    <div class="t-actions"><span class="mnote" id="tMsg"></span><button class="btn primary sm" id="tCsv">엑셀용 CSV 받기</button></div>
   </div>
 </div>
 
@@ -498,7 +544,14 @@ body.storying .objtrack{opacity:.4}
   <div class="t-inner">
     <div class="t-name" aria-label="타닥타닥 마을"><span>타</span><span style="animation-delay:.07s">닥</span><span style="animation-delay:.14s">타</span><span style="animation-delay:.21s">닥</span><br><span style="animation-delay:.32s">마을</span></div>
     <div class="t-tag">한 글자씩 쳐서 모은 자원으로 섬마을을 짓고, 성을 키우고, 밤의 침입자를 막아요.</div>
-    <div class="t-btns">
+    <div class="who" id="who">
+      <div class="who-h"><b>누가 플레이하나요?</b><span>내 번호와 이름을 골라요. 처음이면 새로 만들어요.</span></div>
+      <div class="who-list" id="whoList"></div>
+      <form class="who-new" id="whoNew" hidden autocomplete="off"><input id="whoNum" inputmode="numeric" maxlength="2" placeholder="번호"><input id="whoName" maxlength="10" placeholder="이름"><button class="btn primary sm" type="submit">만들기</button><button class="btn sm" type="button" id="whoCancel">취소</button></form>
+      <div class="who-foot"><button class="linkbtn" id="btnTeacher">선생님 화면</button><button class="linkbtn" id="btnImport">다른 컴퓨터에서 가져오기</button><button class="linkbtn" id="btnGuest">이름 없이 해 보기 (저장 안 됨)</button></div>
+    </div>
+    <div class="me" id="me" hidden><span id="meName"></span><button class="linkbtn" id="btnSwitch">다른 학생</button></div>
+    <div class="t-btns" id="tBtns" hidden>
       <button class="btn primary" id="btnCamp">캠페인</button>
       <button class="btn" id="btnContinue">이어하기</button>
       <button class="btn" id="btnFree">자유 모드</button>
@@ -919,11 +972,24 @@ const DUEL = [
 /* ================================================================
    STATE
    ================================================================ */
-const PROFILE_KEY='tadak-profile-v1';
-const keyFor=id=>id==='free'?'tadak-village-v2':'tadak-camp-'+id;
+const PROFILE_KEY='tadak-profile-v1', SLOTS_KEY='tadak-slots-v1';
+let SLOT=null; // 지금 플레이하는 학생 {id,num,name}
+const nsKey=k=>SLOT?`tadak@${SLOT.id}/${k}`:'tadak@guest/'+k;
+const keyFor=id=>nsKey(id==='free'?'free':'camp-'+id);
+const LS={ get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ localStorage.setItem(k,v); return true; }catch(e){ return false; } }, del(k){ try{ localStorage.removeItem(k); }catch(e){} } };
+function slotsAll(){ try{ return JSON.parse(LS.get(SLOTS_KEY)||'[]'); }catch(e){ return []; } }
+function slotsSave(a){ LS.set(SLOTS_KEY,JSON.stringify(a)); }
+function slotSort(a){ return a.slice().sort((x,y)=>(x.num??999)-(y.num??999)||String(x.name).localeCompare(String(y.name),'ko')); }
+function slotLabel(sl){ return (sl.num!=null&&sl.num!==''?sl.num+'번 ':'')+sl.name; }
+// 예전(학생 칸이 없던 때) 저장을 첫 번째 칸으로 옮기기. 원래 키는 지우지 않음
+function migrateLegacySlots(){ if(slotsAll().length) return; const legacy=LS.get(PROFILE_KEY)||LS.get('tadak-village-v2'); if(!legacy) return;
+ const sl={id:'s'+Date.now().toString(36),num:null,name:'처음 영주',made:Date.now(),last:Date.now()};
+ const copy=(from,to)=>{ const v=LS.get(from); if(v!=null) LS.set(`tadak@${sl.id}/${to}`,v); };
+ copy(PROFILE_KEY,'profile'); copy('tadak-village-v2','free'); ['ch1','ch2','ch3','ch4','ch5','ch6'].forEach(c=>copy('tadak-camp-'+c,'camp-'+c)); slotsSave([sl]); }
+const P_DEFAULT=()=>({v:1,achs:[],set:{vol:70,music:true,shake:true,ghost:true,peace:false,big:false,diff:'normal',topic:'mix'},keyErr:{},keyTot:{},g:{},daily:null,camp:{done:{}},last:null,endingSeen:false,days:{},fb:[],best:{word:0,sentence:0,long:0,eng:0}});
 let P={v:1,achs:[],set:{vol:70,music:true,shake:true,ghost:true,peace:false,big:false,diff:'normal',topic:'mix'},keyErr:{},keyTot:{},g:{},daily:null,camp:{done:{}},last:null,endingSeen:false};
-function loadProfile(){ try{ const d=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null'); if(d&&d.v===1){ P=Object.assign(P,d); P.set=Object.assign({vol:70,music:true,shake:true,ghost:true,peace:false,big:false,diff:'normal',topic:'mix'},P.set||{}); P.camp=P.camp||{done:{}}; P.g=P.g||{}; P.achs=P.achs||[]; } }catch(e){} }
-function saveProfile(){ try{ localStorage.setItem(PROFILE_KEY,JSON.stringify(P)); }catch(e){} }
+function loadProfile(){ P=P_DEFAULT(); try{ const d=JSON.parse(LS.get(nsKey('profile'))||'null'); if(d&&d.v===1){ P=Object.assign(P,d); P.set=Object.assign({vol:70,music:true,shake:true,ghost:true,peace:false,big:false,diff:'normal',topic:'mix'},P.set||{}); P.camp=P.camp||{done:{}}; P.g=P.g||{}; P.achs=P.achs||[]; P.days=P.days||{}; P.fb=P.fb||[]; P.best=Object.assign({word:0,sentence:0,long:0,eng:0},P.best||{}); } }catch(e){} }
+function saveProfile(){ if(!SLOT) return; LS.set(nsKey('profile'),JSON.stringify(P)); }
 function gInc(k,n=1){ P.g[k]=(P.g[k]||0)+n; }
 function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed>>>15, 1|seed); t = t + Math.imul(t ^ t>>>7, 61|t) ^ t; return ((t ^ t>>>14)>>>0)/4294967296; }; }
 let BASE=new Array(N*N).fill(false), REGION_AT=new Array(N*N).fill(-1), SANDA=new Array(N*N).fill(false), REGIONS=[], MAP=null;
@@ -963,10 +1029,10 @@ function newState(mapId='free'){
   set:P.set, coach:mapId==='free'};
 }
 let S=null;
-function hasSave(id='free'){ try { return !!localStorage.getItem(keyFor(id)); } catch(e){ return false; } }
-function loadSave(id='free'){ try { const d=JSON.parse(localStorage.getItem(keyFor(id))||'null'); if(d&&d.v>=2&&d.v<=4){ d.map=d.map||'free'; if(d.v<4&&d.map!=='free') return null; return d; } return null; } catch(e){ return null; } }
-function save(){ if(!S) return; try { localStorage.setItem(keyFor(S.map||'free'), JSON.stringify(S)); } catch(e){} saveProfile(); }
-function wipeSave(id='free'){ try { localStorage.removeItem(keyFor(id)); } catch(e){} }
+function hasSave(id='free'){ return !!LS.get(keyFor(id)); }
+function loadSave(id='free'){ try { const d=JSON.parse(LS.get(keyFor(id))||'null'); if(d&&d.v>=2&&d.v<=4){ d.map=d.map||'free'; if(d.v<4&&d.map!=='free') return null; return d; } return null; } catch(e){ return null; } }
+function save(){ if(!S||!SLOT) return; LS.set(keyFor(S.map||'free'), JSON.stringify(S)); saveProfile(); }
+function wipeSave(id='free'){ LS.del(keyFor(id)); }
 
 let OCC=new Array(N*N).fill(null);
 const szOf=o=>o.sz||(o.t==='castle'?2:(BUILD[o.t]&&BUILD[o.t].sz)||1);
@@ -1202,12 +1268,12 @@ function submit(viaSpace){
  if (['story','restore','stone','duel'].includes(T.special)){ promptSubmit(acc, perfect); return; }
  if (T.special==='dungeon'){ dungeonSubmit(acc, perfect, ms); return; }
  const mode=T.mode, R=T.recent[mode]; R.push({s:st,ms}); if(R.length>8) R.shift();
- S.stats.chars+=correct; noteKeys(t.filter((c,i)=>vv[i]===c&&c!==' '),false);
+ logTyping(mode,st,ms,acc); S.stats.chars+=correct; noteKeys(t.filter((c,i)=>vv[i]===c&&c!==' '),false);
  const gk=mode==='word'?'words':mode==='eng'?'eng':mode==='sentence'?'sentences':'lines'; S.stats[gk]++; gInc(gk); gInc('chars',correct);
  if(S.camp){ S.camp.accSum+=acc; S.camp.accN++; }
  if (perfect){ S.combo++; S.stats.perfects++; gInc('perfects'); S.stats.maxCombo=Math.max(S.stats.maxCombo,S.combo); } else if (acc<0.9) S.combo=0;
  const wordy=mode==='word'||mode==='eng';
- if (acc>=0.9&&(!wordy||R.length>=3)){ const val=Math.min(1500,wordy?rollingCpm(mode):cpm); if(val>S.stats.best[mode]) S.stats.best[mode]=val; }
+ if (acc>=0.9&&(!wordy||R.length>=3)){ const val=Math.min(1500,wordy?rollingCpm(mode):cpm); if(val>S.stats.best[mode]) S.stats.best[mode]=val; if(val>(P.best[mode]||0)) P.best[mode]=val; }
  S.stats.hist.push({m:mode,c:wordy?rollingCpm(mode):cpm,a:Math.round(acc*100)}); if(S.stats.hist.length>40) S.stats.hist.shift();
  T.lastAcc=Math.round(acc*100);
  const grade=perfect?{k:'PERFECT',m:1.15}:acc>=0.9?{k:'좋아요',m:1}:acc>=0.7?{k:'괜찮아요',m:0.7}:{k:'천천히, 정확하게',m:0.4};
@@ -1220,6 +1286,9 @@ function submit(viaSpace){
  else T.queue.shift();
  resetInput(); loadTarget(); afterProgress();
 }
+function dateKey(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function dayRec(){ const k=dateKey(); P.days=P.days||{}; return P.days[k]||(P.days[k]={play:0,typeMs:0,strokes:0,n:0,accSum:0,word:0,sentence:0,long:0,eng:0}); }
+function logTyping(mode,st,ms,acc){ const d=dayRec(); d.typeMs+=Math.min(ms,60000); d.strokes+=st; d.n++; d.accSum+=acc; d[mode]=(d[mode]||0)+1; }
 function rollingCpm(mode){ const R=T.recent[mode]; if(!R.length) return 0; return Math.round(R.reduce((a,b)=>a+b.s,0)/(R.reduce((a,b)=>a+b.ms,0)/60000)); }
 function comboMult(){ return 1+Math.min(S.combo,comboCap())*0.02; }
 function baseReward(mode,text){ const len=[...text].length, r={};
@@ -2001,8 +2070,8 @@ function finishChapter(ch){ const stars=chapterStars(ch), acc=S.camp.accN?Math.r
   const next=CAMPAIGN[CAMPAIGN.indexOf(ch)+1];
   showModal(`<div class="vic"><small>${ch.no}장 완료</small><b>${ch.title}</b><div class="stars">${[1,2,3].map(i=>`<i class="${i<=stars?'on':''}">${PH.star}</i>`).join('')}</div>
    <ul class="checks"><li class="ok">${PH.check}목표 모두 달성</li><li class="${acc>=90?'ok':''}">${PH.check}평균 정확도 90% 이상 (지금 ${acc}%)</li><li class="${ch.star3.ok()?'ok':''}">${PH.check}${ch.star3.text}</li></ul>
-   <div class="foot"><button class="btn" data-m="stay">이 섬 계속 꾸미기</button><button class="btn primary" data-m="map">${next?`다음 장: ${next.title}`:'캠페인 지도'}</button></div></div>`,
-   k=>{ if(k==='map') openCampaign(next?next.id:null); });
+   <p class="mnote" style="text-align:center"><button class="linkbtn" data-m="fb">이 장 소감 남기기</button></p><div class="foot"><button class="btn" data-m="stay">이 섬 계속 꾸미기</button><button class="btn primary" data-m="map">${next?`다음 장: ${next.title}`:'캠페인 지도'}</button></div></div>`,
+   k=>{ if(k==='map') openCampaign(next?next.id:null); if(k==='fb') setTimeout(openFeedback,50); });
   if(ch.id==='ch6'&&!P.endingSeen){ P.endingSeen=true; saveProfile(); }
  }); }
 
@@ -2022,6 +2091,71 @@ function duelAnswer(acc,perfect){ if(acc<0.8){ errorFx(); showGrade('다시 한 
  duelStep(); }
 
 // ---------- modal helper ----------
+function profileSummary(pr,sl){ const days=pr.days||{}; let play=0,typeMs=0,strokes=0,n=0,accSum=0,cnt={word:0,sentence:0,long:0,eng:0}; const dk=Object.keys(days).sort();
+ dk.forEach(k=>{ const d=days[k]; play+=d.play||0; typeMs+=d.typeMs||0; strokes+=d.strokes||0; n+=d.n||0; accSum+=d.accSum||0; for(const m in cnt) cnt[m]+=d[m]||0; });
+ const done=(pr.camp&&pr.camp.done)||{}, chs=CAMPAIGN.filter(c=>done[c.id]), stars=chs.reduce((a,c)=>a+(done[c.id].stars||0),0);
+ const errs=Object.keys(pr.keyErr||{}).filter(k=>(pr.keyTot||{})[k]>=8).map(k=>[k,pr.keyErr[k]/pr.keyTot[k]]).sort((a,b)=>b[1]-a[1]).slice(0,5).map(x=>x[0]);
+ const fb=(pr.fb||[]).slice(-1)[0]||null;
+ return {num:sl.num??'',name:sl.name,days:dk.length,first:dk[0]||'',last:dk[dk.length-1]||'',playMin:Math.round(play/60000),typeMin:Math.round(typeMs/60000),
+  cpm:typeMs>20000?Math.round(strokes/(typeMs/60000)):0,acc:n?Math.round(100*accSum/n):0,items:n,...cnt,chapters:chs.length,stars,diff:(pr.set&&pr.set.diff)||'normal',topic:(pr.set&&pr.set.topic)||'mix',
+  best:Math.max(0,...Object.values(pr.best||{0:0})),weak:errs.join(' '),fun:fb?fb.fun:'',feel:fb?fb.feel:'',likes:fb?fb.likes.join(' '):'',note:fb?fb.note:'',fbCount:(pr.fb||[]).length}; }
+function recordOf(sl){ let pr; try{ pr=JSON.parse(LS.get(`tadak@${sl.id}/profile`)||'null'); }catch(e){} pr=pr||P_DEFAULT(); return {app:'tadak-village',v:1,at:new Date().toISOString(),slot:{num:sl.num,name:sl.name},sum:profileSummary(pr,sl),days:pr.days||{},fb:pr.fb||[],camp:(pr.camp&&pr.camp.done)||{}}; }
+const encRec=r=>'TADAK1:'+btoa(unescape(encodeURIComponent(JSON.stringify(r))));
+function decRec(t){ t=t.trim(); if(t.startsWith('TADAK1:')) t=decodeURIComponent(escape(atob(t.slice(7)))); const r=JSON.parse(t); if(r.app!=='tadak-village') throw 0; return r; }
+function download(name,text,type='application/json'){ try{ const b=new Blob([text],{type}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1000); return true; }catch(e){ return false; } }
+async function copyText(t){ try{ await navigator.clipboard.writeText(t); return true; }catch(e){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); let ok=false; try{ ok=document.execCommand('copy'); }catch(_){} ta.remove(); return ok; } }
+const DIFF_KO={easy:'쉬움',normal:'보통',hard:'어려움'}, TOPIC_KO={mix:'섞기',virtue:'미덕',study:'교과',village:'마을'}, FEEL_KO={easy:'너무 쉬움',ok:'알맞음',hard:'너무 어려움'};
+function exportMine(){ if(!SLOT) return; save(); const r=recordOf(SLOT), code=encRec(r), fname=`타닥마을_기록_${slotLabel(SLOT).replace(/\s+/g,'_')}_${dateKey()}.json`;
+ showModal(`<h2>내 기록 내보내기</h2><p class="mtext">선생님께 기록을 보내는 방법은 두 가지예요. 파일을 받아서 내거나, 아래 코드를 복사해서 붙여 넣어요.</p>
+  <div class="recsum">${recSumHTML(r.sum)}</div><textarea class="codebox" readonly id="recCode">${code}</textarea><p class="mnote" id="recMsg"></p>
+  <div class="foot"><button class="btn sm" data-m="x">닫기</button><div style="display:flex;gap:8px"><button class="btn sm" id="recCopy">코드 복사</button><button class="btn primary sm" id="recFile">파일로 받기</button></div></div>`);
+ $('recCopy').onclick=async()=>{ const ok=await copyText(code); $('recMsg').textContent=ok?'복사했어요. 선생님이 알려 준 곳에 붙여 넣어요.':'복사가 안 됐어요. 코드 칸을 눌러 전체 선택한 뒤 복사해요.'; };
+ $('recFile').onclick=()=>{ const ok=download(fname,JSON.stringify(r)); $('recMsg').textContent=ok?'파일을 받았어요: '+fname:'이 화면에서는 파일 받기가 막혀 있어요. 코드 복사를 써요.'; };
+ $('recCode').onclick=e=>e.target.select(); }
+function recSumHTML(m){ return `<div class="stats"><div class="stat"><small>플레이</small><b>${m.playMin}<em>분</em></b></div><div class="stat"><small>평균 타수</small><b>${m.cpm}</b></div><div class="stat"><small>정확도</small><b>${m.acc}<em>%</em></b></div><div class="stat"><small>캠페인</small><b>${m.chapters}<em>장 · 별 ${m.stars}</em></b></div></div>`; }
+const SAVE_PARTS=['profile','free','camp-ch1','camp-ch2','camp-ch3','camp-ch4','camp-ch5','camp-ch6'];
+function exportMove(){ if(!SLOT) return; save(); const items={}; SAVE_PARTS.forEach(k=>{ const v=LS.get(`tadak@${SLOT.id}/${k}`); if(v!=null) items[k]=v; });
+ const pack={app:'tadak-village-move',v:1,at:new Date().toISOString(),slot:{num:SLOT.num,name:SLOT.name},items}, code='TADAKMOVE1:'+btoa(unescape(encodeURIComponent(JSON.stringify(pack)))), fname=`타닥마을_옮기기_${slotLabel(SLOT).replace(/\s+/g,'_')}.json`;
+ showModal(`<h2>다른 컴퓨터로 옮기기</h2><p class="mtext">내 마을, 캠페인 진행, 기록을 통째로 담은 파일이에요. 다른 컴퓨터의 첫 화면에서 "다른 컴퓨터에서 가져오기"를 눌러 불러와요.</p><p class="mnote" id="mvMsg"></p>
+  <div class="foot"><button class="btn sm" data-m="x">닫기</button><div style="display:flex;gap:8px"><button class="btn sm" id="mvCopy">코드 복사</button><button class="btn primary sm" id="mvFile">파일로 받기</button></div></div>`);
+ $('mvFile').onclick=()=>{ const ok=download(fname,JSON.stringify(pack)); $('mvMsg').textContent=ok?'파일을 받았어요: '+fname:'이 화면에서는 파일 받기가 막혀 있어요. 코드 복사를 써요.'; };
+ $('mvCopy').onclick=async()=>{ const ok=await copyText(code); $('mvMsg').textContent=ok?`복사했어요 (${Math.round(code.length/1024)}KB). 메모장이나 학급 게시판에 붙여 두었다가 옮겨요.`:'복사가 안 됐어요. 파일로 받기를 써요.'; }; }
+function importMove(text){ let pack; try{ text=text.trim(); if(text.startsWith('TADAKMOVE1:')) text=decodeURIComponent(escape(atob(text.slice(11)))); pack=JSON.parse(text); if(pack.app!=='tadak-village-move') throw 0; }catch(e){ return '읽을 수 없는 파일이에요. "다른 컴퓨터로 옮기기"로 받은 파일인지 확인해요.'; }
+ const all=slotsAll(); let sl=all.find(x=>x.name===pack.slot.name&&(x.num??null)===(pack.slot.num??null));
+ if(!sl){ sl={id:'s'+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36),num:pack.slot.num??null,name:pack.slot.name,made:Date.now(),last:Date.now()}; all.push(sl); slotsSave(all); }
+ SAVE_PARTS.forEach(k=>{ if(pack.items[k]!=null) LS.set(`tadak@${sl.id}/${k}`,pack.items[k]); }); useSlot(sl); return ''; }
+function openImport(){ showModal(`<h2>다른 컴퓨터에서 가져오기</h2><p class="mtext">"다른 컴퓨터로 옮기기"로 받은 파일을 고르거나 코드를 붙여 넣어요. 같은 번호와 이름의 학생이 이 컴퓨터에 있으면 가져온 내용으로 바뀌어요.</p>
+  <div class="t-import"><label class="btn sm" for="mvFiles">파일 고르기</label><input type="file" id="mvFiles" accept=".json,application/json" hidden><textarea id="mvPaste" placeholder="TADAKMOVE1:..."></textarea></div><p class="mnote" id="mvMsg2"></p>
+  <div class="foot"><button class="btn sm" data-m="x">닫기</button><button class="btn primary sm" id="mvGo">코드로 가져오기</button></div>`);
+ const done=msg=>{ if(msg){ $('mvMsg2').textContent=msg; return; } $('modal2').hidden=true; toast('마을을 가져왔어요'); };
+ $('mvFiles').onchange=async e=>{ const f=e.target.files[0]; if(f) done(importMove(await f.text())); }; $('mvGo').onclick=()=>done(importMove($('mvPaste').value)); }
+// ---------- feedback ----------
+const LIKES=['마을 짓기','타자 연습','이야기','밤 침공','원정','꾸미기','상인과 거래','주민 부탁'];
+function openFeedback(){ if(!SLOT) return; const f={fun:0,feel:'',likes:[],note:''};
+ showModal(`<h2>소감 남기기</h2><p class="mtext">선생님이 게임을 고칠 때 참고해요. 솔직하게 써 주세요.</p>
+  <div class="fbq"><b>얼마나 재미있었나요?</b><div class="seg fbfun">${[1,2,3,4,5].map(i=>`<button data-v="${i}">${i}</button>`).join('')}</div><small class="fbscale"><span>별로</span><span>아주 재미있음</span></small></div>
+  <div class="fbq"><b>어려웠나요?</b><div class="seg fbfeel"><button data-v="easy">너무 쉬웠어요</button><button data-v="ok">알맞았어요</button><button data-v="hard">너무 어려웠어요</button></div></div>
+  <div class="fbq"><b>좋았던 것 (여러 개 골라도 돼요)</b><div class="chips fblikes">${LIKES.map(l=>`<button data-v="${l}">${l}</button>`).join('')}</div></div>
+  <div class="fbq"><b>하고 싶은 말</b><textarea id="fbNote" maxlength="200" placeholder="막혔던 곳, 바라는 것, 아무거나"></textarea></div>
+  <div class="foot"><button class="btn sm" data-m="x">닫기</button><button class="btn primary sm" id="fbSend" disabled>남기기</button></div>`);
+ const w=$('modal2'), upd=()=>{ $('fbSend').disabled=!(f.fun&&f.feel); };
+ w.querySelectorAll('.fbfun button').forEach(b=>b.onclick=()=>{ f.fun=+b.dataset.v; w.querySelectorAll('.fbfun button').forEach(x=>x.classList.toggle('on',x===b)); upd(); });
+ w.querySelectorAll('.fbfeel button').forEach(b=>b.onclick=()=>{ f.feel=b.dataset.v; w.querySelectorAll('.fbfeel button').forEach(x=>x.classList.toggle('on',x===b)); upd(); });
+ w.querySelectorAll('.fblikes button').forEach(b=>b.onclick=()=>{ const v=b.dataset.v, i=f.likes.indexOf(v); if(i<0) f.likes.push(v); else f.likes.splice(i,1); b.classList.toggle('on',i<0); });
+ $('fbSend').onclick=()=>{ f.note=$('fbNote').value.trim().slice(0,200); P.fb.push({...f,at:new Date().toISOString(),map:S&&S.map}); saveProfile(); w.hidden=true; toast('소감을 남겼어요. 고마워요'); refocus(); }; }
+// ---------- teacher view ----------
+const COLS=[['num','번호'],['name','이름'],['days','플레이한 날'],['playMin','플레이(분)'],['typeMin','타자(분)'],['cpm','평균 타수'],['best','최고 타수'],['acc','정확도(%)'],['items','입력 수'],['word','단어'],['sentence','문장'],['long','긴 글 줄'],['eng','영단어'],['chapters','끝낸 장'],['stars','별'],['diff','난이도'],['topic','글감'],['weak','자주 틀리는 키'],['fun','재미(1~5)'],['feel','어려움'],['likes','좋았던 것'],['note','소감'],['last','마지막 날']];
+let teacherRows=[];
+function cellOf(r,k){ const v=r[k]; if(k==='diff') return DIFF_KO[v]||v; if(k==='topic') return TOPIC_KO[v]||v; if(k==='feel') return FEEL_KO[v]||v; return v??''; }
+function openTeacher(){ teacherRows=slotsAll().map(sl=>({...recordOf(sl).sum,_id:sl.id,_src:'이 컴퓨터'})); renderTeacher(); $('teacher').hidden=false; }
+function renderTeacher(){ const rows=teacherRows.slice().sort((a,b)=>((a.num===''?999:+a.num)-(b.num===''?999:+b.num))||String(a.name).localeCompare(String(b.name),'ko'));
+ const n=rows.length, avg=k=>n?Math.round(rows.reduce((a,r)=>a+(+r[k]||0),0)/n):0, fbs=rows.filter(r=>r.fun!=='');
+ $('tSum').innerHTML=`<div class="stat"><small>학생</small><b>${n}</b></div><div class="stat"><small>평균 플레이</small><b>${avg('playMin')}<em>분</em></b></div><div class="stat"><small>평균 타수</small><b>${avg('cpm')}</b></div><div class="stat"><small>평균 정확도</small><b>${avg('acc')}<em>%</em></b></div><div class="stat"><small>소감</small><b>${fbs.length}<em>명</em></b></div><div class="stat"><small>평균 재미</small><b>${fbs.length?(fbs.reduce((a,r)=>a+r.fun,0)/fbs.length).toFixed(1):'-'}</b></div>`;
+ $('tTable').innerHTML=n?`<table><thead><tr>${COLS.map(c=>`<th>${c[1]}</th>`).join('')}<th></th></tr></thead><tbody>${rows.map(r=>`<tr>${COLS.map(c=>`<td class="c-${c[0]}">${esc(String(cellOf(r,c[0])))}</td>`).join('')}<td>${r._id?`<button class="linkbtn" data-del="${r._id}">지우기</button>`:''}</td></tr>`).join('')}</tbody></table>`:'<p class="mtext">아직 기록이 없어요. 학생이 이 컴퓨터에서 플레이하거나, 학생이 낸 기록 파일이나 코드를 아래에서 불러와요.</p>';
+ $('tTable').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ if(b.dataset.arm!=='1'){ b.dataset.arm='1'; b.textContent='정말 지우기'; return; } deleteSlot(b.dataset.del); openTeacher(); }); }
+function deleteSlot(id){ slotsSave(slotsAll().filter(x=>x.id!==id)); ['profile','free','camp-ch1','camp-ch2','camp-ch3','camp-ch4','camp-ch5','camp-ch6'].forEach(k=>LS.del(`tadak@${id}/${k}`)); if(SLOT&&SLOT.id===id){ SLOT=null; } }
+function addTeacherRecords(texts){ let ok=0,bad=0; texts.forEach(t=>{ t.split(/\s+(?=TADAK1:)|\n+/).map(x=>x.trim()).filter(Boolean).forEach(x=>{ try{ const r=decRec(x); teacherRows=teacherRows.filter(q=>!(q.name===r.slot.name&&String(q.num)===String(r.slot.num??'')&&(q.playMin+q.items)<=(r.sum.playMin+r.sum.items))); if(teacherRows.some(q=>q.name===r.slot.name&&String(q.num)===String(r.slot.num??''))){ ok++; return; } teacherRows.push({...r.sum,_src:'불러옴'}); ok++; }catch(e){ bad++; } }); }); renderTeacher(); $('tMsg').textContent=`${ok}명 불러왔어요`+(bad?`, ${bad}개는 읽지 못했어요`:''); }
+function teacherCSV(){ const q=v=>{ v=String(v??''); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }; return '\ufeff'+[COLS.map(c=>c[1]).join(','),...teacherRows.map(r=>COLS.map(c=>q(cellOf(r,c[0]))).join(','))].join('\r\n'); }
 function showModal(html,cb){ const w=$('modal2'); w.innerHTML=`<div class="modal">${html}</div>`; w.hidden=false; w.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{ w.hidden=true; cb&&cb(b.dataset.m); refocus(); }); }
 
 // ---------- campaign map screen ----------
@@ -2056,7 +2190,7 @@ function renderCoach(){ const el=$('coachWrap'); if(!S.coach||!started){ el.inne
  el.innerHTML=`<div class="coach"><b class="t">어서 오세요, 영주님</b><ol><li>아래 단어를 치고 <kbd>Space</kbd>를 누르면 나무와 돌이 날아와요</li><li><kbd>Tab</kbd>으로 모드를 바꾸면 다른 자원이 모여요. 긴 글은 연구에 쓰는 지혜를 줘요</li><li>왼쪽 <b>건설</b>에서 건물을 고르고 섬을 눌러 지어요. 집 옆에 나무를 심으면 이웃 보너스!</li><li><b>성·연구</b>에서 연구를 마치고 성을 증축하면 원정과 밤 침공이 열려요</li></ol><div class="row2"><button class="btn primary sm" id="coachOk">시작하기</button></div></div>`;
  $('coachOk').onclick=()=>{ S.coach=false; renderCoach(); save(); refocus(); }; }
 function syncDiff(){ $('setDiff').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===(S.set.diff||'normal'))); $('setTopic').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===topic())); }
-function openSettings(){ $('settings').hidden=false; syncDiff(); $('setVol').value=S.set.vol; ['music','shake','ghost','peace','big'].forEach(k=>$('set'+k[0].toUpperCase()+k.slice(1)).setAttribute('aria-pressed',S.set[k])); $('btnReset').textContent='마을 초기화'; $('btnReset').dataset.arm=''; $('btnReset').classList.remove('danger'); }
+function openSettings(){ $('settings').hidden=false; syncDiff(); $('setWho').textContent=SLOT?`${slotLabel(SLOT)} · 선생님께 기록과 소감을 보내요`:'손님은 기록이 저장되지 않아요'; $('btnFb').disabled=$('btnExport').disabled=$('btnMove').disabled=!SLOT; $('setVol').value=S.set.vol; ['music','shake','ghost','peace','big'].forEach(k=>$('set'+k[0].toUpperCase()+k.slice(1)).setAttribute('aria-pressed',S.set[k])); $('btnReset').textContent='마을 초기화'; $('btnReset').dataset.arm=''; $('btnReset').classList.remove('danger'); }
 function closeSettings(){ $('settings').hidden=true; save(); refocus(); }
 $('btnCloseSet').onclick=closeSettings;
 $('setTopic').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.set.topic=b.dataset.v; syncDiff(); AU.tone(700,'triangle',0.05,0.05); T.queue=[]; S.long.p=null; S.long.l=0; loadTarget(); });
@@ -2068,7 +2202,7 @@ $('btnTitle').onclick=()=>{ closeSettings(); save(); showTitle(); };
 $('btnCredits').onclick=()=>{ $('settings').hidden=true; showCredits(); };
 function showCredits(){ showModal(`<h2>만든 것들</h2><div class="credits"><p><b>타닥타닥 마을</b> 타자 연습과 섬마을 짓기를 합친 싱글플레이 게임</p><p><b>시</b> 윤동주 「서시」, 김소월 「진달래꽃」 「산유화」 「엄마야 누나야」, 이육사 「청포도」. 저작권 보호 기간이 끝난 공유 저작물이에요.</p><p><b>그림</b> 건물, 자연물, 인물, 지도는 생성형 이미지 모델(GPT Image)로 만든 뒤 다듬었어요.</p><p><b>글꼴</b> Bagel Fat One, IBM Plex Sans KR, Nanum Gothic Coding (SIL Open Font License)</p><p><b>아이콘</b> Phosphor Icons (MIT)</p><p><b>소리</b> 모든 효과음과 음악은 브라우저에서 실시간으로 합성해요.</p></div><div class="foot"><span></span><button class="btn primary" data-m="ok">닫기</button></div>`); }
 function onEscape(){ if(!$('settings').hidden) closeSettings(); else if(popObj) closePop(); else if(placing||demolish||moving) cancelPlace(); else if(!$('banner').hidden) hideBanner(); else if(drawerTab) closeDrawer(); else openSettings(); }
-document.addEventListener('keydown',e=>{ if(!started){ if(e.key==='Enter'&&!$('title').hidden){ e.preventDefault(); ($('btnContinue').hidden?$('btnCamp'):$('btnContinue')).click(); } return; }
+document.addEventListener('keydown',e=>{ if(!started){ if(e.key==='Enter'&&!$('title').hidden&&SLOT&&!$('tBtns').hidden){ e.preventDefault(); ($('btnContinue').hidden?$('btnCamp'):$('btnContinue')).click(); } return; }
  if(!$('modal2').hidden) return;
  if(story&&document.activeElement!==typer&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); advanceStory(); return; }
  if(!$('settings').hidden){ if(e.key==='Escape') closeSettings(); return; }
@@ -2077,10 +2211,29 @@ function refocus(){ if(started&&$('settings').hidden) setTimeout(()=>typer.focus
 $('tx').addEventListener('pointerdown',()=>refocus());
 
 let started=false;
+function renderWho(){ const box=$('whoList'), sl=slotSort(slotsAll());
+ box.innerHTML=sl.map(x=>`<button data-slot="${x.id}"><span>${esc(slotLabel(x))}</span><small>${x.last?new Date(x.last).toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'})+' 플레이':'새 학생'}</small></button>`).join('')+`<button class="add" id="whoAdd">+ 새로 만들기</button>`;
+ box.querySelectorAll('[data-slot]').forEach(b=>b.onclick=()=>{ AU.init(); useSlot(slotsAll().find(x=>x.id===b.dataset.slot)); });
+ $('whoAdd').onclick=()=>{ $('whoNew').hidden=false; $('whoNum').focus(); }; }
+function useSlot(sl){ if(!sl) return; if(S&&SLOT) save(); SLOT=sl; const all=slotsAll(); const me=all.find(x=>x.id===sl.id); if(me){ me.last=Date.now(); slotsSave(all); }
+ loadProfile(); S=(P.last&&loadSave(P.last))||loadSave('free')||newState('free'); boot(); showTitle(); }
 function showTitle(){ started=false; document.body.classList.add('titled'); $('camp').hidden=true; const t=$('title'); t.hidden=false; t.classList.remove('out');
+ $('who').hidden=!!SLOT; $('tBtns').hidden=!SLOT; $('me').hidden=!SLOT; $('whoNew').hidden=true; if(SLOT){ $('meName').innerHTML=`<b>${esc(slotLabel(SLOT))}</b> 영주님`; } else renderWho();
  const lastId=P.last&&hasSave(P.last)?P.last:null; const cb=$('btnContinue'); cb.hidden=!lastId; if(lastId){ cb.textContent=lastId==='free'?'이어하기 (자유 모드)':`이어하기 (${chapterOf(lastId).no}장 ${chapterOf(lastId).title})`; } renderCoach(); renderObjTrack(); }
 function startGame(){ AU.init(); AU.apply(); document.body.classList.remove('titled'); const t=$('title'); t.classList.add('out'); setTimeout(()=>{ t.hidden=true; },500); started=true; renderCoach(); renderObjTrack(); resize(); refocus(); }
 $('btnCamp').onclick=()=>{ AU.init(); openCampaign(); };
+$('whoNew').onsubmit=e=>{ e.preventDefault(); const name=$('whoName').value.trim().slice(0,10), numRaw=$('whoNum').value.trim(), num=/^\d{1,2}$/.test(numRaw)?+numRaw:null;
+ if(!name){ $('whoName').focus(); return; } const all=slotsAll(); if(all.length>=60){ toast('학생 칸이 너무 많아요. 선생님 화면에서 정리해요'); return; }
+ const dup=all.find(x=>x.name===name&&(x.num??null)===num); if(dup){ AU.init(); useSlot(dup); return; }
+ const sl={id:'s'+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36),num,name,made:Date.now(),last:Date.now()}; all.push(sl); slotsSave(all); $('whoName').value=''; $('whoNum').value=''; AU.init(); useSlot(sl); };
+$('whoCancel').onclick=()=>{ $('whoNew').hidden=true; };
+$('btnSwitch').onclick=()=>{ save(); SLOT=null; S=newState('free'); P=P_DEFAULT(); boot(); showTitle(); };
+$('btnGuest').onclick=()=>{ SLOT=null; P=P_DEFAULT(); S=newState('free'); boot(); $('who').hidden=true; $('tBtns').hidden=false; $('me').hidden=false; $('meName').innerHTML='<b>손님</b> (저장되지 않아요)'; $('btnContinue').hidden=true; };
+$('btnTeacher').onclick=openTeacher; $('tClose').onclick=()=>{ $('teacher').hidden=true; if(!SLOT) renderWho(); };
+$('tCsv').onclick=()=>{ const ok=download(`타닥마을_학급기록_${dateKey()}.csv`,teacherCSV(),'text/csv;charset=utf-8'); $('tMsg').textContent=ok?'CSV를 받았어요. 엑셀에서 바로 열 수 있어요.':'이 화면에서는 파일 받기가 막혀 있어요.'; };
+$('tFiles').onchange=async e=>{ const fs=[...e.target.files]; const texts=await Promise.all(fs.map(f=>f.text())); addTeacherRecords(texts); e.target.value=''; };
+$('tPasteGo').onclick=()=>{ addTeacherRecords([$('tPaste').value]); $('tPaste').value=''; };
+$('btnFb').onclick=()=>{ closeSettings(); openFeedback(); }; $('btnMove').onclick=()=>{ closeSettings(); exportMove(); }; $('btnImport').onclick=()=>{ AU.init(); openImport(); }; $('btnExport').onclick=()=>{ closeSettings(); exportMine(); };
 $('btnContinue').onclick=()=>{ const d=loadSave(P.last); if(d){ S=d; } enterWorld(); };
 $('btnFree').onclick=()=>{ const d=loadSave('free'); S=d||newState('free'); enterWorld(); };
 
@@ -2094,20 +2247,21 @@ function frame(now){ const dt=Math.min(50,now-last); last=now;
  if(started&&isNight&&!prevNight&&featureOn('raids')&&!S.set.peace&&!raid&&!dun&&!storyOn()&&S.raidNight!==night){ S.raidNight=night; startRaid(); }
  const dayIdx=Math.floor(S.clock/360); if(S.lastTaxDay===undefined) S.lastTaxDay=dayIdx; if(started&&dayIdx>S.lastTaxDay){ S.lastTaxDay=dayIdx; collectTax(); }
  prevNight=isNight; if(dp.label!==lastDayLabel){ lastDayLabel=dp.label; if(started) updateCrest(); }
+ if(started&&SLOT&&!document.hidden) dayRec().play+=Math.min(dt,1000);
  stepWeather(dt); stepRequests(dt); maybeMerchant(dt); stepMerchant(dt); stepFolk(dt); stepParts(dt); stepRaid(dt); stepDungeon(dt); stepDuel(dt); render(now); placePop(); tickHud(now); updateGhost(now); stepFx(dt);
  requestAnimationFrame(frame); }
 
 function start(data){
- const hadProfile=(()=>{ try{ return !!localStorage.getItem(PROFILE_KEY); }catch(e){ return false; } })(); loadProfile();
- S=(data&&data.s&&data.s.v>=2)?data.s:((P.last&&loadSave(P.last))||loadSave('free')||newState('free'));
- if(!hadProfile&&S.set){ P.set=Object.assign(P.set,S.set); if(Array.isArray(S.achs)) P.achs=S.achs.slice(); if(S.keyErr) Object.assign(P.keyErr,S.keyErr); if(S.keyTot) Object.assign(P.keyTot,S.keyTot); if(loadSave('free')) P.last='free'; saveProfile(); }
+ migrateLegacySlots(); P=P_DEFAULT();
+ if(data&&data.slot){ SLOT=slotsAll().find(x=>x.id===data.slot)||null; if(SLOT) loadProfile(); }
+ S=(data&&data.s&&data.s.v>=2)?data.s:((SLOT&&((P.last&&loadSave(P.last))||loadSave('free')))||newState('free'));
  $('story').addEventListener('click',()=>{ advanceStory(); refocus(); });
  $('crest').addEventListener('click',()=>{ if(drawerTab==='town') closeDrawer(); else openDrawer('town'); refocus(); });
  $('zIn').onclick=()=>{ cam.zoom=Math.min(2.4,cam.zoom*1.2); resize(); refocus(); }; $('zOut').onclick=()=>{ cam.zoom=Math.max(0.6,cam.zoom/1.2); resize(); refocus(); }; $('zFit').onclick=()=>{ cam.zoom=1; cam.panX=0; cam.panY=0; resize(); refocus(); };
  loadSprites(); boot(); addEventListener('resize',resize); new ResizeObserver(resize).observe(dock);
  setInterval(save,5000); addEventListener('beforeunload',save);
- window.claude?.hot?.snapshot?.(()=>({s:S}));
- if(data&&data.s) startGame(); else showTitle();
+ window.claude?.hot?.snapshot?.(()=>({s:S,slot:SLOT&&SLOT.id}));
+ if(data&&data.s&&SLOT) startGame(); else showTitle();
  requestAnimationFrame(frame);
  window.__tadak={get S(){return S;}, startRaid:()=>startRaid(), get raid(){return raid;}, get dun(){return dun;}, startExpedition, setClock:(c)=>{S.clock=c;}, get P(){return P;}, canPlace:(t,x,y)=>canPlace(t,x,y), openCampaign, get story(){return story;}, advanceStory, startDuel, get duel(){return duel;}, checkObjectives, research, upgradeCastle, buyRegion, spawnMerchant:()=>spawnMerchant(), get merchant(){return merchant;}, objAt:(x,y)=>objAt(x,y), screenOf:(x,y)=>{ const [a,b]=W(x,y); return [cam.ox+a*cam.s, cam.oy+b*cam.s]; }, afterProgress};
 }
