@@ -353,6 +353,10 @@ body.big .tx .next,body.big .tx .prev{font-size:18px}
 .t-table td{padding:6px 9px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}.t-table td.c-note{white-space:normal;min-width:220px}
 .t-import{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}.t-import textarea{flex:1;min-width:240px;min-height:44px}
 .t-actions{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.t-pack{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px}.t-pack h3{margin:0;font-size:15px}
+.pk-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pk-grid label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.pk-grid input,.pk-grid textarea{font:inherit;font-size:13.5px;font-weight:400;border:0;background:var(--paper-2);border-radius:8px;padding:8px 10px;color:var(--ink)}.pk-grid textarea{min-height:70px;resize:vertical}
+@media (max-width:760px){ .pk-grid{grid-template-columns:1fr} }
 @media (max-width:760px){ .t-panel .stats{grid-template-columns:repeat(3,1fr)} }
 /* layout v1.1: crest above, rail below it, never overlapping */
 .crest{cursor:pointer;padding:8px 14px 8px 8px;gap:10px}
@@ -529,7 +533,7 @@ body.storying .objtrack{opacity:.4}
     <h2 id="setTitle">설정</h2>
     <div class="set"><label for="setVol">효과음<small>타건음, 수집음, 건설음</small></label><input type="range" id="setVol" min="0" max="100" step="5"></div>
     <div class="set"><label>배경 음악<small>잔잔한 오르골 반주</small></label><button class="tog" id="setMusic" aria-pressed="true" aria-label="배경 음악"></button></div>
-    <div class="set"><label>글감 주제<small>단어, 문장, 긴 글, 영단어에 나오는 내용</small></label><div class="seg" id="setTopic"><button data-v="mix">섞기</button><button data-v="virtue">미덕</button><button data-v="study">교과</button><button data-v="village">마을</button></div></div>
+    <div class="set"><label>글감 주제<small>단어, 문장, 긴 글, 영단어에 나오는 내용</small></label><div class="seg" id="setTopic"><button data-v="mix">섞기</button><button data-v="virtue">미덕</button><button data-v="study">교과</button><button data-v="village">마을</button><button data-v="teacher" id="topTeacher">선생님</button></div></div>
     <div class="set"><label>난이도<small>자원 보상의 양이 달라져요</small></label><div class="seg" id="setDiff"><button data-v="easy">쉬움</button><button data-v="normal">보통</button><button data-v="hard">어려움</button></div></div>
     <div class="set"><label>평화 모드<small>밤 침공이 오지 않아요</small></label><button class="tog" id="setPeace" aria-pressed="false" aria-label="평화 모드"></button></div>
     <div class="set"><label>화면 흔들림<small>건설과 증축 연출</small></label><button class="tog" id="setShake" aria-pressed="true" aria-label="화면 흔들림"></button></div>
@@ -556,6 +560,14 @@ body.storying .objtrack{opacity:.4}
     <div class="t-table" id="tTable"></div>
     <div class="t-import"><label class="btn sm" for="tFiles">기록 파일 불러오기</label><input type="file" id="tFiles" accept=".json,application/json" multiple hidden><textarea id="tPaste" placeholder="학생이 복사한 코드(TADAK1:...)를 여기에 붙여 넣어요. 여러 개도 돼요."></textarea><button class="btn sm" id="tPasteGo">코드 불러오기</button></div>
     <div class="t-actions"><span class="mnote" id="tMsg"></span><button class="btn primary sm" id="tCsv">엑셀용 CSV 받기</button></div>
+    <div class="t-pack"><h3>선생님 글감</h3><p class="mtext">이번 주 단원 낱말과 문장을 넣으면, 설정의 글감 주제에서 "선생님"을 골랐을 때 이것만 나와요. 이 컴퓨터의 모든 학생에게 적용돼요. 다른 컴퓨터에는 "학생용 링크"나 코드로 옮겨요.</p>
+      <div class="pk-grid"><label>제목<input id="pkTitle" maxlength="30" placeholder="예: 5학년 2단원 우리 국토"></label>
+      <label>낱말 (띄어쓰기나 줄바꿈으로 구분)<textarea id="pkWords" placeholder="갯벌 평야 하천 산지 해안"></textarea></label>
+      <label>문장 (한 줄에 하나, 60자 이내)<textarea id="pkSents" placeholder="서해안에는 넓은 갯벌이 있어요."></textarea></label>
+      <label>긴 글 (한 줄에 한 행, 40자 이내)<textarea id="pkLines"></textarea></label>
+      <label>영단어 (한 줄에 "단어=뜻")<textarea id="pkEng" placeholder="island=섬"></textarea></label></div>
+      <div class="t-actions"><span class="mnote" id="pkMsg"></span><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" id="pkClear">지우기</button><button class="btn sm" id="pkCode">코드 복사</button><button class="btn sm" id="pkLink">학생용 링크 복사</button><button class="btn primary sm" id="pkSave">저장</button></div></div>
+      <div class="t-import"><textarea id="pkPaste" placeholder="다른 컴퓨터에서 복사한 글감 코드(TADAKPACK1:...)를 붙여 넣어요."></textarea><button class="btn sm" id="pkPasteGo">코드 불러오기</button></div></div>
   </div>
 </div>
 
@@ -639,8 +651,22 @@ POEMS.forEach(P=>P.topic=P.topic||'village');
 POEMS.push(...[{"title":"우산 하나","author":"미덕 이야기","topic":"virtue","lines":["비가 갑자기 쏟아진 오후였다.","민수는 우산이 하나뿐이었다.","현관에 서 있는 지우가 보였다.","민수는 우산을 함께 쓰자고 했다.","두 사람의 어깨가 조금씩 젖었다.","그래도 마음은 따뜻하고 뽀송했다.","배려는 나누면 더 커지는 선물이다."]},{"title":"깨진 화분","author":"미덕 이야기","topic":"virtue","lines":["쉬는 시간에 공놀이를 하다가","교실 화분을 깨뜨리고 말았다.","아무도 보지 못한 것 같았다.","하지만 마음이 계속 무거웠다.","나는 선생님께 솔직하게 말했다.","선생님은 말해 줘서 고맙다고 하셨다.","정직하게 말하니 마음이 가벼워졌다."]},{"title":"강낭콩 당번","author":"미덕 이야기","topic":"virtue","lines":["우리 반에는 강낭콩 화분이 있다.","이번 주 물 주기 당번은 나다.","아침마다 흙이 말랐는지 살펴본다.","깜빡한 날에는 쉬는 시간에 챙긴다.","어느새 떡잎 사이로 새잎이 났다.","맡은 일을 끝까지 하는 것이 책임이다."]},{"title":"감사 일기","author":"미덕 이야기","topic":"virtue","lines":["잠들기 전에 감사 일기를 쓴다.","오늘은 친구가 지우개를 빌려주었다.","급식에 좋아하는 반찬이 나왔다.","엄마가 따뜻한 말로 안아 주셨다.","작은 일도 적어 보면 감사가 많다.","감사하는 마음이 하루를 빛나게 한다."]},{"title":"발표하는 날","author":"미덕 이야기","topic":"virtue","lines":["오늘은 모둠 대표로 발표하는 날이다.","앞에 서니 가슴이 두근두근 뛰었다.","목소리가 작게 떨리기 시작했다.","친구들이 고개를 끄덕여 주었다.","나는 숨을 크게 쉬고 끝까지 말했다.","용기는 떨려도 한 걸음 내딛는 것이다."]},{"title":"줄다리기 연습","author":"미덕 이야기","topic":"virtue","lines":["운동회를 앞두고 줄다리기를 연습했다.","처음에는 서로 박자가 맞지 않았다.","누구 탓인지 따지는 목소리도 났다.","반장이 하나 둘 구호를 제안했다.","모두가 같은 박자로 줄을 당겼다.","함께 힘을 모으니 줄이 움직였다.","협력은 마음의 박자를 맞추는 일이다."]},{"title":"민주주의와 선거","author":"사회 이야기","topic":"study","lines":["민주주의에서는 국민이 주인이다.","국민은 선거로 대표자를 뽑는다.","투표는 한 사람이 한 표씩 한다.","누구를 뽑았는지는 비밀로 지킨다.","후보의 공약을 꼼꼼히 비교해 보자.","당선된 뒤에도 약속을 지키는지 본다.","선거는 민주주의를 지키는 힘이다."]},{"title":"우리 국토의 지형","author":"사회 이야기","topic":"study","lines":["우리나라는 산지가 많은 나라이다.","북쪽과 동쪽에는 높은 산이 많다.","큰 강은 대부분 서쪽과 남쪽으로 흐른다.","강 주변의 넓은 평야에서 벼를 기른다.","서해안에는 넓은 갯벌이 펼쳐져 있다.","남해안에는 크고 작은 섬이 많다.","동해안에는 긴 모래사장이 있다."]},{"title":"시장 경제","author":"사회 이야기","topic":"study","lines":["우리는 시장에서 필요한 물건을 산다.","가계는 일해서 번 돈으로 물건을 산다.","기업은 물건을 만들어 판매한다.","기업은 더 좋은 상품을 만들려 경쟁한다.","소비자는 여러 상품 중에 고를 수 있다.","자유와 경쟁은 시장 경제의 특징이다."]},{"title":"평화 통일을 향해","author":"사회 이야기","topic":"study","lines":["한반도는 오랫동안 남북으로 나뉘어 있다.","헤어진 가족을 그리워하는 사람이 많다.","남북은 대화를 위해 회담을 열었다.","운동 경기에서 함께 입장하기도 했다.","달라진 말을 모아 사전을 만들고 있다.","우리는 서로를 이해하려 노력할 수 있다.","평화 통일은 우리 모두의 희망이다."]},{"title":"원주율 이야기","author":"수학 이야기","topic":"study","lines":["원의 둘레를 원주라고 한다.","원주는 지름의 세 배보다 조금 길다.","원주를 지름으로 나눈 값이 원주율이다.","원이 크든 작든 원주율은 같다.","보통 원주율은 3.14로 계산한다.","원의 넓이도 원주율로 구할 수 있다."]},{"title":"비와 비율","author":"수학 이야기","topic":"study","lines":["두 수를 나눗셈으로 비교할 때 비를 쓴다.","3 대 4처럼 두 수를 나란히 쓴다.","앞에 있는 수를 전항이라고 한다.","뒤에 있는 수를 후항이라고 한다.","0이 아닌 같은 수를 곱해도 비율은 같다.","비율에 100을 곱하면 백분율이 된다."]},{"title":"지구를 지키는 습관","author":"사회 이야기","topic":"study","lines":["기후변화로 지구가 점점 더워지고 있다.","여름은 길어지고 겨울은 짧아졌다.","폭염과 홍수도 더 자주 일어난다.","가까운 거리는 걸어서 다녀 보자.","쓰지 않는 전등은 꼭 끄자.","분리배출은 지구를 지키는 습관이다.","작은 실천이 모여 큰 변화를 만든다."]},{"title":"지도와 위치","author":"사회 이야기","topic":"study","lines":["지구본은 지구를 작게 줄인 모형이다.","세계지도는 세계를 한눈에 보여 준다.","적도는 위도 0도를 지나는 선이다.","본초 자오선은 경도 0도의 기준선이다.","위도와 경도로 위치를 나타낼 수 있다.","우리나라는 북반구에 자리하고 있다.","지도를 읽으면 세상이 더 가까워진다."]}]);
 const TOPICS={mix:'모두 섞기',virtue:'미덕',study:'교과',village:'마을 이야기'};
 const _pool={};
-function topic(){ return (S&&S.set&&S.set.topic)||'mix'; }
+// ---------- 선생님 글감: 이 컴퓨터의 모든 학생에게 적용, 링크나 코드로 다른 컴퓨터에 전달 ----------
+const PACK_KEY='tadak-teacher-pack-v1';
+function packGet(){ try{ const d=JSON.parse(localStorage.getItem(PACK_KEY)||'null'); return d&&(d.words.length||d.sents.length||d.lines.length||d.eng.length)?d:null; }catch(e){ return null; } }
+function packParse(o){ const clean=t=>String(t||'').replace(/[<>]/g,'').trim(); const words=[...new Set(clean(o.words).split(/[\s,]+/).filter(w=>w&&[...w].length<=12))].slice(0,300);
+ const sents=clean(o.sents).split(/\n+/).map(x=>x.trim()).filter(x=>x&&[...x].length<=60).slice(0,200);
+ const lines=clean(o.lines).split(/\n+/).map(x=>x.trim()).filter(x=>x&&[...x].length<=40).slice(0,40);
+ const eng=clean(o.eng).split(/\n+/).map(x=>x.split(/\s*[=:]\s*/)).filter(x=>/^[a-zA-Z' -]{2,20}$/.test((x[0]||'').trim())).map(x=>[x[0].trim().toLowerCase(),(x[1]||'').trim()]).slice(0,200);
+ return {v:1,title:clean(o.title).slice(0,30)||'선생님 글감',words,sents,lines,eng,at:Date.now()}; }
+function packSave(d){ try{ if(d) localStorage.setItem(PACK_KEY,JSON.stringify(d)); else localStorage.removeItem(PACK_KEY); }catch(e){} packApply(); }
+function packApply(){ for(let i=POEMS.length-1;i>=0;i--) if(POEMS[i].topic==='teacher') POEMS.splice(i,1); const d=packGet(); if(d&&d.lines.length) POEMS.push({title:d.title,author:'선생님',topic:'teacher',lines:d.lines}); for(const k in _pool) delete _pool[k]; }
+const packCode=d=>'TADAKPACK1:'+btoa(unescape(encodeURIComponent(JSON.stringify({title:d.title,words:d.words.join(' '),sents:d.sents.join('\n'),lines:d.lines.join('\n'),eng:d.eng.map(x=>x[0]+'='+x[1]).join('\n')}))));
+function packFromCode(t){ t=t.trim(); const i=t.indexOf('TADAKPACK1:'); if(i<0) throw 0; const raw=t.slice(i+11).split(/[\s&]/)[0]; return packParse(JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(raw)))))); }
+function topic(){ const t=(S&&S.set&&S.set.topic)||'mix'; return t==='teacher'&&!packGet()?'mix':t; }
 function poolOf(kind){ const t=topic(), key=kind+':'+t; if(_pool[key]) return _pool[key]; let L;
+ const pk=t==='teacher'?packGet():null;
+ if(pk){ L=kind==='w'?(pk.words.length?pk.words:KO_WORDS):kind==='s'?(pk.sents.length?pk.sents:SENTENCES):kind==='e'?(pk.eng.length?pk.eng:EN_WORDS):POEMS.map((P,i)=>i).filter(i=>POEMS[i].topic===(pk.lines.length?'teacher':'village')); return _pool[key]=L; }
  if(kind==='w') L=t==='virtue'?VIRTUE_WORDS:t==='study'?STUDY_WORDS:t==='village'?KO_WORDS:[...KO_WORDS,...VIRTUE_WORDS,...STUDY_WORDS];
  else if(kind==='s') L=t==='virtue'?VIRTUE_SENT:t==='study'?STUDY_SENT:t==='village'?SENTENCES:[...SENTENCES,...VIRTUE_SENT,...STUDY_SENT];
  else if(kind==='e'){ const seen=new Set(), all=[]; const src=t==='village'?EN_WORDS:t==='mix'?[...EN_WORDS,...STUDY_EN]:STUDY_EN; src.forEach(x=>{ if(!seen.has(x[0])){ seen.add(x[0]); all.push(x); } }); L=all; }
@@ -2229,7 +2255,9 @@ function openFeedback(){ if(!SLOT) return; const f={fun:0,feel:'',likes:[],note:
 const COLS=[['num','번호'],['name','이름'],['days','플레이한 날'],['playMin','플레이(분)'],['typeMin','타자(분)'],['cpm','평균 타수'],['best','최고 타수'],['acc','정확도(%)'],['items','입력 수'],['word','단어'],['sentence','문장'],['long','긴 글 줄'],['eng','영단어'],['chapters','끝낸 장'],['stars','별'],['diff','난이도'],['topic','글감'],['weak','자주 틀리는 키'],['fun','재미(1~5)'],['feel','어려움'],['likes','좋았던 것'],['note','소감'],['last','마지막 날']];
 let teacherRows=[];
 function cellOf(r,k){ const v=r[k]; if(k==='diff') return DIFF_KO[v]||v; if(k==='topic') return TOPIC_KO[v]||v; if(k==='feel') return FEEL_KO[v]||v; return v??''; }
-function openTeacher(){ teacherRows=slotsAll().map(sl=>({...recordOf(sl).sum,_id:sl.id,_src:'이 컴퓨터'})); renderTeacher(); $('teacher').hidden=false; }
+function fillPackForm(){ const d=packGet(); $('pkTitle').value=d?d.title:''; $('pkWords').value=d?d.words.join(' '):''; $('pkSents').value=d?d.sents.join('\n'):''; $('pkLines').value=d?d.lines.join('\n'):''; $('pkEng').value=d?d.eng.map(x=>x[0]+'='+x[1]).join('\n'):''; $('pkMsg').textContent=d?`저장된 글감: 낱말 ${d.words.length}, 문장 ${d.sents.length}, 긴 글 ${d.lines.length}행, 영단어 ${d.eng.length}`:'저장된 글감이 없어요.'; }
+function readPackForm(){ return packParse({title:$('pkTitle').value,words:$('pkWords').value,sents:$('pkSents').value,lines:$('pkLines').value,eng:$('pkEng').value}); }
+function openTeacher(){ fillPackForm(); teacherRows=slotsAll().map(sl=>({...recordOf(sl).sum,_id:sl.id,_src:'이 컴퓨터'})); renderTeacher(); $('teacher').hidden=false; }
 function renderTeacher(){ const rows=teacherRows.slice().sort((a,b)=>((a.num===''?999:+a.num)-(b.num===''?999:+b.num))||String(a.name).localeCompare(String(b.name),'ko'));
  const n=rows.length, avg=k=>n?Math.round(rows.reduce((a,r)=>a+(+r[k]||0),0)/n):0, fbs=rows.filter(r=>r.fun!=='');
  $('tSum').innerHTML=`<div class="stat"><small>학생</small><b>${n}</b></div><div class="stat"><small>평균 플레이</small><b>${avg('playMin')}<em>분</em></b></div><div class="stat"><small>평균 타수</small><b>${avg('cpm')}</b></div><div class="stat"><small>평균 정확도</small><b>${avg('acc')}<em>%</em></b></div><div class="stat"><small>소감</small><b>${fbs.length}<em>명</em></b></div><div class="stat"><small>평균 재미</small><b>${fbs.length?(fbs.reduce((a,r)=>a+r.fun,0)/fbs.length).toFixed(1):'-'}</b></div>`;
@@ -2273,7 +2301,7 @@ function levelBanner(small,big,sub){ const w=$('levelWrap'); w.innerHTML=`<div c
 function renderCoach(){ const el=$('coachWrap'); if(!S.coach||!started){ el.innerHTML=''; return; }
  el.innerHTML=`<div class="coach"><b class="t">어서 오세요, 영주님</b><ol><li>아래 단어를 치고 <kbd>Space</kbd>를 누르면 나무와 돌이 날아와요</li><li><kbd>Tab</kbd>으로 모드를 바꾸면 다른 자원이 모여요. 긴 글은 연구에 쓰는 지혜를 줘요</li><li>왼쪽 <b>건설</b>에서 건물을 고르고 섬을 눌러 지어요. 집 옆에 나무를 심으면 이웃 보너스!</li><li><b>성·연구</b>에서 연구를 마치고 성을 증축하면 원정과 밤 침공이 열려요</li></ol><div class="row2"><button class="btn primary sm" id="coachOk">시작하기</button></div></div>`;
  $('coachOk').onclick=()=>{ S.coach=false; renderCoach(); save(); refocus(); }; }
-function syncDiff(){ $('setDiff').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===(S.set.diff||'normal'))); $('setTopic').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===topic())); }
+function syncDiff(){ $('setDiff').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===(S.set.diff||'normal'))); $('setTopic').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===topic())); $('topTeacher').hidden=!packGet(); }
 function openSettings(){ $('settings').hidden=false; syncDiff(); $('setWho').textContent=SLOT?`${slotLabel(SLOT)} · 선생님께 기록과 소감을 보내요`:'손님은 기록이 저장되지 않아요'; $('btnFb').disabled=$('btnExport').disabled=$('btnMove').disabled=!SLOT; $('setVol').value=S.set.vol; ['music','shake','ghost','peace','big'].forEach(k=>$('set'+k[0].toUpperCase()+k.slice(1)).setAttribute('aria-pressed',S.set[k])); $('btnReset').textContent='마을 초기화'; $('btnReset').dataset.arm=''; $('btnReset').classList.remove('danger'); }
 function closeSettings(){ $('settings').hidden=true; save(); refocus(); }
 $('btnCloseSet').onclick=closeSettings;
@@ -2300,7 +2328,7 @@ function renderWho(){ const box=$('whoList'), sl=slotSort(slotsAll());
  box.querySelectorAll('[data-slot]').forEach(b=>b.onclick=()=>{ AU.init(); useSlot(slotsAll().find(x=>x.id===b.dataset.slot)); });
  $('whoAdd').onclick=()=>{ $('whoNew').hidden=false; $('whoNum').focus(); }; }
 function useSlot(sl){ if(!sl) return; if(S&&SLOT) save(); SLOT=sl; const all=slotsAll(); const me=all.find(x=>x.id===sl.id); if(me){ me.last=Date.now(); slotsSave(all); }
- loadProfile(); S=(P.last&&loadSave(P.last))||loadSave('free')||newState('free'); boot(); showTitle(); }
+ loadProfile(); if(window.__packJustLoaded){ P.set.topic='teacher'; saveProfile(); toast('선생님 글감 “'+window.__packJustLoaded+'”으로 연습해요'); } S=(P.last&&loadSave(P.last))||loadSave('free')||newState('free'); boot(); showTitle(); }
 function showTitle(){ started=false; document.body.classList.add('titled'); $('camp').hidden=true; const t=$('title'); t.hidden=false; t.classList.remove('out');
  $('who').hidden=!!SLOT; $('tBtns').hidden=!SLOT; document.querySelector('.t-foot').hidden=!SLOT; $('me').hidden=!SLOT; $('whoNew').hidden=true; if(SLOT){ $('meName').innerHTML=`<b>${esc(slotLabel(SLOT))}</b> 영주님`; } else renderWho();
  const lastId=P.last&&hasSave(P.last)?P.last:null; const cb=$('btnContinue'); cb.hidden=!lastId; if(lastId){ cb.textContent=lastId==='free'?'이어하기 (자유 모드)':`이어하기 (${chapterOf(lastId).no}장 ${chapterOf(lastId).title})`; } renderCoach(); renderObjTrack(); }
@@ -2316,6 +2344,11 @@ $('btnGuest').onclick=()=>{ SLOT=null; P=P_DEFAULT(); S=newState('free'); boot()
 $('btnTeacher').onclick=openTeacher; $('tClose').onclick=()=>{ $('teacher').hidden=true; if(!SLOT) renderWho(); };
 $('tCsv').onclick=async()=>{ const ok=await download(`타닥마을_학급기록_${dateKey()}.csv`,teacherCSV(),'text/csv;charset=utf-8'); $('tMsg').textContent=ok?'CSV를 받았어요. 엑셀에서 바로 열 수 있어요.':'파일을 받지 못했어요.'; };
 $('tFiles').onchange=async e=>{ const fs=[...e.target.files]; const texts=await Promise.all(fs.map(f=>f.text())); addTeacherRecords(texts); e.target.value=''; };
+$('pkSave').onclick=()=>{ const d=readPackForm(); if(!(d.words.length||d.sents.length||d.lines.length||d.eng.length)){ $('pkMsg').textContent='넣은 내용이 없어요.'; return; } packSave(d); fillPackForm(); };
+$('pkClear').onclick=()=>{ const b=$('pkClear'); if(b.dataset.arm!=='1'){ b.dataset.arm='1'; b.textContent='정말 지우기'; return; } b.dataset.arm=''; b.textContent='지우기'; packSave(null); fillPackForm(); };
+$('pkCode').onclick=async()=>{ const d=packGet(); if(!d){ $('pkMsg').textContent='먼저 저장해요.'; return; } $('pkMsg').textContent=(await copyText(packCode(d)))?'코드를 복사했어요. 다른 컴퓨터의 선생님 화면에 붙여 넣어요.':'복사가 안 됐어요.'; };
+$('pkLink').onclick=async()=>{ const d=packGet(); if(!d){ $('pkMsg').textContent='먼저 저장해요.'; return; } const u=location.href.split('#')[0]+'#pack='+encodeURIComponent(packCode(d).slice(11)); $('pkMsg').textContent=(await copyText(u))?'학생용 링크를 복사했어요. 이 링크로 열면 그 컴퓨터에 글감이 저장되고, 학생이 고르면 "선생님" 글감으로 바뀌어요.':'복사가 안 됐어요.'; };
+$('pkPasteGo').onclick=()=>{ try{ packSave(packFromCode($('pkPaste').value)); $('pkPaste').value=''; fillPackForm(); }catch(e){ $('pkMsg').textContent='읽을 수 없는 코드예요.'; } };
 $('tPasteGo').onclick=()=>{ addTeacherRecords([$('tPaste').value]); $('tPaste').value=''; };
 $('btnFb').onclick=()=>{ closeSettings(); openFeedback(); }; $('btnMove').onclick=()=>{ closeSettings(); exportMove(); }; $('btnImport').onclick=()=>{ AU.init(); openImport(); }; $('btnExport').onclick=()=>{ closeSettings(); exportMine(); };
 $('btnContinue').onclick=()=>{ const d=loadSave(P.last); if(d){ S=d; } enterWorld(); };
@@ -2337,6 +2370,8 @@ function frame(now){ const dt=Math.min(50,now-last); last=now;
 
 function start(data){
  migrateLegacySlots(); P=P_DEFAULT();
+ try{ if(location.hash.startsWith('#pack=')){ const d=packFromCode('TADAKPACK1:'+location.hash.slice(6)); packSave(d); history.replaceState(null,'',location.href.split('#')[0]); window.__packJustLoaded=d.title; } }catch(e){}
+ packApply();
  if(data&&data.slot){ SLOT=slotsAll().find(x=>x.id===data.slot)||null; if(SLOT) loadProfile(); }
  S=(data&&data.s&&data.s.v>=2)?data.s:((SLOT&&((P.last&&loadSave(P.last))||loadSave('free')))||newState('free'));
  $('story').addEventListener('click',()=>{ advanceStory(); refocus(); });
