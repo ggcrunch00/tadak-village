@@ -9,6 +9,7 @@ spr=json.loads((root/'assets'/'sprites.json').read_text())
 spr.update(json.loads((root/'assets'/'art2.json').read_text()))
 spr.update(json.loads((root/'assets'/'art3.json').read_text()))
 spr.update(json.loads((root/'assets'/'art4.json').read_text()))  # crest, flag, blank stone fixes
+spr.update(json.loads((root/'assets'/'art5.json').read_text()))  # portraits redrawn in the map sprite style
 assert '/*__PH__*/' in src and '/*__SPRITES__*/' in src
 out=src.replace('/*__PH__*/',ph).replace('/*__SPRITES__*/','const SPRITE_DATA='+json.dumps(spr)+';')
 (root/'index.html').write_text(out,encoding='utf-8')

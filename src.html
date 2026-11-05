@@ -1,4 +1,4 @@
-<title>타닥타닥 마을</title>
+<title>이름을 쓰는 섬</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -286,6 +286,7 @@ body.big .tx .next,body.big .tx .prev{font-size:18px}
 .levelup span{display:inline-block;margin-top:12px;font-size:13.5px;font-weight:600;color:var(--ink);background:var(--accent-soft);border-radius:6px;padding:4px 10px;box-shadow:0 0 0 1.5px var(--edge)}
 @keyframes lvl{0%{transform:translateY(10px) scale(.9);opacity:0}14%{transform:none;opacity:1}85%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
 .modal-wrap{position:fixed;inset:0;z-index:90;background:rgba(14,30,48,.45);display:grid;place-items:center;padding:16px}
+#modal2{z-index:130} /* 타이틀(100)·캠페인 지도(100)·선생님 화면(120) 위에서도 보이게 */
 .modal{width:min(420px,100%);background:var(--paper);border-radius:var(--r-surface);padding:20px 22px;box-shadow:var(--shadow)}
 .modal h2{margin:0 0 10px;font-family:var(--f-display);font-weight:400;font-size:22px}
 .set{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
@@ -307,11 +308,14 @@ body.big .tx .next,body.big .tx .prev{font-size:18px}
 @keyframes titleOut{to{opacity:0;visibility:hidden}}
 .t-inner{display:flex;flex-direction:column;gap:14px;max-width:520px}
 .t-name{font-family:var(--f-display);font-size:clamp(40px,6.4vw,76px);line-height:1;color:var(--ink)}
-/* 로고: 글자 하나하나가 눌리는 키캡 */
-.t-name span{display:inline-grid;place-items:center;width:1.2em;height:1.16em;padding-top:.06em;background:var(--paper);border-radius:.17em;margin:0 .07em .16em 0;
+/* 로고: 글자 하나하나가 눌리는 키캡. "섬"만 강조색 */
+.t-row{display:flex;gap:.07em;margin-bottom:.14em}
+.t-row:nth-child(2){margin-left:.5em}
+.t-name span{display:inline-grid;place-items:center;width:1.18em;height:1.18em;padding:0 0 .1em;line-height:1;background:var(--paper);border-radius:.17em;
   box-shadow:0 0 0 .045em var(--edge),0 .08em 0 .045em var(--edge),0 .35em .6em rgba(14,48,66,.28);animation:keyIn .42s ease-out both}
-.t-name span:nth-child(2){transform:rotate(2deg)}.t-name span:nth-child(3){transform:rotate(-1.5deg)}.t-name span:nth-child(4){transform:rotate(1deg)}
-.t-name span:last-child{width:2.2em;background:var(--accent);color:var(--accent-ink)}
+.t-row:first-child span:nth-child(2){rotate:2deg}.t-row:first-child span:nth-child(3){rotate:-1.5deg}.t-row:nth-child(2) span:first-child{rotate:-1deg}
+.t-name span.isle{background:var(--accent);color:var(--accent-ink);width:1.3em;rotate:1.5deg}
+.t-sub{font-family:var(--f-display);font-size:20px;color:var(--paper);text-shadow:0 2px 0 rgba(14,48,66,.45);margin-top:-4px;letter-spacing:.04em}
 @keyframes keyIn{0%{opacity:0;translate:0 -.2em}60%{opacity:1;translate:0 .06em}100%{translate:0 0}}
 .t-tag{font-size:17px;color:#fff;text-shadow:0 2px 10px rgba(14,48,66,.7);max-width:32ch;line-height:1.5;word-break:keep-all}
 .t-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
@@ -548,7 +552,7 @@ body.storying .objtrack{opacity:.4}
         <button class="btn primary sm" id="btnCloseSet">닫기</button>
       </div>
     </div>
-    <div class="ver">타닥타닥 마을 v1.2 · <button class="linkbtn" id="btnCredits">만든 것들</button></div>
+    <div class="ver">이름을 쓰는 섬 v1.3 · <button class="linkbtn" id="btnCredits">만든 것들</button></div>
   </div>
 </div>
 
@@ -573,7 +577,8 @@ body.storying .objtrack{opacity:.4}
 
 <div class="title" id="title">
   <div class="t-inner">
-    <div class="t-name" aria-label="타닥타닥 마을"><span>타</span><span style="animation-delay:.07s">닥</span><span style="animation-delay:.14s">타</span><span style="animation-delay:.21s">닥</span><br><span style="animation-delay:.32s">마을</span></div>
+    <div class="t-name" aria-label="이름을 쓰는 섬"><div class="t-row"><span>이</span><span style="animation-delay:.06s">름</span><span style="animation-delay:.12s">을</span></div><div class="t-row"><span style="animation-delay:.22s">쓰</span><span style="animation-delay:.28s">는</span><span class="isle" style="animation-delay:.4s">섬</span></div></div>
+    <div class="t-sub">말결 군도 이야기</div>
     <div class="t-tag">나무라고 치면 나무가 생기는 섬. 글자로 마을을 지어요.</div>
     <div class="whobox" id="who">
       <div class="who-h"><b>누가 플레이하나요?</b><span>내 번호와 이름을 골라요. 처음이면 새로 만들어요.</span></div>
@@ -622,7 +627,7 @@ const SENTENCES = [
 ];
 const POEMS = [
  {title:'서시', author:'윤동주', lines:['죽는 날까지 하늘을 우러러','한 점 부끄럼이 없기를,','잎새에 이는 바람에도','나는 괴로워했다.','별을 노래하는 마음으로','모든 죽어 가는 것을 사랑해야지','그리고 나한테 주어진 길을','걸어가야겠다.','오늘 밤에도 별이 바람에 스치운다.']},
- {title:'타닥 마을 일지', author:'마을 기록관', lines:['아침이 오면 마을은 키보드 소리로 깨어난다.','누군가는 나무를 모으고 누군가는 돌을 나른다.','한 글자를 칠 때마다 벽돌이 하나씩 쌓이고','한 줄을 끝낼 때마다 지붕 위로 연기가 오른다.','서두르지 않아도 괜찮다. 틀린 글자는 고치면 된다.','오늘 쓴 문장이 내일의 길이 되고','그 길을 따라 이웃들이 하나둘 찾아온다.','그렇게 우리 마을은 조금씩 자란다.']},
+ {title:'새벽섬 마을 일지', author:'마을 기록관', lines:['아침이 오면 마을은 키보드 소리로 깨어난다.','누군가는 나무를 모으고 누군가는 돌을 나른다.','한 글자를 칠 때마다 벽돌이 하나씩 쌓이고','한 줄을 끝낼 때마다 지붕 위로 연기가 오른다.','서두르지 않아도 괜찮다. 틀린 글자는 고치면 된다.','오늘 쓴 문장이 내일의 길이 되고','그 길을 따라 이웃들이 하나둘 찾아온다.','그렇게 우리 마을은 조금씩 자란다.']},
  {title:'엄마야 누나야', author:'김소월', lines:['엄마야 누나야 강변 살자','뜰에는 반짝이는 금모래빛','뒷문 밖에는 갈잎의 노래','엄마야 누나야 강변 살자']},
  {title:'진달래꽃', author:'김소월', lines:['나 보기가 역겨워','가실 때에는','말없이 고이 보내 드리우리다.','영변에 약산','진달래꽃','아름 따다 가실 길에 뿌리우리다.','가시는 걸음 걸음','놓인 그 꽃을','사뿐히 즈려밟고 가시옵소서.','나 보기가 역겨워','가실 때에는','죽어도 아니 눈물 흘리우리다.']},
  {title:'산유화', author:'김소월', lines:['산에는 꽃 피네','꽃이 피네','갈 봄 여름 없이','꽃이 피네','산에','산에','피는 꽃은','저만치 혼자서 피어 있네','산에서 우는 작은 새요','꽃이 좋아','산에서','사노라네','산에는 꽃 지네','꽃이 지네','갈 봄 여름 없이','꽃이 지네']},
@@ -761,7 +766,7 @@ const RANKS = [{name:'빈 터',min:0,perk:'아직 이름 없는 터'},
  {name:'아늑한 마을',min:160,perk:'모든 보상 +8%, 벽돌 가마'},
  {name:'활기찬 마을',min:340,perk:'모든 보상 +12%, 필사실'},
  {name:'번화한 마을',min:600,perk:'모든 보상 +16%, 축제 열기'},
- {name:'타닥 시티',min:1000,perk:'모든 보상 +20%, 금빛 기념비'}];
+ {name:'이름난 섬',min:1000,perk:'모든 보상 +20%, 금빛 기념비'}];
 const RELICS = [
  {id:'compass', name:'낡은 나침반', icon:'compass', desc:'원정 제한 시간 +15%'},
  {id:'quill',   name:'황금 깃펜',   icon:'pen',     desc:'문장 보상 +10%', bonus:{sentence:.1}},
@@ -1525,7 +1530,7 @@ const SPR={};
 const FIT={ // w: drawn width in tiles per footprint tile, b: how far the image bottom sits below the footprint center (in half-tile heights), top: label height
  cottage:{w:.98,b:.92}, brickhouse:{w:.92,b:.95}, well:{w:.66,b:.6}, bakery:{w:1.04,b:.92}, school:{w:.98,b:.9}, windmill:{w:1.08,b:.72}, watchtower:{w:.56,b:.62},
  market:{w:.9,b:.8}, library:{w:.98,b:.9}, fountain:{w:.82,b:.75}, clocktower:{w:.52,b:.62}, lighthouse:{w:.56,b:.62},
- castle1:{w:.95,b:.9}, castle2:{w:.98,b:.88}, lumber:{w:1.0,b:.85}, quarry:{w:1.0,b:.8}, kiln:{w:.92,b:.85}, scriptorium:{w:.88,b:.9}, monument:{w:.9,b:.85}, castle3:{w:.98,b:.9}, castle4:{w:1.04,b:.92},
+ castle1:{w:.95,b:.9}, castle2:{w:.86,b:.8,x:.04}, lumber:{w:1.0,b:.85}, quarry:{w:1.0,b:.8}, kiln:{w:.92,b:.85}, scriptorium:{w:.88,b:.9}, monument:{w:.9,b:.85}, castle3:{w:.98,b:.9}, castle4:{w:1.04,b:.92},
  oak:{w:.92,b:.35}, pine:{w:.62,b:.3}, apple:{w:.78,b:.35}, cherry:{w:.92,b:.35}, bush:{w:.5,b:.3}, flowerbed:{w:.9,b:.62}, rocks:{w:.66,b:.4}, boulder:{w:.74,b:.45},
  cave:{w:1.18,b:.7}, ruin:{w:1.0,b:.8}, wordstone:{w:.5,b:.4}, tower:{w:.78,b:.55}, camp:{w:.95,b:.7}, lamp:{w:.3,b:.2}, sign:{w:.35,b:.2}, chest:{w:.42,b:.3}, goblin:{w:.95,b:.5}, ship:{w:1.6,b:.6}, pier:{w:1,b:.6}, hay:{w:.55,b:.4} };
 function spriteName(o){ if(o.t==='castle') return 'castle'+(THUMB?LVL:S.castle);
@@ -1536,7 +1541,7 @@ function loadSprites(){ if(typeof SPRITE_DATA==='undefined') return; let left=Ob
 function spriteTop(o){ const n=spriteName(o), im=SPR[n], f=FIT[n]; if(!im||!f) return o.t==='castle'?100:o.natural?56:74; const z=szOf(o); const w=z*TW*f.w, h=w*im.height/im.width; return h-z*TH/2*f.b+10; }
 function drawObj(o){ const n=spriteName(o), im=SPR[n], f=FIT[n], z=szOf(o), [cx,cy]=centerOf(o);
  if(!im||!f){ const P=Object.assign({},o,{gx:cx,gy:cy}); DRAW[o.t]&&DRAW[o.t](P); return; }
- const [x,y]=W(cx,cy), w=z*TW*f.w, h=w*im.height/im.width, by=y+z*TH/2*f.b;
+ const [x0,y]=W(cx,cy), w=z*TW*f.w, h=w*im.height/im.width, by=y+z*TH/2*f.b, x=x0+(f.x||0)*z*TW; // f.x: 그림의 바닥이 한쪽으로 치우친 스프라이트 보정
  g.beginPath(); g.ellipse(x+5*z,y+2*z,z*TW*.36*Math.min(1,f.w+.1),z*TH*.32*Math.min(1,f.w+.1),0,0,Math.PI*2); g.fillStyle='rgba(28,58,34,.22)'; g.fill();
  const sway=(o.natural||o.t==='tree')&&!THUMB?Math.sin(TIME*1.5+(o.seed||0))*0.012:0;
  if(sway){ g.save(); g.translate(x,by); g.transform(1,0,sway,1,0,0); g.drawImage(im,-w/2,-h,w,h); g.restore(); } else g.drawImage(im,x-w/2,by-h,w,h);
@@ -2213,7 +2218,7 @@ async function download(name,text,type='application/json'){ const cap=await dlCa
 function downloadLink(name,text,type){ try{ const b=new Blob([text],{type}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1000); return true; }catch(e){ return false; } }
 async function copyText(t){ try{ await navigator.clipboard.writeText(t); return true; }catch(e){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); let ok=false; try{ ok=document.execCommand('copy'); }catch(_){} ta.remove(); return ok; } }
 const DIFF_KO={easy:'쉬움',normal:'보통',hard:'어려움'}, TOPIC_KO={mix:'섞기',virtue:'미덕',study:'교과',village:'마을'}, FEEL_KO={easy:'너무 쉬움',ok:'알맞음',hard:'너무 어려움'};
-function exportMine(){ if(!SLOT) return; save(); const r=recordOf(SLOT), code=encRec(r), fname=`타닥마을_기록_${slotLabel(SLOT).replace(/\s+/g,'_')}_${dateKey()}.json`;
+function exportMine(){ if(!SLOT) return; save(); const r=recordOf(SLOT), code=encRec(r), fname=`이름을쓰는섬_기록_${slotLabel(SLOT).replace(/\s+/g,'_')}_${dateKey()}.json`;
  showModal(`<h2>내 기록 내보내기</h2><p class="mtext">선생님께 기록을 보내는 방법은 두 가지예요. 파일을 받아서 내거나, 아래 코드를 복사해서 붙여 넣어요.</p>
   <div class="recsum">${recSumHTML(r.sum)}</div><textarea class="codebox" readonly id="recCode">${code}</textarea><p class="mnote" id="recMsg"></p>
   <div class="foot"><button class="btn sm" data-m="x">닫기</button><div style="display:flex;gap:8px"><button class="btn sm" id="recCopy">코드 복사</button><button class="btn primary sm" id="recFile">파일로 받기</button></div></div>`);
@@ -2223,7 +2228,7 @@ function exportMine(){ if(!SLOT) return; save(); const r=recordOf(SLOT), code=en
 function recSumHTML(m){ return `<div class="stats"><div class="stat"><small>플레이</small><b>${m.playMin}<em>분</em></b></div><div class="stat"><small>평균 타수</small><b>${m.cpm}</b></div><div class="stat"><small>정확도</small><b>${m.acc}<em>%</em></b></div><div class="stat"><small>캠페인</small><b>${m.chapters}<em>장 · 별 ${m.stars}</em></b></div></div>`; }
 const SAVE_PARTS=['profile','free','camp-ch1','camp-ch2','camp-ch3','camp-ch4','camp-ch5','camp-ch6'];
 function exportMove(){ if(!SLOT) return; save(); const items={}; SAVE_PARTS.forEach(k=>{ const v=LS.get(`tadak@${SLOT.id}/${k}`); if(v!=null) items[k]=v; });
- const pack={app:'tadak-village-move',v:1,at:new Date().toISOString(),slot:{num:SLOT.num,name:SLOT.name},items}, code='TADAKMOVE1:'+btoa(unescape(encodeURIComponent(JSON.stringify(pack)))), fname=`타닥마을_옮기기_${slotLabel(SLOT).replace(/\s+/g,'_')}.json`;
+ const pack={app:'tadak-village-move',v:1,at:new Date().toISOString(),slot:{num:SLOT.num,name:SLOT.name},items}, code='TADAKMOVE1:'+btoa(unescape(encodeURIComponent(JSON.stringify(pack)))), fname=`이름을쓰는섬_옮기기_${slotLabel(SLOT).replace(/\s+/g,'_')}.json`;
  showModal(`<h2>다른 컴퓨터로 옮기기</h2><p class="mtext">내 마을, 캠페인 진행, 기록을 통째로 담은 파일이에요. 다른 컴퓨터의 첫 화면에서 "다른 컴퓨터에서 가져오기"를 눌러 불러와요.</p><p class="mnote" id="mvMsg"></p>
   <div class="foot"><button class="btn sm" data-m="x">닫기</button><div style="display:flex;gap:8px"><button class="btn sm" id="mvCopy">코드 복사</button><button class="btn primary sm" id="mvFile">파일로 받기</button></div></div>`);
  $('mvFile').onclick=async()=>{ const ok=await download(fname,JSON.stringify(pack)); $('mvMsg').textContent=ok?'파일을 받았어요: '+fname:'파일을 받지 못했어요. 코드 복사를 써요.'; };
@@ -2312,7 +2317,7 @@ $('setVol').oninput=e=>{ S.set.vol=+e.target.value; AU.apply(); AU.tick(false); 
 $('btnReset').onclick=e=>{ const b=e.currentTarget; if(!b.dataset.arm){ b.dataset.arm='1'; b.textContent='한 번 더 누르면 초기화'; b.classList.add('danger'); return; } wipeSave(); S=newState(); boot(); closeSettings(); toast('새 마을을 시작했어요'); };
 $('btnTitle').onclick=()=>{ closeSettings(); save(); showTitle(); };
 $('btnCredits').onclick=()=>{ $('settings').hidden=true; showCredits(); };
-function showCredits(){ showModal(`<h2>만든 것들</h2><div class="credits"><p><b>타닥타닥 마을</b> 타자 연습과 섬마을 짓기를 합친 싱글플레이 게임</p><p><b>시</b> 윤동주 「서시」, 김소월 「진달래꽃」 「산유화」 「엄마야 누나야」, 이육사 「청포도」. 저작권 보호 기간이 끝난 공유 저작물이에요.</p><p><b>그림</b> 건물, 자연물, 인물, 지도는 생성형 이미지 모델(GPT Image)로 만든 뒤 다듬었어요.</p><p><b>글꼴</b> Bagel Fat One, IBM Plex Sans KR, Nanum Gothic Coding (SIL Open Font License)</p><p><b>아이콘</b> Phosphor Icons (MIT)</p><p><b>소리</b> 모든 효과음과 음악은 브라우저에서 실시간으로 합성해요.</p></div><div class="foot"><span></span><button class="btn primary" data-m="ok">닫기</button></div>`); }
+function showCredits(){ showModal(`<h2>만든 것들</h2><div class="credits"><p><b>이름을 쓰는 섬</b> 말결 군도에서 글자로 섬의 이름을 되찾는 타자 연습 게임</p><p><b>시</b> 윤동주 「서시」, 김소월 「진달래꽃」 「산유화」 「엄마야 누나야」, 이육사 「청포도」. 저작권 보호 기간이 끝난 공유 저작물이에요.</p><p><b>그림</b> 건물, 자연물, 인물, 지도는 생성형 이미지 모델(GPT Image)로 만든 뒤 다듬었어요.</p><p><b>글꼴</b> Bagel Fat One, IBM Plex Sans KR, Nanum Gothic Coding (SIL Open Font License)</p><p><b>아이콘</b> Phosphor Icons (MIT)</p><p><b>소리</b> 모든 효과음과 음악은 브라우저에서 실시간으로 합성해요.</p></div><div class="foot"><span></span><button class="btn primary" data-m="ok">닫기</button></div>`); }
 function onEscape(){ if(!$('settings').hidden) closeSettings(); else if(popObj) closePop(); else if(placing||demolish||moving) cancelPlace(); else if(!$('banner').hidden) hideBanner(); else if(drawerTab) closeDrawer(); else openSettings(); }
 document.addEventListener('keydown',e=>{ if(!started){ if(e.key==='Enter'&&!$('title').hidden&&SLOT&&!$('tBtns').hidden){ e.preventDefault(); ($('btnContinue').hidden?$('btnCamp'):$('btnContinue')).click(); } return; }
  if(!$('modal2').hidden) return;
@@ -2342,7 +2347,7 @@ $('whoCancel').onclick=()=>{ $('whoNew').hidden=true; };
 $('btnSwitch').onclick=()=>{ save(); SLOT=null; S=newState('free'); P=P_DEFAULT(); boot(); showTitle(); };
 $('btnGuest').onclick=()=>{ SLOT=null; P=P_DEFAULT(); S=newState('free'); boot(); $('who').hidden=true; $('tBtns').hidden=false; $('me').hidden=false; $('meName').innerHTML='<b>손님</b> (저장되지 않아요)'; $('btnContinue').hidden=true; };
 $('btnTeacher').onclick=openTeacher; $('tClose').onclick=()=>{ $('teacher').hidden=true; if(!SLOT) renderWho(); };
-$('tCsv').onclick=async()=>{ const ok=await download(`타닥마을_학급기록_${dateKey()}.csv`,teacherCSV(),'text/csv;charset=utf-8'); $('tMsg').textContent=ok?'CSV를 받았어요. 엑셀에서 바로 열 수 있어요.':'파일을 받지 못했어요.'; };
+$('tCsv').onclick=async()=>{ const ok=await download(`이름을쓰는섬_학급기록_${dateKey()}.csv`,teacherCSV(),'text/csv;charset=utf-8'); $('tMsg').textContent=ok?'CSV를 받았어요. 엑셀에서 바로 열 수 있어요.':'파일을 받지 못했어요.'; };
 $('tFiles').onchange=async e=>{ const fs=[...e.target.files]; const texts=await Promise.all(fs.map(f=>f.text())); addTeacherRecords(texts); e.target.value=''; };
 $('pkSave').onclick=()=>{ const d=readPackForm(); if(!(d.words.length||d.sents.length||d.lines.length||d.eng.length)){ $('pkMsg').textContent='넣은 내용이 없어요.'; return; } packSave(d); fillPackForm(); };
 $('pkClear').onclick=()=>{ const b=$('pkClear'); if(b.dataset.arm!=='1'){ b.dataset.arm='1'; b.textContent='정말 지우기'; return; } b.dataset.arm=''; b.textContent='지우기'; packSave(null); fillPackForm(); };
