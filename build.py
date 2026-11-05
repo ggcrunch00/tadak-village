@@ -40,6 +40,6 @@ import shutil
 cl=root/'class-login'
 if (cl/'classlogin.js').exists():
     out_dir=dist/'class-login'; out_dir.mkdir(exist_ok=True)
-    for f in ('index.html','classlogin.js'): shutil.copy(cl/f, out_dir/f)
+    for f in ('index.html','classlogin.js','privacy.html'): shutil.copy(cl/f, out_dir/f)
     if srv: (out_dir/'server.json').write_text(json.dumps({**srv,'games':[{'app':'island','title':'이름을 쓰는 섬','url':'https://ggcrunch00.github.io/tadak-village/'}]},ensure_ascii=False))
     print('class-login site copied')
