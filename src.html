@@ -1992,7 +1992,9 @@ function closeExpedition(){ dun=null; renderDungeon(); }
 let hover=null, placing=null, demolish=false, dragging=null;
 function landBounds(){ let minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9; for(let y=0;y<N;y++) for(let x=0;x<N;x++) if(BASE[y*N+x]||REGION_AT[y*N+x]>=0){ const [px,py]=W(x,y); minX=Math.min(minX,px); maxX=Math.max(maxX,px); minY=Math.min(minY,py); maxY=Math.max(maxY,py); } return {minX:minX-TW/2,maxX:maxX+TW/2,minY:minY-100,maxY:maxY+TH/2+CLIFF}; }
 const LITE=()=>!!(P&&P.set&&P.set.lite);
-function resize(){ const dpr=LITE()?1:Math.min(2,devicePixelRatio||1), w=innerWidth, h=innerHeight; cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); cv._dpr=dpr; cv._w=w; cv._h=h; fxc.width=Math.round(w*dpr); fxc.height=Math.round(h*dpr); fxc._dpr=dpr;
+function resize(){ const dpr=LITE()?1:Math.min(2,devicePixelRatio||1), w=innerWidth, h=innerHeight; cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); cv._dpr=dpr; cv._w=w; cv._h=h; fxc.width=Math.round(w*dpr); fxc.height=Math.round(h*dpr); fxc._dpr=dpr; layoutCam(); }
+// 캔버스 크기는 그대로 두고 카메라만 다시 계산 (확대·이동할 때 가볍게)
+function layoutCam(){ const w=cv._w||innerWidth, h=cv._h||innerHeight;
  const B=landBounds(), narrow=w<760, top=narrow?190:80, bottom=dock.offsetHeight+28, left=narrow?8:(drawerTab&&w>1100?478:110), right=narrow?8:24;
  const aw=Math.max(200,w-left-right), ah=Math.max(200,h-top-bottom), fit=Math.min(aw/(B.maxX-B.minX), ah/(B.maxY-B.minY));
  cam.s=Math.max(0.35,Math.min(1.6,fit*(narrow?1.18:1.05)))*cam.zoom; cam.ox=left+aw/2-((B.minX+B.maxX)/2)*cam.s+cam.panX; cam.oy=top+ah/2-((B.minY+B.maxY)/2)*cam.s+cam.panY;
@@ -2004,12 +2006,23 @@ function canPlace(t,x,y,ignore){ const B=BUILD[t], z=ignore?szOf(ignore):(B.sz||
   if(o&&o!==ignore&&(B.ground||!(o.natural&&!NATURAL[o.t].fixed))) return false; if(isCoast(X,Y)) coast=true; }
  return !(B.coastOnly&&!coast); }
 cv.addEventListener('pointerdown',e=>{ dragging={x:e.clientX,y:e.clientY,px:cam.panX,py:cam.panY,moved:false}; });
-addEventListener('pointermove',e=>{ if(demolish&&dragging&&e.buttons&&e.target===cv){ dragging.moved=true; const [x,y]=toTile(e.clientX,e.clientY); dragClear(x,y); hover=[x,y]; return; }
- if(dragging&&e.buttons){ const dx=e.clientX-dragging.x, dy=e.clientY-dragging.y; if(Math.hypot(dx,dy)>6) dragging.moved=true; if(dragging.moved){ cam.panX=dragging.px+dx; cam.panY=dragging.py+dy; resize(); } }
+addEventListener('pointermove',e=>{ if(pinch) return; if(demolish&&dragging&&e.buttons&&e.target===cv){ dragging.moved=true; const [x,y]=toTile(e.clientX,e.clientY); dragClear(x,y); hover=[x,y]; return; }
+ if(dragging&&e.buttons){ const dx=e.clientX-dragging.x, dy=e.clientY-dragging.y; if(Math.hypot(dx,dy)>6) dragging.moved=true; if(dragging.moved){ cam.panX=dragging.px+dx; cam.panY=dragging.py+dy; layoutCam(); } }
  if(e.target===cv){ const [x,y]=toTile(e.clientX,e.clientY); hover=(isLand(x,y)||shoalAt(x,y)>=0)?[x,y]:null; } else if(!dragging) hover=null; });
-addEventListener('pointerup',e=>{ const d=dragging; dragging=null; if(!d||d.moved||e.target!==cv){ return; } if(e.button===2){ cancelPlace(); return; } if(hover) clickTile(hover[0],hover[1]); refocus(); });
+addEventListener('pointerup',e=>{ const d=dragging; dragging=null; if(pinchBlock||!d||d.moved||e.target!==cv){ return; } if(e.button===2){ cancelPlace(); return; } if(hover) clickTile(hover[0],hover[1]); refocus(); });
 cv.addEventListener('contextmenu',e=>{ e.preventDefault(); cancelPlace(); });
-cv.addEventListener('wheel',e=>{ e.preventDefault(); cam.zoom=Math.max(0.6,Math.min(2.4,cam.zoom*(e.deltaY<0?1.1:0.9))); resize(); },{passive:false});
+// 지정한 화면 지점을 중심으로 확대·축소 (휠, 두 손가락)
+function zoomAt(nz,mx,my){ nz=Math.max(0.6,Math.min(2.6,nz)); const wx=(mx-cam.ox)/cam.s, wy=(my-cam.oy)/cam.s; cam.zoom=nz; layoutCam(); cam.panX+=mx-(cam.ox+wx*cam.s); cam.panY+=my-(cam.oy+wy*cam.s); layoutCam(); }
+cv.addEventListener('wheel',e=>{ e.preventDefault(); zoomAt(cam.zoom*(e.deltaY<0?1.1:0.9),e.clientX,e.clientY); },{passive:false});
+// 두 손가락 확대·축소와 이동 (모바일, 태블릿, 터치 크롬북)
+const touches=new Map(); let pinch=null, pinchBlock=false;
+cv.addEventListener('pointerdown',e=>{ if(e.pointerType!=='touch') return; touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(touches.size===2){ const [a,b]=[...touches.values()]; pinch={d:Math.hypot(a.x-b.x,a.y-b.y)||1,z:cam.zoom,mx:(a.x+b.x)/2,my:(a.y+b.y)/2}; dragging=null; pinchBlock=true; } },true);
+addEventListener('pointermove',e=>{ if(!touches.has(e.pointerId)) return; touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(pinch&&touches.size>=2){ const [a,b]=[...touches.values()], d=Math.hypot(a.x-b.x,a.y-b.y)||1, mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+  cam.panX+=mx-pinch.mx; cam.panY+=my-pinch.my; layoutCam(); zoomAt(pinch.z*d/pinch.d,mx,my); pinch.mx=mx; pinch.my=my; } },true);
+const endTouch=e=>{ if(!touches.has(e.pointerId)) return; touches.delete(e.pointerId); if(touches.size<2) pinch=null; if(touches.size===0) setTimeout(()=>{ pinchBlock=false; },50); };
+addEventListener('pointerup',endTouch,true); addEventListener('pointercancel',endTouch,true);
 
 function clickTile(x,y){
  const si=shoalAt(x,y); if(si>=0&&!placing&&!demolish&&!moving){ offerRegion(si); return; }
@@ -2669,7 +2682,7 @@ function start(data){
  S=(data&&data.s&&data.s.v>=2)?data.s:((SLOT&&((P.last&&loadSave(P.last))||loadSave('free')))||newState('free'));
  $('story').addEventListener('click',()=>{ advanceStory(); refocus(); });
  $('crest').addEventListener('click',()=>{ if(drawerTab==='town') closeDrawer(); else openDrawer('town'); refocus(); });
- $('zIn').onclick=()=>{ cam.zoom=Math.min(2.4,cam.zoom*1.2); resize(); refocus(); }; $('zOut').onclick=()=>{ cam.zoom=Math.max(0.6,cam.zoom/1.2); resize(); refocus(); }; $('zFit').onclick=()=>{ cam.zoom=1; cam.panX=0; cam.panY=0; resize(); refocus(); };
+ $('zIn').onclick=()=>{ zoomAt(cam.zoom*1.2,innerWidth/2,innerHeight/2); refocus(); }; $('zOut').onclick=()=>{ zoomAt(cam.zoom/1.2,innerWidth/2,innerHeight/2); refocus(); }; $('zFit').onclick=()=>{ cam.zoom=1; cam.panX=0; cam.panY=0; resize(); refocus(); };
  loadSprites(); boot(); addEventListener('resize',resize); new ResizeObserver(resize).observe(dock);
  setInterval(save,5000); addEventListener('beforeunload',save); addEventListener('pagehide',()=>{ if(SLOT&&SLOT.cloud){ save(); syncNow(); } });
  window.claude?.hot?.snapshot?.(()=>({s:S,slot:SLOT&&SLOT.id}));

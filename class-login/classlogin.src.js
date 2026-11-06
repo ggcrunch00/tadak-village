@@ -35,13 +35,22 @@
   function session() { try { return JSON.parse(sessionStorage.getItem(SKEY) || 'null'); } catch (e) { return null; } }
   function setSession(s) { if (s) sessionStorage.setItem(SKEY, JSON.stringify(s)); else sessionStorage.removeItem(SKEY); }
   async function login(code, num, secret) {
-    const r = await rpc('cl_student_login', { p_code: String(code || '').trim().toUpperCase(), p_num: +num, p_secret: secret });
+    const r = await rpc('cl_student_login', { p_code: toCode(code), p_num: +num, p_secret: secret });
     if (r && r.ok) setSession({ token: r.token, student: r.student, cls: r.class });
     return r;
   }
   async function load() { const s = session(); if (!s) throw { code: 'no_session' }; return rpc('cl_student_load', { p_token: s.token, p_app: cfg().app }); }
   async function save(part, data) { const s = session(); if (!s) throw { code: 'no_session' }; return rpc('cl_student_save', { p_token: s.token, p_app: cfg().app, p_part: part, p_data: data }); }
   async function logout() { const s = session(); setSession(null); if (s) { try { await rpc('cl_student_logout', { p_token: s.token }); } catch (e) { } } }
+  // 한글 자판 상태로 학급 코드를 쳐도 두벌식 자리대로 영문으로 바꿈 (ㅏ→K, 가→RK). 대소문자 구분 없음
+  const CHO = 'rRseEfaqQtTdwWczxvg', JUNG = ['k','o','i','O','j','p','u','P','h','hk','ho','hl','y','n','nj','np','nl','b','m','ml','l'],
+    JONG = ['','r','R','rt','s','sw','sg','e','f','fr','fa','fq','ft','fx','fv','fg','a','q','qt','t','T','d','w','c','z','x','v','g'];
+  const COMPAT = {}; 'ㄱㄲㄳㄴㄵㄶㄷㄸㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅃㅄㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ'.split('').forEach((c, i) => COMPAT[c] = ['r','R','rt','s','sw','sg','e','E','f','fr','fa','fq','ft','fx','fv','fg','a','q','Q','qt','t','T','d','w','W','c','z','x','v','g'][i]);
+  'ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ'.split('').forEach((c, i) => COMPAT[c] = JUNG[i]);
+  function toCode(str) { let out = ''; for (const ch of String(str || '')) { const c = ch.charCodeAt(0);
+      if (c >= 0xAC00 && c <= 0xD7A3) { const k = c - 0xAC00, cho = Math.floor(k / 588), jung = Math.floor((k % 588) / 28), jong = k % 28; out += CHO[cho] + JUNG[jung] + JONG[jong]; }
+      else if (COMPAT[ch]) out += COMPAT[ch]; else out += ch; }
+    return out.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8); }
   const secretOf = (a, f) => 'a' + a + '-f' + f;
   const parseSecret = s => { const m = /^a([0-7])-f([0-7])$/.exec(s || ''); return m ? [+m[1], +m[2]] : null; };
   const icon = (kind, i) => ICONS[kind + i] ? `<img src="${ICONS[kind + i]}" alt="${(kind === 'a' ? ANIMALS : FRUITS)[i]}">` : `<span class="clx-txt">${(kind === 'a' ? ANIMALS : FRUITS)[i]}</span>`;
@@ -50,17 +59,20 @@
   function mountStudentLogin(el, { onLogin, onCancel } = {}) {
     let pick = { a: null, f: null };
     el.innerHTML = `<form class="clx" autocomplete="off">
-      <div class="clx-row"><label>학급 코드<input name="code" maxlength="5" placeholder="예: K7M2Q" autocapitalize="characters" spellcheck="false"></label>
+      <div class="clx-row"><label>학급 코드<input name="code" maxlength="12" placeholder="예: K7M2Q" autocapitalize="characters" autocomplete="off" spellcheck="false" lang="en" style="text-transform:uppercase"></label>
       <label>번호<input name="num" inputmode="numeric" maxlength="2" placeholder="12"></label></div>
       <div class="clx-h">그림 비밀번호: 동물 하나, 과일 하나를 눌러요</div>
       <div class="clx-grid" data-k="a">${ANIMALS.map((n, i) => `<button type="button" data-i="${i}" aria-label="${n}">${icon('a', i)}</button>`).join('')}</div>
       <div class="clx-grid" data-k="f">${FRUITS.map((n, i) => `<button type="button" data-i="${i}" aria-label="${n}">${icon('f', i)}</button>`).join('')}</div>
       <div class="clx-foot"><span class="clx-msg"></span><span>${onCancel ? '<button type="button" class="clx-cancel">취소</button>' : ''}<button type="submit" class="clx-go">로그인</button></span></div></form>`;
     const f = el.querySelector('form'), msg = el.querySelector('.clx-msg');
+    // 조합 중에는 건드리지 않고, 조합이 끝나거나 영문으로 쳤을 때 바로 대문자 코드로 바꿈
+    const fix = () => { const v = toCode(f.code.value); if (v !== f.code.value) f.code.value = v; };
+    f.code.addEventListener('compositionend', () => setTimeout(fix, 0)); f.code.addEventListener('input', e => { if (!e.isComposing) fix(); }); f.code.addEventListener('blur', fix);
     el.querySelectorAll('.clx-grid').forEach(g => g.querySelectorAll('button').forEach(b => b.onclick = () => {
       pick[g.dataset.k] = +b.dataset.i; g.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); }));
     const cc = el.querySelector('.clx-cancel'); if (cc) cc.onclick = () => onCancel();
-    f.onsubmit = async e => { e.preventDefault(); const code = f.code.value.trim().toUpperCase(), num = parseInt(f.num.value, 10);
+    f.onsubmit = async e => { e.preventDefault(); fix(); const code = toCode(f.code.value), num = parseInt(f.num.value, 10);
       if (code.length < 4 || !num) { msg.textContent = '학급 코드와 번호를 넣어요.'; return; }
       if (pick.a === null || pick.f === null) { msg.textContent = '동물 하나와 과일 하나를 골라요.'; return; }
       msg.textContent = '확인하는 중...';
@@ -105,6 +117,6 @@
 
   root.ClassLogin = {
     ANIMALS, FRUITS, ICONS, init(c) { CFG = c; injectCSS(); return this; }, on() { return !!(CFG && CFG.url && CFG.key); },
-    login, load, save, logout, session, secretOf, parseSecret, icon, mountStudentLogin, teacher, req
+    login, load, save, logout, session, secretOf, toCode, parseSecret, icon, mountStudentLogin, teacher, req
   };
 })(typeof window !== 'undefined' ? window : this);
