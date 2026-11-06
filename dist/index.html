@@ -353,6 +353,8 @@ body.big .tx .next,body.big .tx .prev{font-size:18px}
 .me .linkbtn{color:#e4ecf3;font-size:13px}
 .locknote{font-size:12.5px;color:var(--ink-2);background:var(--accent-soft);border-radius:8px;padding:6px 10px;margin:4px 0 0}
 .seg button:disabled,.tog:disabled{opacity:.45;cursor:not-allowed}
+.t-first{margin:0;font-size:14px;color:#fff;text-shadow:0 1px 6px rgba(14,48,66,.75)}.t-first b{color:var(--accent-soft)}
+.t-load{font-size:12.5px;color:#fff;text-shadow:0 1px 6px rgba(14,48,66,.7)}
 .ic-target{font-family:var(--f-type);font-size:22px;background:var(--paper-2);border-radius:10px;padding:10px 12px;margin:6px 0}
 .ic-in{width:100%;font-family:var(--f-type);font-size:22px;border:0;border-radius:10px;padding:10px 12px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--edge)}
 .ic-log{font-size:13px;margin-top:8px;display:flex;flex-direction:column;gap:2px}.ic-log .ok{color:var(--good)}.ic-log .bad{color:var(--bad)}
@@ -578,6 +580,7 @@ body.storying .objtrack{opacity:.4}
     <div class="set"><label>난이도<small>자원 보상의 양이 달라져요</small></label><div class="seg" id="setDiff"><button data-v="easy">쉬움</button><button data-v="normal">보통</button><button data-v="hard">어려움</button></div></div>
     <div class="set"><label>평화 모드<small>밤 침공이 오지 않아요</small></label><button class="tog" id="setPeace" aria-pressed="false" aria-label="평화 모드"></button></div>
     <div class="set"><label>화면 흔들림<small>건설과 증축 연출</small></label><button class="tog" id="setShake" aria-pressed="true" aria-label="화면 흔들림"></button></div>
+    <div class="set"><label>가벼운 그래픽<small>느린 컴퓨터나 크롬북에서 더 부드럽게 (흔들림, 효과, 주민 수 줄임)</small></label><button class="tog" id="setLite" aria-pressed="false" aria-label="가벼운 그래픽"></button></div>
     <div class="set"><label>큰 글씨<small>타자 글자를 더 크게 보여줘요</small></label><button class="tog" id="setBig" aria-pressed="false" aria-label="큰 글씨"></button></div>
     <div class="set"><label>고스트 캐럿<small>문장과 긴 글에서 내 최고 속도를 보여줘요</small></label><button class="tog" id="setGhost" aria-pressed="true" aria-label="고스트 캐럿"></button></div>
     <div class="set"><label>내 기록<small id="setWho">선생님께 기록과 소감을 보내요</small></label><div style="display:flex;gap:6px"><button class="btn sm" id="btnFb">소감 남기기</button><button class="btn sm" id="btnExport">기록 내보내기</button></div></div>
@@ -638,7 +641,9 @@ body.storying .objtrack{opacity:.4}
       <button class="btn" id="btnFree">자유 모드</button>
       <button class="btn" id="btnToy">놀이 섬</button>
     </div>
+    <p class="t-first" id="tFirst" hidden>처음이면 <b>캠페인</b>을 눌러 1장부터 해요. 아라가 하나씩 알려 줘요.</p>
     <div class="t-foot"><kbd>Enter</kbd> 로 시작</div>
+    <div class="t-load" id="tLoad" hidden></div>
   </div>
 </div>
 
@@ -834,13 +839,13 @@ function scheduleSync(ms=8000){ clearTimeout(syncT); syncT=setTimeout(syncNow,ms
 async function syncNow(){ if(!SLOT||!SLOT.cloud||syncing) return; const ss=cloudSess(); if(!ss) return; syncing=true; clearTimeout(syncT);
  try{ const d=cloudDirty(); for(const part of Object.keys(d)){ const raw=LS.get(nsKey(part)); if(raw==null){ delete d[part]; continue; }
    const r=await ClassLogin.save(part,JSON.parse(raw)); if(r&&r.ok){ delete d[part]; } else if(r&&r.error==='bad_token'){ syncErr='login'; toast('학급 로그인이 끝났어요. 다시 로그인하면 이어서 저장돼요'); break; } }
-  LS.set(nsKey('_dirty'),JSON.stringify(d)); if(!Object.keys(d).length){ lastSyncAt=Date.now(); syncErr=''; await ClassLogin.save('summary',islandSummary()).catch(()=>null); } }
+  LS.set(nsKey('_dirty'),JSON.stringify(d)); if(!Object.keys(d).length){ lastSyncAt=Date.now(); syncErr=''; await ClassLogin.save('summary',islandSummary()).catch(()=>null); if((P.errs||[]).length) await ClassLogin.save('errors',{bi:browserInfo(),errs:P.errs}).catch(()=>null); } }
  catch(e){ syncErr=e.code==='offline'?'offline':'error'; }
  syncing=false; }
 // 관리 사이트의 "게임 기록" 표에 보이는 요약 (이름 없음)
 function islandSummary(){ const m=profileSummary(P,{num:SLOT&&SLOT.num,name:''});
- return {title:'이름을 쓰는 섬',fields:{'플레이(분)':m.playMin,'평균 타수':m.cpm,'최고 타수':m.best,'정확도(%)':m.acc,'입력 수':m.items,'끝낸 장':m.chapters,'별':m.stars,'난이도':DIFF_KO[m.diff]||m.diff,'재미':m.fun,'어려움':FEEL_KO[m.feel]||m.feel,'소감':m.note,'마지막 날':m.last},
-  cols:['플레이(분)','평균 타수','최고 타수','정확도(%)','입력 수','끝낸 장','별','난이도','재미','어려움','소감','마지막 날'],
+ return {title:'이름을 쓰는 섬',fields:{'플레이(분)':m.playMin,'평균 타수':m.cpm,'최고 타수':m.best,'정확도(%)':m.acc,'입력 수':m.items,'끝낸 장':m.chapters,'별':m.stars,'난이도':DIFF_KO[m.diff]||m.diff,'재미':m.fun,'어려움':FEEL_KO[m.feel]||m.feel,'소감':m.note,'마지막 날':m.last,'오류':(P.errs||[]).reduce((a,e)=>a+e.n,0)},
+  cols:['플레이(분)','평균 타수','최고 타수','정확도(%)','입력 수','끝낸 장','별','난이도','재미','어려움','소감','마지막 날','오류'],
   proposals:(P.props||[]).filter(x=>x.st==='wait').map(x=>x.t).slice(0,20)}; }
 function syncStatus(){ if(!SLOT||!SLOT.cloud) return ''; if(syncErr==='offline') return '학급 서버에 닿지 않아요. 이 컴퓨터에 저장해 두었다가 다시 보내요'; if(syncErr==='login') return '다시 로그인해야 서버에 저장돼요'; if(syncErr) return '서버 저장 중 문제가 생겼어요. 이 컴퓨터에는 저장돼 있어요'; return lastSyncAt?'학급 서버에 저장됨 '+new Date(lastSyncAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}):'학급 서버와 연결됨'; }
 function applyPackStatus(){ if(!CLOUD_PACK||!P.props) return; const ok=new Set([...(CLOUD_PACK.approved||[])]), no=new Set(CLOUD_PACK.rejected||[]); P.props.forEach(x=>{ if(x.st==='wait'){ if(ok.has(x.t)) x.st='ok'; else if(no.has(x.t)) x.st='no'; } }); }
@@ -1551,7 +1556,7 @@ function submit(viaSpace){
   if (S.long.l>=P.lines.length){ S.stats.poems++; S.long.l=0; S.long.p=randomPoem(S.long.p); addRes({wisdom:10,brick:10}, caretPoint());
    setTimeout(()=>{ levelBanner('낭독 완료',`「${P.title}」`,'보너스 지혜 +10, 벽돌 +10'); AU.fanfare();; },300); } }
  else T.queue.shift();
- resetInput(); loadTarget(); afterProgress(); checkPackOffer();
+ resetInput(); loadTarget(); afterProgress(); checkPackOffer(); maybeAskFeedback();
 }
 function dateKey(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function dayRec(){ const k=dateKey(); P.days=P.days||{}; return P.days[k]||(P.days[k]={play:0,typeMs:0,strokes:0,n:0,accSum:0,word:0,sentence:0,long:0,eng:0}); }
@@ -1732,14 +1737,14 @@ const FIT={ // w: drawn width in tiles per footprint tile, b: how far the image 
 function spriteName(o){ if(o.t==='castle') return 'castle'+(THUMB?LVL:S.castle);
  const sd=o.seed||0; if(o.t==='wildtree') return ['oak','apple','oak'][sd%3]; if(o.t==='tree') return ['oak','cherry','apple'][sd%3]; if(o.t==='rock') return sd%2?'rocks':'boulder';
  if(o.t==='flowers') return 'flowerbed'; if(o.t==='sakura') return 'cherry'; if(o.t==='treasure') return 'chest'; if(o.t==='gardenrock') return 'boulder'; return o.t; }
-function loadSprites(){ if(typeof SPRITE_DATA==='undefined') return; let left=Object.keys(SPRITE_DATA).length;
- for(const k in SPRITE_DATA){ const im=new Image(); im.onload=()=>{ SPR[k]=im; if(--left===0){ if(drawerTab) renderDrawer(); drawThumbTo($('crestCv'),'castle'); } }; im.src=SPRITE_DATA[k].d; } }
+function loadSprites(){ if(typeof SPRITE_DATA==='undefined') return; const total=Object.keys(SPRITE_DATA).length; let left=total; const tl=$('tLoad'); if(tl){ tl.hidden=false; tl.textContent='그림을 불러오는 중이에요'; }
+ for(const k in SPRITE_DATA){ const im=new Image(); im.onload=im.onerror=()=>{ if(im.naturalWidth) SPR[k]=im; --left; if(tl) tl.textContent=`그림을 불러오는 중이에요 ${Math.round(100*(total-left)/total)}%`; if(left===0){ if(tl) tl.hidden=true; if(drawerTab) renderDrawer(); drawThumbTo($('crestCv'),'castle'); } }; im.src=SPRITE_DATA[k].d; } }
 function spriteTop(o){ const n=spriteName(o), im=SPR[n], f=FIT[n]; if(!im||!f) return o.t==='castle'?100:o.natural?56:74; const z=szOf(o); const w=z*TW*f.w, h=w*im.height/im.width; return h-z*TH/2*f.b+10; }
 function drawObj(o){ const n=spriteName(o), im=SPR[n], f=FIT[n], z=szOf(o), [cx,cy]=centerOf(o);
  if(!im||!f){ const P=Object.assign({},o,{gx:cx,gy:cy}); DRAW[o.t]&&DRAW[o.t](P); return; }
  const [x0,y]=W(cx,cy), w=z*TW*f.w, h=w*im.height/im.width, by=y+z*TH/2*f.b, x=x0+(f.x||0)*z*TW; // f.x: 그림의 바닥이 한쪽으로 치우친 스프라이트 보정
  g.beginPath(); g.ellipse(x+5*z,y+2*z,z*TW*.36*Math.min(1,f.w+.1),z*TH*.32*Math.min(1,f.w+.1),0,0,Math.PI*2); g.fillStyle='rgba(28,58,34,.22)'; g.fill();
- const sway=(o.natural||o.t==='tree')&&!THUMB?Math.sin(TIME*1.5+(o.seed||0))*0.012:0;
+ const sway=(o.natural||o.t==='tree')&&!THUMB&&!LITE()?Math.sin(TIME*1.5+(o.seed||0))*0.012:0;
  if(sway){ g.save(); g.translate(x,by); g.transform(1,0,sway,1,0,0); g.drawImage(im,-w/2,-h,w,h); g.restore(); } else g.drawImage(im,x-w/2,by-h,w,h);
  if(!THUMB&&NIGHT>0.25&&GLOW[o.t]) GLOW[o.t].forEach(([lx,ly,r])=>lights.push({x:x+lx*w,y:by-ly*h,r,a:.55}));
  if(!THUMB&&o.t==='lighthouse'){ const lx=x, ly=by-h*0.82; lights.push({x:lx,y:ly,r:70,a:1,always:.2}); if(NIGHT>.2){ const a=TIME*1.2; g.save(); g.globalAlpha=0.18*NIGHT; g.fillStyle='#fff3b0'; g.beginPath(); g.moveTo(lx,ly); g.arc(lx,ly,260,a,a+0.25); g.closePath(); g.fill(); g.restore(); } }
@@ -1756,7 +1761,7 @@ const GLOW={cottage:[[-.12,.35,24],[.2,.32,22]],brickhouse:[[-.15,.45,24],[.15,.
 
 // particles
 let parts=[];
-function spawn(p){ parts.push(p); }
+function spawn(p){ if(LITE()&&parts.length>60) return; parts.push(p); }
 function puff(gx,gy,n=14,col='rgba(240,230,210,'){ const [x,y]=W(gx,gy); for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, sp=20+Math.random()*40; spawn({x:x+Math.cos(a)*10,y:y+Math.sin(a)*5,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp*.5-12,life:.7+Math.random()*.4,max:1,r:4+Math.random()*4,grow:6,col}); } }
 function sparkle(gx,gy,n=10){ const [x,y]=W(gx,gy,0,0,20); for(let i=0;i<n;i++) spawn({x:x+(Math.random()-.5)*30,y:y+(Math.random()-.5)*20,vx:(Math.random()-.5)*20,vy:-30-Math.random()*30,life:1,max:1,r:2,grow:0,col:'rgba(255,220,120,',star:true}); }
 function floatText(gx,gy,text,col='#ffffff',z=50){ const [x,y]=W(gx,gy,0,0,z); spawn({x,y,vx:0,vy:-22,life:1.6,max:1.6,text,col}); }
@@ -1774,7 +1779,7 @@ function walkable(x,y){ if(!isLand(x,y)) return false; const o=objAt(x,y); retur
 function bfs(sx,sy,tx,ty){ const key=(x,y)=>y*N+x, prev=new Map([[key(sx,sy),null]]), q=[[sx,sy]];
  while(q.length){ const [x,y]=q.shift(); if(x===tx&&y===ty) break; for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){ const nx=x+dx, ny=y+dy, k=key(nx,ny); if(prev.has(k)||!walkable(nx,ny)) continue; prev.set(k,[x,y]); q.push([nx,ny]); } }
  if(!prev.has(key(tx,ty))) return null; const path=[]; let c=[tx,ty]; while(c){ path.unshift(c); c=prev.get(key(c[0],c[1])); } return path; }
-function syncFolk(){ const want=Math.min(popOf(),32);
+function syncFolk(){ const want=Math.min(popOf(),LITE()?12:32);
  while(folk.length<want){ const homes=S.objs.filter(o=>o.t==='castle'||(built(o)&&BUILD[o.t].pop)); const h=homes[Math.floor(Math.random()*homes.length)]; let sp=null;
   if(h) for(const [dx,dy] of [[0,1],[1,0],[0,-1],[-1,0]]) if(walkable(h.gx+dx,h.gy+dy)){ sp=[h.gx+dx,h.gy+dy]; break; }
   if(!sp){ const c=[]; for(let y=0;y<N;y++) for(let x=0;x<N;x++) if(walkable(x,y)) c.push([x,y]); sp=c[Math.floor(Math.random()*c.length)]; if(!sp) break; }
@@ -2017,7 +2022,8 @@ function closeExpedition(){ dun=null; renderDungeon(); }
    ================================================================ */
 let hover=null, placing=null, demolish=false, dragging=null;
 function landBounds(){ let minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9; for(let y=0;y<N;y++) for(let x=0;x<N;x++) if(BASE[y*N+x]||REGION_AT[y*N+x]>=0){ const [px,py]=W(x,y); minX=Math.min(minX,px); maxX=Math.max(maxX,px); minY=Math.min(minY,py); maxY=Math.max(maxY,py); } return {minX:minX-TW/2,maxX:maxX+TW/2,minY:minY-100,maxY:maxY+TH/2+CLIFF}; }
-function resize(){ const dpr=Math.min(2,devicePixelRatio||1), w=innerWidth, h=innerHeight; cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); cv._dpr=dpr; cv._w=w; cv._h=h; fxc.width=Math.round(w*dpr); fxc.height=Math.round(h*dpr); fxc._dpr=dpr;
+const LITE=()=>!!(P&&P.set&&P.set.lite);
+function resize(){ const dpr=LITE()?1:Math.min(2,devicePixelRatio||1), w=innerWidth, h=innerHeight; cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); cv._dpr=dpr; cv._w=w; cv._h=h; fxc.width=Math.round(w*dpr); fxc.height=Math.round(h*dpr); fxc._dpr=dpr;
  const B=landBounds(), narrow=w<760, top=narrow?190:80, bottom=dock.offsetHeight+28, left=narrow?8:(drawerTab&&w>1100?478:110), right=narrow?8:24;
  const aw=Math.max(200,w-left-right), ah=Math.max(200,h-top-bottom), fit=Math.min(aw/(B.maxX-B.minX), ah/(B.maxY-B.minY));
  cam.s=Math.max(0.35,Math.min(1.6,fit*(narrow?1.18:1.05)))*cam.zoom; cam.ox=left+aw/2-((B.minX+B.maxX)/2)*cam.s+cam.panX; cam.oy=top+ah/2-((B.minY+B.maxY)/2)*cam.s+cam.panY;
@@ -2433,6 +2439,9 @@ function duelAnswer(acc,perfect){ if(acc<0.8){ errorFx(); showGrade('다시 한 
  duelStep(); }
 
 // ---------- modal helper ----------
+// 게임 중 오류를 모아 두었다가(최대 20개) 학급 서버 요약에 개수, 'errors' 부분에 내용을 보냄. 개인정보 없음
+const ERRS=[]; function noteErr(msg,src){ try{ const m=String(msg||'').slice(0,200); if(ERRS.some(e=>e.m===m)){ ERRS.find(e=>e.m===m).n++; return; } if(ERRS.length<20) ERRS.push({m,src:String(src||'').slice(0,80),at:new Date().toISOString(),n:1,mode:(typeof T!=='undefined'&&T.mode)||'',map:(S&&S.map)||''}); P.errs=ERRS.slice(); }catch(e){} }
+addEventListener('error',e=>noteErr(e.message,(e.filename||'').split('/').pop()+':'+e.lineno)); addEventListener('unhandledrejection',e=>noteErr('promise: '+((e.reason&&(e.reason.message||e.reason.code))||e.reason),''));
 function profileSummary(pr,sl){ const days=pr.days||{}; let play=0,typeMs=0,strokes=0,n=0,accSum=0,cnt={word:0,sentence:0,long:0,eng:0}; const dk=Object.keys(days).sort();
  dk.forEach(k=>{ const d=days[k]; play+=d.play||0; typeMs+=d.typeMs||0; strokes+=d.strokes||0; n+=d.n||0; accSum+=d.accSum||0; for(const m in cnt) cnt[m]+=d[m]||0; });
  const done=(pr.camp&&pr.camp.done)||{}, chs=CAMPAIGN.filter(c=>done[c.id]), stars=chs.reduce((a,c)=>a+(done[c.id].stars||0),0);
@@ -2507,6 +2516,9 @@ function openInputCheck(){ const st={i:0,t0:performance.now(),ev:[],res:[]}; con
   $('icRes').hidden=false; $('icRes').innerHTML=`<b>${ok&&!dup&&comp?'문제가 보이지 않아요':'확인이 필요해요'}</b>${notes.length?'<ul>'+notes.map(n=>`<li>${n}</li>`).join('')+'</ul>':''}<p class="mnote">결과 코드를 복사해서 개발자에게 보내 주면 브라우저별로 고칠 수 있어요. 개인정보는 들어 있지 않아요(친 글, 키 이름, 브라우저 종류만).</p>`;
   $('icCopy').hidden=false; $('icCopy').onclick=async()=>{ const ok2=await copyText(st.code); $('icCopy').textContent=ok2?'복사했어요':'복사 안 됨: 길게 눌러 선택'; };
   if(SLOT&&SLOT.cloud&&typeof ClassLogin!=='undefined') ClassLogin.save('inputcheck',{at:pack.at,bi,stat:pack.stat,res:st.res}).catch(()=>null); } }
+// ---------- 20분쯤 놀면 소감 창을 한 번 권함 (하루 한 번, 이미 남겼으면 안 물음) ----------
+function maybeAskFeedback(){ if(!SLOT||!started||T.special) return; const d=dayRec(); if(d.play<20*60000) return; const k=dateKey(); if(P.fbAsked===k||(P.fb||[]).some(f=>(f.at||'').slice(0,10)===k)) return; P.fbAsked=k; saveProfile();
+ const t=document.createElement('div'); t.className='toast plain act'; t.innerHTML='<span>20분 넘게 했어요. 소감을 남겨 줄래요?</span><button class="btn sm">소감 남기기</button>'; t.querySelector('button').onclick=()=>{ t.remove(); openFeedback(); }; $('toasts').appendChild(t); setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(),450); },12000); }
 // ---------- feedback ----------
 const LIKES=['마을 짓기','타자 연습','이야기','밤 침공','원정','꾸미기','상인과 거래','주민 부탁'];
 function openFeedback(){ if(!SLOT) return; const f={fun:0,feel:'',likes:[],note:''};
@@ -2582,13 +2594,13 @@ function renderCoach(){ const el=$('coachWrap'); if(!S.coach||!started){ el.inne
  el.innerHTML=`<div class="coach"><b class="t">어서 오세요, 영주님</b><ol><li>아래 단어를 치고 <kbd>Space</kbd>를 누르면 나무와 돌이 날아와요</li><li><kbd>Tab</kbd>으로 모드를 바꾸면 다른 자원이 모여요. 긴 글은 연구에 쓰는 지혜를 줘요</li><li>왼쪽 <b>건설</b>에서 건물을 고르고 섬을 눌러 지어요. 집 옆에 나무를 심으면 이웃 보너스!</li><li><b>성·연구</b>에서 연구를 마치고 성을 증축하면 원정과 밤 침공이 열려요</li></ol><div class="row2"><button class="btn primary sm" id="coachOk">시작하기</button></div></div>`;
  $('coachOk').onclick=()=>{ S.coach=false; renderCoach(); save(); refocus(); }; }
 function syncDiff(){ const cd=classSet('diff'), ct=classSet('topic'), cp=classSet('peace'); $('setDiff').querySelectorAll('button').forEach(b=>{ b.classList.toggle('on',b.dataset.v===(cd||S.set.diff||'normal')); b.disabled=!!cd; }); $('setTopic').querySelectorAll('button').forEach(b=>b.disabled=!!ct); $('setPeace').disabled=!!cp; if(cp) $('setPeace').setAttribute('aria-pressed',cp==='on'); $('lockNote').hidden=!(cd||ct||cp); $('setTopic').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===topic())); $('topTeacher').hidden=!packGet(); }
-function openSettings(){ $('settings').hidden=false; syncDiff(); $('setWho').textContent=SLOT?(SLOT.cloud?`${slotLabel(SLOT)} · ${syncStatus()}`:`${slotLabel(SLOT)} · 선생님께 기록과 소감을 보내요`):'손님은 기록이 저장되지 않아요'; $('btnFb').disabled=$('btnExport').disabled=$('btnMove').disabled=!SLOT; $('setVol').value=S.set.vol; ['music','shake','ghost','peace','big'].forEach(k=>$('set'+k[0].toUpperCase()+k.slice(1)).setAttribute('aria-pressed',k==='peace'?peaceOn():S.set[k])); $('btnReset').textContent='마을 초기화'; $('btnReset').dataset.arm=''; $('btnReset').classList.remove('danger'); }
+function openSettings(){ $('settings').hidden=false; syncDiff(); $('setWho').textContent=SLOT?(SLOT.cloud?`${slotLabel(SLOT)} · ${syncStatus()}`:`${slotLabel(SLOT)} · 선생님께 기록과 소감을 보내요`):'손님은 기록이 저장되지 않아요'; $('btnFb').disabled=$('btnExport').disabled=$('btnMove').disabled=!SLOT; $('setVol').value=S.set.vol; ['music','shake','ghost','peace','big','lite'].forEach(k=>$('set'+k[0].toUpperCase()+k.slice(1)).setAttribute('aria-pressed',k==='peace'?peaceOn():!!S.set[k])); $('btnReset').textContent='마을 초기화'; $('btnReset').dataset.arm=''; $('btnReset').classList.remove('danger'); }
 function closeSettings(){ $('settings').hidden=true; save(); refocus(); }
 $('btnCloseSet').onclick=closeSettings;
 $('setTopic').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.set.topic=b.dataset.v; syncDiff(); AU.tone(700,'triangle',0.05,0.05); T.queue=[]; S.long.p=null; S.long.l=0; loadTarget(); });
 $('setDiff').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.set.diff=b.dataset.v; syncDiff(); AU.tone(700,'triangle',0.05,0.05); renderPreview(); }); $('settings').addEventListener('click',e=>{ if(e.target.id==='settings') closeSettings(); });
 $('setVol').oninput=e=>{ S.set.vol=+e.target.value; AU.apply(); AU.tick(false); };
-['music','shake','ghost','peace','big'].forEach(k=>{ const el=$('set'+k[0].toUpperCase()+k.slice(1)); el.onclick=()=>{ S.set[k]=!S.set[k]; el.setAttribute('aria-pressed',S.set[k]); AU.apply(); AU.tone(700,'triangle',0.05,0.05); }; });
+['music','shake','ghost','peace','big','lite'].forEach(k=>{ const el=$('set'+k[0].toUpperCase()+k.slice(1)); el.onclick=()=>{ S.set[k]=!S.set[k]; if(k==='lite'){ S.set.liteAsked=true; resize(); syncFolk(); } el.setAttribute('aria-pressed',S.set[k]); AU.apply(); AU.tone(700,'triangle',0.05,0.05); }; });
 $('btnReset').onclick=e=>{ const b=e.currentTarget; if(!b.dataset.arm){ b.dataset.arm='1'; b.textContent='한 번 더 누르면 초기화'; b.classList.add('danger'); return; } wipeSave(); S=newState(); boot(); closeSettings(); toast('새 마을을 시작했어요'); };
 $('btnTitle').onclick=()=>{ closeSettings(); save(); showTitle(); };
 $('btnCredits').onclick=()=>{ $('settings').hidden=true; showCredits(); };
@@ -2612,7 +2624,7 @@ function useSlot(sl){ if(!sl) return; if(S&&SLOT) save(); SLOT=sl; const all=slo
  if(window.__packJustLoaded){ P.set.topic='teacher'; saveProfile(); toast('선생님 글감 “'+window.__packJustLoaded+'”으로 연습해요'); } S=(P.last&&loadSave(P.last))||loadSave('free')||newState('free'); boot(); showTitle(); }
 function showTitle(){ started=false; document.body.classList.add('titled'); $('camp').hidden=true; const t=$('title'); t.hidden=false; t.classList.remove('out');
  if(SLOT&&SLOT.cloud) syncNow(); $('cloudBox').hidden=!CLOUD.on()||!!SLOT; $('localOpen').hidden=!CLOUD.on()||!!SLOT; if(CLOUD.on()&&!SLOT) $('who').hidden=true; if(!SLOT&&CLOUD.on()) ClassLogin.mountStudentLogin($('clMount'),{onLogin:ss=>{ AU.init(); cloudEnter(ss); }}); if(!CLOUD.on()) $('who').hidden=!!SLOT; else if(SLOT) $('who').hidden=true; $('tBtns').hidden=!SLOT; document.querySelector('.t-foot').hidden=!SLOT; $('me').hidden=!SLOT; $('whoNew').hidden=true; if(SLOT){ $('meName').innerHTML=`<b>${esc(slotLabel(SLOT))}</b> 영주님`+(SLOT.cloud?` <small class="cls">${esc(SLOT.cls||'')}</small>`:''); } else renderWho();
- const lastId=P.last&&hasSave(P.last)?P.last:null; const cb=$('btnContinue'); cb.hidden=!lastId; if(lastId){ cb.textContent=lastId==='free'?'이어하기 (자유 모드)':lastId==='toy'?'이어하기 (놀이 섬)':`이어하기 (${chapterOf(lastId).no}장 ${chapterOf(lastId).title})`; } renderCoach(); renderObjTrack(); }
+ const lastId=P.last&&hasSave(P.last)?P.last:null; $('tFirst').hidden=!SLOT||!!lastId; const cb=$('btnContinue'); cb.hidden=!lastId; if(lastId){ cb.textContent=lastId==='free'?'이어하기 (자유 모드)':lastId==='toy'?'이어하기 (놀이 섬)':`이어하기 (${chapterOf(lastId).no}장 ${chapterOf(lastId).title})`; } renderCoach(); renderObjTrack(); }
 function startGame(){ AU.init(); AU.apply(); document.body.classList.remove('titled'); const t=$('title'); t.classList.add('out'); setTimeout(()=>{ t.hidden=true; },500); started=true; renderCoach(); renderObjTrack(); resize(); refocus(); }
 $('btnCamp').onclick=()=>{ AU.init(); openCampaign(); };
 $('whoNew').onsubmit=e=>{ e.preventDefault(); const name=$('whoName').value.trim().slice(0,10), numRaw=$('whoNum').value.trim(), num=/^\d{1,2}$/.test(numRaw)?+numRaw:null;
@@ -2643,6 +2655,10 @@ $('btnToy').onclick=()=>{ if(classSet('toy')==='lock'){ showModal(`<h2>놀이 �
 function boot(){ setupMap(MAPS[S.map||'free']); S.set=P.set; migrate(); raid=null; dun=null; merchant=null; moving=null; lastBuild=null; closePop(); renderDungeon(); rebuildLand(); dirty(); folk=[]; parts=[]; buildRes(); buildRail(); syncFolk(); setMode('word',true); S.rank=Math.max(S.rank,rankIdx()); closeDrawer(); hideBanner(); duel=null; $('duel').hidden=true; afterProgress(); AU.apply(); resize(); renderObjTrack(); }
 
 let last=performance.now(), prevNight=false, lastDayLabel='';
+// 느린 컴퓨터 감지: 게임 시작 뒤 8초 동안 프레임 간격을 재서 너무 느리면 가벼운 그래픽으로 (한 번만)
+let frameN=0, perfS={t:0,n:0,slow:0,done:false};
+function perfWatch(dt){ if(perfS.done||!started||document.hidden) return; perfS.t+=dt; perfS.n++; if(dt>34) perfS.slow++;
+ if(perfS.t>8000){ perfS.done=true; if(perfS.slow/perfS.n>0.5&&!LITE()&&P.set.liteAsked!==true){ P.set.lite=true; P.set.liteAsked=true; saveProfile(); resize(); syncFolk(); toast('컴퓨터가 느려서 가벼운 그래픽으로 바꿨어요. 설정에서 끌 수 있어요'); } } }
 function frame(now){ const dt=Math.min(50,now-last); last=now;
  if(started){ S.stats.playMs+=dt; S.clock+=dt/1000*(raid?0.35:(S.speed||1)); if(S.speed>1&&dayPhase().p>=0.64) S.speed=1; } else S.clock+=dt/1000*0.25;
  TIME=now/1000; const dp=dayPhase(); NIGHT=dp.n;
@@ -2651,7 +2667,7 @@ function frame(now){ const dt=Math.min(50,now-last); last=now;
  const dayIdx=Math.floor(S.clock/360); if(S.lastTaxDay===undefined) S.lastTaxDay=dayIdx; if(started&&dayIdx>S.lastTaxDay){ S.lastTaxDay=dayIdx; collectTax(); }
  prevNight=isNight; if(dp.label!==lastDayLabel){ lastDayLabel=dp.label; if(started) updateCrest(); }
  if(started&&SLOT&&!document.hidden) dayRec().play+=Math.min(dt,1000);
- stepWeather(dt); stepRequests(dt); maybeMerchant(dt); stepMerchant(dt); stepFolk(dt); stepParts(dt); stepRaid(dt); stepDungeon(dt); stepDuel(dt); render(now); placePop(); tickHud(now); updateGhost(now); stepFx(dt);
+ stepWeather(dt); stepRequests(dt); maybeMerchant(dt); stepMerchant(dt); stepFolk(dt); stepParts(dt); stepRaid(dt); stepDungeon(dt); stepDuel(dt); frameN++; if(!LITE()||(frameN&1)===0) render(now); perfWatch(dt); placePop(); tickHud(now); updateGhost(now); stepFx(dt);
  requestAnimationFrame(frame); }
 
 function start(data){
