@@ -859,17 +859,31 @@ const RELICS = [
  {id:'scale',   name:'용의 비늘',   icon:'diamond', desc:'원정에서 보석 +1'},
 ];
 const ROOMS = ['이끼 낀 입구','거미줄 복도','지하 호수','잠든 석상','보물 방의 문지기'];
-const N = 33, TW = 64, TH = 32, CLIFF = 20;
+const N = 45, TW = 64, TH = 32, CLIFF = 20;
 // 지도 정의는 25칸 기준 좌표로 쓰고, 실제 섬은 GK배 크게 펼침
-const GD = 25, GK = N/GD, GOC = 12, GNC = (N-1)/2;
+const GD = 25, GK = 33/25, GOC = 12, GNC = (N-1)/2; // 섬은 33칸 시절 크기 그대로, 둘레 바다만 넓어짐(구역 확장용)
 const gsc = v => Math.round((v-GOC)*GK+GNC), gsf = v => (v-GOC)*GK+GNC, ginv = v => (v-GNC)/GK+GOC;
 let CX = 12, CY = 12;
+// 자유 모드 구역: 시티즈 스카이라인처럼 가진 땅에 맞닿은 구역만 살 수 있고, 살수록 값이 올라요.
+// 처음 네 곳(pine, rocks, dunes, mist)은 예전 저장과 맞추려고 모양(원)을 그대로 둠
 const FREE_REGIONS = [
- {id:'pine',  name:'소나무 곶',  c:[12,2.2],  r:3.4, need:2, cost:{wood:80,stone:60},             spawn:['pine','pine','wildtree']},
- {id:'rocks', name:'바위 해안',  c:[21.8,12], r:3.4, need:2, cost:{stone:80,brick:45},            spawn:['rock','rock','pine']},
- {id:'dunes', name:'모래 언덕',  c:[12,21.8], r:3.4, need:3, cost:{brick:90,trade:45,gem:2},      spawn:['wildtree','rock'], sand:true},
- {id:'mist',  name:'안개 숲',    c:[2.2,12],  r:3.4, need:4, cost:{brick:150,trade:75,gem:5},     spawn:['wildtree','pine','wildtree']},
-]
+ {id:'pine',  name:'소나무 곶',  c:[12,2.2],  r:3.4, need:1, cost:{wood:70,stone:50},  spawn:['pine','pine','wildtree'], find:{deco:'treasure'}, perk:'소나무 숲'},
+ {id:'rocks', name:'바위 해안',  c:[21.8,12], r:3.4, need:1, cost:{stone:70,wood:40},  spawn:['rock','rock','pine'], find:{ruin:'well',t:'바위틈에서 맑은 물이 솟는다.'}, perk:'바위가 많아 채석장에 좋아요'},
+ {id:'dunes', name:'모래 언덕',  c:[12,21.8], r:3.4, need:1, cost:{wood:60,stone:60},  spawn:['wildtree','rock'], sand:true, find:{deco:'gardenrock'}, perk:'모래밭, 부두를 놓기 좋아요'},
+ {id:'mist',  name:'안개 숲',    c:[2.2,12],  r:3.4, need:1, cost:{wood:80,stone:40},  spawn:['wildtree','pine','wildtree'], find:{ruin:'cottage',t:'안개 속 작은 집에 불이 켜진다.'}, perk:'오래된 숲'},
+ {id:'blossom',name:'꽃 언덕',   c:[19.6,4.4], r:3.1, need:1, cost:{wood:70,stone:50},  spawn:['wildtree','wildtree'], find:{deco:'sakura'}, perk:'벚꽃이 피는 언덕', blob:1},
+ {id:'marsh', name:'갈대 습지',  c:[19.6,19.6],r:3.1, need:1, cost:{stone:70,wood:50},  spawn:['wildtree','rock'], sand:true, find:{ruin:'windmill',t:'습지 바람에 풍차가 다시 돈다.'}, perk:'바람이 센 습지', blob:2},
+ {id:'orchard',name:'과수원',    c:[4.4,19.6], r:3.1, need:1, cost:{wood:80,stone:40},  spawn:['wildtree','wildtree','wildtree'], find:{ruin:'bakery',t:'사과 향 나는 빵집이 문을 연다.'}, perk:'사과나무가 많아요', blob:3},
+ {id:'lakeside',name:'호숫가',   c:[4.4,4.4],  r:3.1, need:1, cost:{stone:60,wood:60},  spawn:['pine','rock'], find:{ruin:'brickhouse',t:'호숫가 벽돌집에 이름이 걸린다.'}, perk:'잔잔한 호수 마을', blob:4},
+ {id:'cliffs',name:'북쪽 절벽',  c:[12,-2.6],  r:3.0, need:2, cost:{stone:110,brick:50},spawn:['rock','pine'], find:{ruin:'watchtower',t:'절벽 위 망루에서 바다가 보인다.'}, perk:'높은 절벽', blob:5},
+ {id:'bay',   name:'동쪽 만',    c:[26.6,12],  r:3.0, need:2, cost:{brick:80,trade:40}, spawn:['wildtree','rock'], sand:true, find:{deco:'treasure'}, perk:'배가 쉬어 가는 만', blob:6},
+ {id:'meadow',name:'남쪽 초원',  c:[12,26.6],  r:3.0, need:2, cost:{wood:110,brick:50}, spawn:['wildtree'], find:{ruin:'cottage',t:'넓은 초원에 새 이웃이 온다.'}, perk:'넓은 초원', blob:7},
+ {id:'oldwood',name:'서쪽 고목숲',c:[-2.6,12],  r:3.0, need:2, cost:{wood:120,stone:60},spawn:['pine','pine','wildtree'], find:{deco:'sakura'}, perk:'아주 오래된 나무들', blob:8},
+ {id:'sunrise',name:'해돋이 언덕',c:[23.4,0.6], r:2.9, need:3, cost:{brick:110,trade:60,gem:2},spawn:['wildtree','rock'], find:{ruin:'clocktower',t:'해가 뜨면 종이 울린다.'}, perk:'가장 먼저 해가 뜨는 곳', blob:9},
+ {id:'sunset',name:'노을 해변',  c:[23.4,23.4],r:2.9, need:3, cost:{brick:110,trade:60,gem:2},spawn:['rock','wildtree'], sand:true, find:{ruin:'lighthouse',t:'노을 속에서 등대가 깨어난다.'}, perk:'노을이 고운 바닷가', blob:10},
+ {id:'moonhill',name:'달빛 언덕',c:[0.6,23.4], r:2.9, need:3, cost:{brick:120,wisdom:50,gem:2},spawn:['pine','wildtree'], find:{deco:'gardenrock'}, perk:'달이 크게 보이는 언덕', blob:11},
+ {id:'starwood',name:'별빛 숲',  c:[0.6,0.6],  r:2.9, need:3, cost:{brick:120,wisdom:50,gem:2},spawn:['pine','pine'], find:{ruin:'cottage',t:'별을 보는 집이 생긴다.'}, perk:'밤하늘이 가장 맑은 숲', blob:12},
+];
 const QUESTS = [
  {id:'q1', title:'첫 나무 모으기', desc:'단어 모드에서 단어 5개 입력', goal:5, prog:()=>S.stats.words, reward:{wood:10}},
  {id:'q2', title:'새 이웃 맞이', desc:'오두막 1채 짓기', goal:1, prog:()=>countB('cottage'), reward:{stone:8}},
@@ -895,7 +909,8 @@ const ACHS = [
  {id:'defender', name:'밤의 수호자', desc:'침입자 30명 격퇴', ok:()=>S.stats.kills>=30},
  {id:'flawless', name:'철벽', desc:'한 명도 놓치지 않고 침공 막기', ok:()=>S.stats.flawless>0},
  {id:'delver', name:'심연까지', desc:'던전 5번째 방 돌파', ok:()=>S.stats.bestRooms>=5},
- {id:'explorer', name:'개척자', desc:'섬 네 곳 모두 개척', ok:()=>S.regions.length>=4},
+ {id:'explorer', name:'개척자', desc:'새 구역 네 곳 사기', ok:()=>S.regions.length>=4},
+ {id:'landlord', name:'군도의 주인', desc:'자유 모드 구역 열여섯 곳 모두 사기', ok:()=>MAP&&MAP.zoneAdj&&S.regions.length>=16},
  {id:'poem1', name:'낭독회', desc:'긴 글 한 편 완성', ok:()=>S.stats.poems>=1},
  {id:'trader', name:'바다의 상인', desc:'상인과 5번 거래', ok:()=>(S.stats.trades||0)>=5},
  {id:'daily', name:'꾸준함', desc:'오늘의 연습 완료', ok:()=>(S.stats.dailyDone||0)>=1},
@@ -920,7 +935,7 @@ const ERA1=['masonry','baking','brickmaking'], ERA2=['education','windpower','wa
 const MAPS = {
  toy:{name:'놀이 섬', toy:true, seed:5, land:(x,y)=>Math.hypot(x-12,y-12)<=9.4, center:[12,12], castle:[11,11], paths:['12,13','12,14'], trees:10, maxCastle:4, start:{res:{wood:0,stone:0,brick:0,wisdom:0,trade:0,gem:0}, castle:1, techs:[], clock:120}},
  free:{name:'나의 섬', land:(x,y)=>Math.hypot(x-12,y-12)<=8.6, center:[12,12], castle:[11,11], cave:[5,15], paths:['12,13','12,14','13,13','11,13','12,15'], trees:44,
-  regions:FREE_REGIONS, maxCastle:4, raids:'castle2', merchant:'castle2', expedition:'castle2'},
+  regions:FREE_REGIONS, zoneAdj:true, maxCastle:4, raids:'castle2', merchant:'castle2', expedition:'castle2'},
  ch1:{name:'새벽섬', campaign:true, seed:21, land:(x,y)=>Math.hypot(x-12,y-12.4)<=6.7||Math.hypot(x-16.4,y-7.9)<=2.7, center:[12,12], castle:[11,11],
   paths:['12,13','11,13','13,13','13,14','14,14','14,15'], trees:30, prebuilt:[{t:'lighthouse',x:17,y:7}],
   ruins:[{x:8,y:12,b:'cottage',t:'작은 오두막에 다시 불이 켜진다.'},{x:15,y:16,b:'cottage',t:'바람 부는 언덕에도 집이 선다.'},{x:8,y:15,b:'cottage',t:'창문마다 아침 햇살이 들어온다.'},{x:15,y:9,b:'well',t:'맑은 물이 다시 차오른다.'}],
@@ -963,7 +978,7 @@ function scalePaths(list){ const pts=(list||[]).map(p=>p.split(',').map(Number))
 function scaleMap(d){ const o={...d}, L0=d.land; o.land=(x,y)=>L0(ginv(x),ginv(y)); if(d.sand){ const S0=d.sand; o.sand=(x,y)=>S0(ginv(x),ginv(y)); }
  o.center=d.center.map(gsf); o.castle=d.castle.map(gsc); if(d.cave) o.cave=d.cave.map(gsc); if(d.tower) o.tower=d.tower.map(gsc);
  if(d.camps) o.camps=d.camps.map(c=>c.map(gsc)); ['ruins','stones','prebuilt','echoes'].forEach(k=>{ if(d[k]) o[k]=d[k].map(u=>({...u,x:gsc(u.x),y:gsc(u.y)})); });
- if(d.regions) o.regions=d.regions.map(r=>({...r,c:r.c.map(gsf),r:r.r*GK})); o.paths=scalePaths(d.paths); o.trees=Math.round((d.trees??15)*GK*GK); return o; }
+ if(d.regions) o.regions=d.regions.map(r=>{ const c=r.c.map(gsf), R=r.r*GK; let blobs=[[c[0],c[1],R]]; if(r.blob){ const rr=rng(r.blob*977); for(let k=0;k<2;k++){ const a=rr()*Math.PI*2, dd=R*(0.45+rr()*0.25); blobs.push([c[0]+Math.cos(a)*dd,c[1]+Math.sin(a)*dd,R*(0.55+rr()*0.25)]); } } return {...r,c,r:R,blobs}; }); o.paths=scalePaths(d.paths); o.trees=Math.round((d.trees??15)*GK*GK); return o; }
 for(const k in MAPS) MAPS[k]=scaleMap(MAPS[k]);
 const L=(w,t,o={})=>Object.assign({w,t},o);
 const bakeryMill=()=>S.objs.some(o=>o.t==='bakery'&&neighbors(o.gx,o.gy,szOf(o),o).windmill);
@@ -1206,8 +1221,8 @@ let BASE=new Array(N*N).fill(false), REGION_AT=new Array(N*N).fill(-1), SANDA=ne
 function setupMap(def){ MAP=def; CX=def.center[0]; CY=def.center[1];
  BASE=new Array(N*N).fill(false); for(let y=0;y<N;y++) for(let x=0;x<N;x++) BASE[y*N+x]=!!def.land(x,y);
  REGIONS=(def.regions||[]).map(r=>({...r,tiles:[]}));
- REGIONS.forEach(R=>{ for(let y=0;y<N;y++) for(let x=0;x<N;x++) if(!BASE[y*N+x]&&Math.hypot(x-R.c[0],y-R.c[1])<=R.r) R.tiles.push([x,y]); });
- REGION_AT=new Array(N*N).fill(-1); REGIONS.forEach((R,i)=>R.tiles.forEach(([x,y])=>{ if(REGION_AT[y*N+x]<0) REGION_AT[y*N+x]=i; }));
+ // 구역끼리 겹치는 칸은 먼저 나온 구역 것으로 (한 칸은 한 구역에만)
+ REGION_AT=new Array(N*N).fill(-1); REGIONS.forEach((R,i)=>{ const bl=R.blobs||[[R.c[0],R.c[1],R.r]]; for(let y=0;y<N;y++) for(let x=0;x<N;x++) if(!BASE[y*N+x]&&REGION_AT[y*N+x]<0&&bl.some(([bx,by,br])=>Math.hypot(x-bx,y-by)<=br)){ REGION_AT[y*N+x]=i; R.tiles.push([x,y]); } });
  SANDA=new Array(N*N).fill(false); for(let y=0;y<N;y++) for(let x=0;x<N;x++){ const ri=REGION_AT[y*N+x]; SANDA[y*N+x]=(ri>=0&&REGIONS[ri].sand)||!!(def.sand&&BASE[y*N+x]&&def.sand(x,y)); }
  groundCv=null; }
 let LAND = BASE.slice();
@@ -1233,7 +1248,7 @@ function newState(mapId='free'){
  for (let i=spots.length-1;i>0;i--){ const j=Math.floor(r()*(i+1)); [spots[i],spots[j]]=[spots[j],spots[i]]; }
  const nT=def.trees??15; spots.slice(0,nT).forEach(([x,y],i)=>{ objs.push({t:i<nT*0.4?'wildtree':i<nT*0.75?'pine':'rock',gx:x,gy:y,natural:true,seed:Math.floor(r()*1e6)}); });
  const st=def.start||{};
- return {v:5, map:mapId, res:Object.assign({wood:8,stone:6,brick:0,wisdom:0,trade:0,gem:0},st.res||{}), objs, paths:(def.paths||[]).slice(), castle:st.castle||1, techs:(st.techs||[]).slice(), regions:[], relics:[],
+ return {v:6, map:mapId, res:Object.assign({wood:8,stone:6,brick:0,wisdom:0,trade:0,gem:0},st.res||{}), objs, paths:(def.paths||[]).slice(), castle:st.castle||1, techs:(st.techs||[]).slice(), regions:[], relics:[],
   stats:{words:0,sentences:0,lines:0,poems:0,eng:0,perfects:0,maxCombo:0,chars:0,builtTotal:0,playMs:0,raids:0,kills:0,flawless:0,expeditions:0,bestRooms:0,restored:0,trades:0,
    best:{word:0,sentence:0,long:0,eng:0}, hist:[]},
   combo:0, long:{p:null,l:0}, claimed:[], achs:[], rank:0, clock:st.clock??40, raidNight:-1, expReadyAt:0, speed:1,
@@ -1242,7 +1257,7 @@ function newState(mapId='free'){
 }
 let S=null;
 function hasSave(id='free'){ return !!LS.get(keyFor(id)); }
-function loadSave(id='free'){ try { const d=JSON.parse(LS.get(keyFor(id))||'null'); if(d&&d.v>=2&&d.v<=5){ d.map=d.map||'free'; if(d.v<4&&d.map!=='free') return null; return d; } return null; } catch(e){ return null; } }
+function loadSave(id='free'){ try { const d=JSON.parse(LS.get(keyFor(id))||'null'); if(d&&d.v>=2&&d.v<=6){ d.map=d.map||'free'; if(d.v<4&&d.map!=='free') return null; return d; } return null; } catch(e){ return null; } }
 function save(){ if(!S||!SLOT) return; LS.set(keyFor(S.map||'free'), JSON.stringify(S)); saveProfile(); if(SLOT.cloud){ markDirty([PART_OF(S.map||'free'),'profile']); scheduleSync(); } }
 function wipeSave(id='free'){ LS.del(keyFor(id)); }
 
@@ -1252,7 +1267,7 @@ const centerOf=o=>{ const z=szOf(o); return [o.gx+(z-1)/2,o.gy+(z-1)/2]; };
 function rebuildOcc(){ OCC=new Array(N*N).fill(null); S.objs.forEach(o=>{ const z=szOf(o); for(let dy=0;dy<z;dy++) for(let dx=0;dx<z;dx++){ const x=o.gx+dx,y=o.gy+dy; if(x>=0&&y>=0&&x<N&&y<N) OCC[y*N+x]=o; } }); }
 const objAt=(x,y)=>(x>=0&&y>=0&&x<N&&y<N)?OCC[y*N+x]:null;
 const castleObj=()=>S.objs.find(o=>o.t==='castle');
-function migrate(){ if(S.v===4) migrate5(); if(S.v>=4) return;
+function migrate(){ if(S.v===5) migrate6(); if(S.v===4) migrate5(); if(S.v>=4) return;
  const sh=4; S.objs.forEach(o=>{ o.gx+=sh; o.gy+=sh; }); S.paths=S.paths.map(pp=>{ const [x,y]=pp.split(',').map(Number); return `${x+sh},${y+sh}`; });
  if(S.v<3){ S.objs.forEach(o=>{ if(!o.natural&&o.t!=='castle') o.sz=1; });
   const c=castleObj(); if(c){ let ok=null; for(const [ax,ay] of [[11,11],[12,12],[11,12],[12,11]]){ let fine=true; for(let dy=0;dy<2;dy++) for(let dx=0;dx<2;dx++){ const X=ax+dx,Y=ay+dy; if(!BASE[Y*N+X]) fine=false; const o=S.objs.find(q=>q!==c&&q.gx===X&&q.gy===Y); if(o&&!o.natural) fine=false; } if(fine){ ok=[ax,ay]; break; } }
@@ -1264,7 +1279,9 @@ function migrate(){ if(S.v===4) migrate5(); if(S.v>=4) return;
 function migrate5(){ S.objs.forEach(o=>{ o.gx=gsc(o.gx); o.gy=gsc(o.gy); }); S.paths=scalePaths(S.paths);
  const r=rng(7), near=(x,y)=>S.objs.some(o=>!o.natural&&Math.abs(o.gx-x)<=1&&Math.abs(o.gy-y)<=1);
  for(let y=0;y<N;y++) for(let x=0;x<N;x++) if(BASE[y*N+x]&&!S.objs.some(o=>o.gx===x&&o.gy===y)&&!S.paths.includes(`${x},${y}`)&&!near(x,y)&&r()<0.1) S.objs.push({t:r()<.45?'wildtree':r()<.6?'pine':'rock',gx:x,gy:y,natural:true,seed:Math.floor(r()*1e6)});
- S.v=5; }
+ S.v=6; }
+// 33칸 저장 → 45칸: 섬 크기는 같고 가운데만 옮김
+function migrate6(){ const sh=GNC-16; S.objs.forEach(o=>{ o.gx+=sh; o.gy+=sh; }); S.paths=S.paths.map(p=>{ const [x,y]=p.split(',').map(Number); return `${x+sh},${y+sh}`; }); S.v=6; }
 const isPath = (x,y) => S.paths.includes(`${x},${y}`);
 const built = o => !o.natural && BUILD[o.t];
 function countB(t){ return S.objs.reduce((n,o)=>n+(o.t===t&&!o.natural?1:0),0); }
@@ -1300,7 +1317,7 @@ function prodFor(mode){ const r={}; staffing().on.forEach(o=>{ const B=BUILD[o.t
   if(o.t==='lumber'&&nb.green>=2) n++; if(o.t==='quarry'&&nb.rock) n++; if(o.t==='kiln'&&nb.quarry) n++; if(o.t==='scriptorium'&&nb.library) n++; r[B.prod.res]=(r[B.prod.res]||0)+n; }); return r; }
 function popOf(){ return 2 + S.objs.reduce((n,o)=>n+(built(o)?.pop||0),0); }
 function happyOf(){ return S.objs.reduce((n,o)=>n+(built(o)?.happy||0),0) + adjTotal(); }
-function ptsOf(){ return S.objs.reduce((n,o)=>n+(built(o)?.pts||0),0) + S.paths.length + adjTotal()*2 + (S.castle-1)*25 + (S.fameBonus||0); }
+function ptsOf(){ return S.objs.reduce((n,o)=>n+(built(o)?.pts||0),0) + S.paths.length + adjTotal()*2 + (S.castle-1)*25 + (S.fameBonus||0) + (MAP&&MAP.zoneAdj?S.regions.length*12:0); }
 function rankIdx(){ const p=ptsOf(); let i=0; RANKS.forEach((r,k)=>{ if(p>=r.min) i=k; }); return i; }
 function hasRelic(id){ return S.relics.includes(id); }
 function bonusFor(mode){
@@ -1990,7 +2007,7 @@ function closeExpedition(){ dun=null; renderDungeon(); }
    CAMERA / INPUT
    ================================================================ */
 let hover=null, placing=null, demolish=false, dragging=null;
-function landBounds(){ let minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9; for(let y=0;y<N;y++) for(let x=0;x<N;x++) if(BASE[y*N+x]||REGION_AT[y*N+x]>=0){ const [px,py]=W(x,y); minX=Math.min(minX,px); maxX=Math.max(maxX,px); minY=Math.min(minY,py); maxY=Math.max(maxY,py); } return {minX:minX-TW/2,maxX:maxX+TW/2,minY:minY-100,maxY:maxY+TH/2+CLIFF}; }
+function landBounds(){ let minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9; const reach=REGIONS.map((R,i)=>!S||!MAP||!MAP.zoneAdj||regionReach(i)); for(let y=0;y<N;y++) for(let x=0;x<N;x++) if(LAND&&LAND[y*N+x]||BASE[y*N+x]||(REGION_AT[y*N+x]>=0&&reach[REGION_AT[y*N+x]])){ const [px,py]=W(x,y); minX=Math.min(minX,px); maxX=Math.max(maxX,px); minY=Math.min(minY,py); maxY=Math.max(maxY,py); } return {minX:minX-TW/2,maxX:maxX+TW/2,minY:minY-100,maxY:maxY+TH/2+CLIFF}; }
 const LITE=()=>!!(P&&P.set&&P.set.lite);
 function resize(){ const dpr=LITE()?1:Math.min(2,devicePixelRatio||1), w=innerWidth, h=innerHeight; cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); cv._dpr=dpr; cv._w=w; cv._h=h; fxc.width=Math.round(w*dpr); fxc.height=Math.round(h*dpr); fxc._dpr=dpr; layoutCam(); }
 // 캔버스 크기는 그대로 두고 카메라만 다시 계산 (확대·이동할 때 가볍게)
@@ -2092,12 +2109,19 @@ function startDemolish(){ placing=null; moving=null; closePop(); demolish=!demol
 function cancelPlace(silent){ if(!placing&&!demolish&&!moving) return; placing=null; demolish=false; moving=null; setTimeout(syncDemoBtn,0); hideBanner(); if(!silent) AU.cancel(); renderDrawer(); }
 function showBanner(html){ const b=$('banner'); b.innerHTML=html; b.hidden=false; b.querySelectorAll('[data-act]').forEach(x=>x.onclick=()=>{ const a=x.dataset.act; if(a==='cancel') cancelPlace(); if(a==='buy') buyRegion(+x.dataset.r); if(a==='close') hideBanner(); if(a==='trade'){ hideBanner(); openDrawer('trade'); } refocus(); }); }
 function hideBanner(){ $('banner').hidden=true; }
-function offerRegion(i){ const R=REGIONS[i];
- if(S.castle<R.need){ showBanner(`<span><b>${R.name}</b> ${CASTLE[R.need].name}이 되면 개척할 수 있어요.</span><button class="btn sm" data-act="close">닫기</button>`); return; }
- showBanner(`<span><b>${R.name}</b> 개척하기</span><span style="display:flex;gap:8px">${costHTML(R.cost)}</span><button class="btn primary sm" data-act="buy" data-r="${i}" ${canPay(R.cost)?'':'disabled'}>개척</button><button class="btn sm" data-act="close">닫기</button>`); }
-function buyRegion(i){ const R=REGIONS[i]; if(S.regions.includes(R.id)||!canPay(R.cost)) return; spend(R.cost); S.regions.push(R.id); rebuildLand(); regionRise[R.id]=performance.now();
+function offerRegion(i){ const R=REGIONS[i], st=regionState(i), C=regionCost(R);
+ if(st==='far'){ showBanner(`<span><b>${R.name}</b> 가진 땅과 맞닿은 구역부터 살 수 있어요.</span><button class="btn sm" data-act="close">닫기</button>`); return; }
+ if(st==='castle'){ showBanner(`<span><b>${R.name}</b> ${CASTLE[R.need].name}이 되면 개척할 수 있어요.</span><button class="btn sm" data-act="close">닫기</button>`); return; }
+ showBanner(`<span><b>${R.name}</b>${R.perk?` · ${R.perk}`:''}</span><span style="display:flex;gap:8px">${costHTML(C)}</span><button class="btn primary sm" data-act="buy" data-r="${i}" ${canPay(C)?'':'disabled'}>구역 사기</button><button class="btn sm" data-act="close">닫기</button>`); }
+// 맞닿은 구역만 살 수 있음 (자유 모드). 캠페인의 떨어진 섬(4장)은 예전처럼 어디든
+function regionReach(i){ const R=REGIONS[i]; if(!MAP||!MAP.zoneAdj) return true; return R.tiles.some(([x,y])=>[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>isLand(x+dx,y+dy))); }
+function regionCost(R){ if(!MAP||!MAP.zoneAdj) return R.cost; const k=1+0.25*S.regions.length, c={}; for(const r in R.cost) c[r]=Math.round(R.cost[r]*k); return c; }
+function regionState(i){ const R=REGIONS[i]; if(S.regions.includes(R.id)) return 'own'; if(!regionReach(i)) return 'far'; if(S.castle<R.need) return 'castle'; return 'open'; }
+function buyRegion(i){ const R=REGIONS[i], C=regionCost(R); if(regionState(i)!=='open'||!canPay(C)) return; spend(C); S.regions.push(R.id); rebuildLand(); regionRise[R.id]=performance.now();
  const r=rng(R.tiles.length*31+i); R.tiles.forEach(([x,y])=>{ if(r()<0.32&&!objAt(x,y)) S.objs.push({t:R.spawn[Math.floor(r()*R.spawn.length)],gx:x,gy:y,natural:true,seed:Math.floor(r()*1e6)}); });
- dirty(); hideBanner(); AU.fanfare(); shake(8); levelBanner('새 땅 개척',R.name,'건물을 지을 땅이 넓어졌어요');; afterProgress(); resize(); }
+ let found=''; if(R.find){ const free=R.tiles.filter(([x,y])=>!objAt(x,y)&&!isPath(x,y)).sort((a,b)=>Math.hypot(a[0]-R.c[0],a[1]-R.c[1])-Math.hypot(b[0]-R.c[0],b[1]-R.c[1]));
+  const at=free[0]; if(at){ for(let k=S.objs.length-1;k>=0;k--) if(S.objs[k].gx===at[0]&&S.objs[k].gy===at[1]) S.objs.splice(k,1); if(R.find.ruin){ S.objs.push({t:'ruin',gx:at[0],gy:at[1],natural:true,becomes:R.find.ruin,word:R.find.t,seed:7}); found=`무너진 ${BUILD[R.find.ruin].name} 발견 (눌러서 복원)`; } else { S.objs.push({t:R.find.deco,gx:at[0],gy:at[1],sz:1,seed:7,born:performance.now()}); found=`${BUILD[R.find.deco].name} 발견`; } } }
+ dirty(); hideBanner(); AU.fanfare(); shake(8); levelBanner('새 구역',R.name,(found?found+' · ':'')+'명성 +12'); afterProgress(); resize(); }
 function shake(n){ if(S.set.shake) cam.shake=Math.max(cam.shake,n); }
 
 /* ================================================================
@@ -2110,10 +2134,11 @@ function render(now){
  g.lineCap='round'; SEA_SPK.forEach(s=>{ const a=(Math.sin(TIME*1.2+s.p)+1)/2*0.45, x=(s.x*w+TIME*6)%(w+40)-20, y=s.y*h; g.strokeStyle=`rgba(255,255,255,${a})`; g.lineWidth=2; g.beginPath(); g.moveTo(x,y); g.lineTo(x+s.l,y); g.stroke(); });
  const sx=(Math.random()-.5)*cam.shake, sy=(Math.random()-.5)*cam.shake; cam.shake*=0.86; if(cam.shake<0.3) cam.shake=0;
  g.setTransform(dpr*cam.s,0,0,dpr*cam.s,dpr*(cam.ox+sx),dpr*(cam.oy+sy));
- // shoals (unclaimed land)
- for(let y=0;y<N;y++) for(let x=0;x<N;x++){ const ri=shoalAt(x,y); if(ri<0) continue; const R=REGIONS[ri], [cx,cy]=W(x,y,0,0,-6), avail=S.castle>=R.need, hv=hover&&shoalAt(hover[0],hover[1])===ri;
+ // shoals (unclaimed land): 살 수 있는 구역은 밝게, 아직 먼 구역은 아주 흐리게
+ const RSTATE=REGIONS.map((R,i)=>regionState(i));
+ for(let y=0;y<N;y++) for(let x=0;x<N;x++){ const ri=shoalAt(x,y); if(ri<0) continue; const R=REGIONS[ri], [cx,cy]=W(x,y,0,0,-6), avail=(RSTATE[ri]||regionState(ri))==='open', hv=hover&&shoalAt(hover[0],hover[1])===ri;
   poly([[cx,cy-TH/2],[cx+TW/2,cy],[cx,cy+TH/2],[cx-TW/2,cy]], `rgba(190,240,236,${(hv?0.55:avail?0.32:0.16)*(1-NIGHT*0.7)})`); }
- REGIONS.forEach((R,i)=>{ if(S.regions.includes(R.id)) return; const [x,y]=W(R.c[0],R.c[1],0,0,-6), avail=S.castle>=R.need;
+ REGIONS.forEach((R,i)=>{ const st=RSTATE[i]||regionState(i); if(st==='own'||st==='far') return; const [x,y]=W(R.c[0],R.c[1],0,0,-6), avail=st==='open';
   g.strokeStyle='#5b4030'; g.lineWidth=1.6; g.beginPath(); g.moveTo(x,y); g.lineTo(x,y-26); g.stroke(); poly([[x,y-26],[x+15,y-21],[x,y-16]],avail?'#f2b21b':'#c9d2dc');
   });
  // foam (live, it breathes)
@@ -2149,7 +2174,7 @@ function render(now){
  drawParts(); if(!LITE()&&!THUMB) drawAmbientWorld();
  if(hover&&!placing&&!dragging&&isLand(hover[0],hover[1])){ const o=objAt(hover[0],hover[1]); if(o&&o!==popObj){ let nm=(BUILD[o.t]||NATURAL[o.t]||{name:CASTLE[S.castle].name}).name; if(o.t==='castle') nm=CASTLE[S.castle].name; if(o.t==='cave') nm='던전 입구'; nm+=' (클릭)'; const a=adjOf(o); if(a) nm+=`  이웃 보너스 +${a}`;
    const [hcx,hcy]=centerOf(o), [x,y]=W(hcx,hcy,0,0,spriteTop(o)); g.font='600 13px "IBM Plex Sans KR", sans-serif'; const tw=g.measureText(nm).width+18; g.fillStyle='rgba(31,42,55,.88)'; g.beginPath(); g.roundRect(x-tw/2,y-24,tw,24,12); g.fill(); g.fillStyle='#fff'; g.textAlign='center'; g.fillText(nm,x,y-7); } }
- if(hover&&!placing&&!demolish){ const ri=shoalAt(hover[0],hover[1]); if(ri>=0){ const R=REGIONS[ri], [x,y]=W(R.c[0],R.c[1],0,0,30), t=S.castle>=R.need?`${R.name}: 눌러서 개척`:`${R.name}: ${CASTLE[R.need].name}에서 개척`;
+ if(hover&&!placing&&!demolish){ const ri=shoalAt(hover[0],hover[1]); if(ri>=0){ const R=REGIONS[ri], [x,y]=W(R.c[0],R.c[1],0,0,30), st=regionState(ri), t=st==='open'?`${R.name}: 눌러서 구역 사기`:st==='far'?`${R.name}: 맞닿은 구역부터`:`${R.name}: ${CASTLE[R.need].name}에서 열림`;
    g.font='600 13px "IBM Plex Sans KR", sans-serif'; const tw=g.measureText(t).width+18; g.fillStyle='rgba(31,42,55,.88)'; g.beginPath(); g.roundRect(x-tw/2,y-24,tw,24,12); g.fill(); g.fillStyle='#fff'; g.textAlign='center'; g.fillText(t,x,y-7); } }
  g.setTransform(dpr,0,0,dpr,0,0);
  if(NIGHT>0.01){ g.fillStyle=`rgba(22,30,78,${0.45*NIGHT})`; g.fillRect(0,0,w,h); }
@@ -2301,7 +2326,9 @@ function renderDrawer(){ if(!drawerTab) return; const id=drawerTab, body=$('drBo
    TECHS.filter(t=>t.era===e).forEach(t=>{ const done=hasTech(t.id), can=open&&!done&&canPay(t.cost);
     h+=`<div class="row ${done?'done':can?'ready':''}"><div class="ic">${done?PH.check:open?PH.research:PH.lock}</div><div class="txt"><b>${t.name}</b><span>${t.desc}</span>${done?'':`<span class="cost">${costHTML(t.cost)}</span>`}</div>${done?'':`<button class="btn sm ${can?'primary':''}" data-t="${t.id}" ${can?'':'disabled'}>연구</button>`}</div>`; });
    h+='</div>'; }
-  if(REGIONS.length) h+=`<h3>개척지</h3>`+REGIONS.map((R,i)=>{ const own=S.regions.includes(R.id), av=L>=R.need; return `<div class="row ${own?'done':''}"><div class="ic">${own?PH.check:av?PH.flag:PH.lock}</div><div class="txt"><b>${R.name}</b><span>${own?'개척 완료':av?'바다 위 깃발을 눌러도 개척할 수 있어요':`${CASTLE[R.need].name}에서 열려요`}</span>${own?'':`<span class="cost">${costHTML(R.cost)}</span>`}</div>${own||!av?'':`<button class="btn sm ${canPay(R.cost)?'primary':''}" data-r="${i}" ${canPay(R.cost)?'':'disabled'}>개척</button>`}</div>`; }).join('');
+  if(REGIONS.length){ const st=REGIONS.map((R,i)=>regionState(i)), own=st.filter(x=>x==='own').length; h+=`<h3>구역 ${own} / ${REGIONS.length}</h3>`+(MAP.zoneAdj?`<p>가진 땅과 맞닿은 구역만 살 수 있어요. 구역을 살수록 값이 25%씩 올라요. 구역마다 명성 +12와 발견물이 있어요.</p>`:'')+
+  REGIONS.map((R,i)=>({R,i,s:st[i]})).sort((a,b)=>['open','castle','own','far'].indexOf(a.s)-['open','castle','own','far'].indexOf(b.s)).filter(x=>x.s!=='far').map(({R,i,s:k})=>{ const C=regionCost(R), own=k==='own', av=k==='open';
+  return `<div class="row ${own?'done':''}"><div class="ic">${own?PH.check:av?PH.flag:PH.lock}</div><div class="txt"><b>${R.name}</b><span>${own?'내 구역':av?(R.perk||'바다 위 깃발을 눌러도 살 수 있어요'):`${CASTLE[R.need].name}에서 열려요`}</span>${own?'':`<span class="cost">${costHTML(C)}</span>`}</div>${av?`<button class="btn sm ${canPay(C)?'primary':''}" data-r="${i}" ${canPay(C)?'':'disabled'}>사기</button>`:''}</div>`; }).join('')+(st.filter(x=>x==='far').length?`<p style="margin-top:6px">아직 닿지 않은 구역 ${st.filter(x=>x==='far').length}곳이 더 있어요.</p>`:''); }
   body.innerHTML=h; drawThumbTo($('castleCv'),'castle',1.25);
   const up=$('btnUp'); if(up) up.onclick=()=>{ upgradeCastle(); refocus(); };
   body.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{ research(b.dataset.t); refocus(); });
@@ -2688,7 +2715,7 @@ function start(data){
  window.claude?.hot?.snapshot?.(()=>({s:S,slot:SLOT&&SLOT.id}));
  if(data&&data.s&&SLOT) startGame(); else showTitle();
  requestAnimationFrame(frame);
- window.__tadak={get S(){return S;}, get POEMS(){return POEMS;}, startRaid:()=>startRaid(), get raid(){return raid;}, get dun(){return dun;}, startExpedition, setClock:(c)=>{S.clock=c;}, get P(){return P;}, canPlace:(t,x,y)=>canPlace(t,x,y), openCampaign, get story(){return story;}, advanceStory, startDuel, get duel(){return duel;}, checkObjectives, research, upgradeCastle, buyRegion, spawnMerchant:()=>spawnMerchant(), get merchant(){return merchant;}, objAt:(x,y)=>objAt(x,y), screenOf:(x,y)=>{ const [a,b]=W(x,y); return [cam.ox+a*cam.s, cam.oy+b*cam.s]; }, afterProgress};
+ window.__tadak={get S(){return S;}, get POEMS(){return POEMS;}, startRaid:()=>startRaid(), get raid(){return raid;}, get dun(){return dun;}, startExpedition, setClock:(c)=>{S.clock=c;}, get P(){return P;}, canPlace:(t,x,y)=>canPlace(t,x,y), openCampaign, get story(){return story;}, advanceStory, startDuel, get duel(){return duel;}, checkObjectives, research, upgradeCastle, buyRegion, get REGIONS(){return REGIONS;}, regionState:(i)=>regionState(i), regionCost:(R)=>regionCost(R), get N(){return N;}, get LAND(){return LAND;}, spawnMerchant:()=>spawnMerchant(), get merchant(){return merchant;}, objAt:(x,y)=>objAt(x,y), screenOf:(x,y)=>{ const [a,b]=W(x,y); return [cam.ox+a*cam.s, cam.oy+b*cam.s]; }, afterProgress};
 }
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 })();
