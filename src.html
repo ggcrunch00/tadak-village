@@ -285,9 +285,9 @@ body.big .tx .next,body.big .tx .prev{font-size:18px}
   box-shadow:0 0 0 2px var(--edge),0 4px 0 2px var(--edge),0 18px 36px rgba(14,48,66,.3);animation:lvl 2.8s ease-out forwards}
 .levelup span{display:inline-block;margin-top:12px;font-size:13.5px;font-weight:600;color:var(--ink);background:var(--accent-soft);border-radius:6px;padding:4px 10px;box-shadow:0 0 0 1.5px var(--edge)}
 @keyframes lvl{0%{transform:translateY(10px) scale(.9);opacity:0}14%{transform:none;opacity:1}85%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
-.modal-wrap{position:fixed;inset:0;z-index:90;background:rgba(14,30,48,.45);display:grid;place-items:center;padding:16px}
+.modal-wrap{position:fixed;inset:0;z-index:90;background:rgba(14,30,48,.45);display:grid;place-items:center;padding:16px;overflow:hidden}
 #modal2{z-index:130} /* 타이틀(100)·캠페인 지도(100)·선생님 화면(120) 위에서도 보이게 */
-.modal{width:min(420px,100%);background:var(--paper);border-radius:var(--r-surface);padding:20px 22px;box-shadow:var(--shadow)}
+.modal{width:min(420px,100%);background:var(--paper);border-radius:var(--r-surface);padding:20px 22px;box-shadow:var(--shadow);max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch} /* 화면이 낮은 크롬북에서도 설정 아래 메뉴까지 스크롤 */
 .modal h2{margin:0 0 10px;font-family:var(--f-display);font-weight:400;font-size:22px}
 .set{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
 .set label{font-size:14px;font-weight:600}
