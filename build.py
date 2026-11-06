@@ -10,6 +10,7 @@ spr.update(json.loads((root/'assets'/'art2.json').read_text()))
 spr.update(json.loads((root/'assets'/'art3.json').read_text()))
 spr.update(json.loads((root/'assets'/'art4.json').read_text()))  # crest, flag, blank stone fixes
 spr.update(json.loads((root/'assets'/'art5.json').read_text()))  # portraits redrawn in the map sprite style
+spr.update(json.loads((root/'assets'/'art6.json').read_text()))  # 7-8장: 되울이, 메아리 바위, 원고대, 갈매기, 8개 섬 지도
 assert '/*__PH__*/' in src and '/*__SPRITES__*/' in src
 # 학급 서버 주소와 공개 키(anon/publishable). server.json 이 없으면 서버 기능은 꺼진 채로 빌드됨
 srv_path=root/'server.json'
