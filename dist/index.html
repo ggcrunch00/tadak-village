@@ -351,6 +351,10 @@ body.big .tx .next,body.big .tx .prev{font-size:18px}
 .who-foot{display:flex;justify-content:space-between;gap:10px;margin-top:10px;color:var(--ink-2);flex-wrap:wrap}
 .me{display:flex;gap:10px;align-items:center;color:#fff;font-size:15px;text-shadow:0 1px 6px rgba(14,48,66,.7)}.me b{font-weight:700}
 .me .linkbtn{color:#e4ecf3;font-size:13px}
+.ic-target{font-family:var(--f-type);font-size:22px;background:var(--paper-2);border-radius:10px;padding:10px 12px;margin:6px 0}
+.ic-in{width:100%;font-family:var(--f-type);font-size:22px;border:0;border-radius:10px;padding:10px 12px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--edge)}
+.ic-log{font-size:13px;margin-top:8px;display:flex;flex-direction:column;gap:2px}.ic-log .ok{color:var(--good)}.ic-log .bad{color:var(--bad)}
+.ic-res{margin-top:10px;background:var(--paper-2);border-radius:10px;padding:10px 12px;font-size:13.5px}.ic-res ul{margin:6px 0;padding-left:18px}
 .mtext{font-size:13.5px;color:var(--ink-2);line-height:1.55;margin:0 0 10px}.mnote{font-size:12.5px;color:var(--ink-2);min-height:1em;margin:6px 0 0}
 .codebox{width:100%;height:64px;font:12px/1.4 var(--f-mono,monospace);border:0;background:var(--paper-2);border-radius:10px;padding:8px;resize:none;color:var(--ink-2);word-break:break-all}
 .recsum{margin:4px 0 10px}
@@ -575,6 +579,7 @@ body.storying .objtrack{opacity:.4}
     <div class="set"><label>고스트 캐럿<small>문장과 긴 글에서 내 최고 속도를 보여줘요</small></label><button class="tog" id="setGhost" aria-pressed="true" aria-label="고스트 캐럿"></button></div>
     <div class="set"><label>내 기록<small id="setWho">선생님께 기록과 소감을 보내요</small></label><div style="display:flex;gap:6px"><button class="btn sm" id="btnFb">소감 남기기</button><button class="btn sm" id="btnExport">기록 내보내기</button></div></div>
     <div class="set"><label>다른 컴퓨터로 옮기기<small>내 마을과 진행을 파일로 담아 가요</small></label><button class="btn sm" id="btnMove">옮기기 파일</button></div>
+    <div class="set"><label>입력 점검<small>이 컴퓨터에서 한글이 제대로 쳐지는지 1분 동안 확인해요</small></label><button class="btn sm" id="btnInCheck">점검하기</button></div>
     <div class="foot">
       <button class="btn sm" id="btnReset">마을 초기화</button>
       <div style="display:flex;gap:8px">
@@ -2463,6 +2468,39 @@ function openImport(){ showModal(`<h2>다른 컴퓨터에서 가져오기</h2><p
   <div class="foot"><button class="btn sm" data-m="x">닫기</button><button class="btn primary sm" id="mvGo">코드로 가져오기</button></div>`);
  const done=msg=>{ if(msg){ $('mvMsg2').textContent=msg; return; } $('modal2').hidden=true; toast('마을을 가져왔어요'); };
  $('mvFiles').onchange=async e=>{ const f=e.target.files[0]; if(f) done(importMove(await f.text())); }; $('mvGo').onclick=()=>done(importMove($('mvPaste').value)); }
+// ---------- 입력 점검: 브라우저마다 다른 한글 조합 입력을 기록해서 문제를 찾음 ----------
+const IC_TARGETS=['나무 하늘 바다','가는 말이 고와야 오는 말이 곱다.','apple 사과 쌍둥이'];
+function browserInfo(){ const u=navigator.userAgent; const b=/Whale\//.test(u)?'웨일':/Edg\//.test(u)?'엣지':/CrOS/.test(u)?'크롬북':/Chrome\//.test(u)?'크롬':/Firefox\//.test(u)?'파이어폭스':/Safari\//.test(u)?'사파리':'알 수 없음';
+ const os=/CrOS/.test(u)?'ChromeOS':/Windows/.test(u)?'Windows':/Mac OS/.test(u)?'macOS':/Android/.test(u)?'Android':/Linux/.test(u)?'Linux':'?'; return {b,os,ua:u.slice(0,160),lang:navigator.language,w:innerWidth,h:innerHeight,dpr:devicePixelRatio}; }
+function openInputCheck(){ const st={i:0,t0:performance.now(),ev:[],res:[]}; const bi=browserInfo();
+ showModal(`<h2>입력 점검</h2><p class="mtext">${bi.os} · ${bi.b}. 아래 글을 평소처럼 치고 <kbd>Space</kbd>나 <kbd>Enter</kbd>로 넘어가요. 틀려도 괜찮아요. 세 줄을 끝내면 결과가 나와요.</p>
+  <div class="ic-target" id="icT"></div><input id="icIn" class="ic-in" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="ic-log" id="icLog"></div>
+  <div class="ic-res" id="icRes" hidden></div><div class="foot"><button class="btn sm" data-m="x">닫기</button><button class="btn primary sm" id="icCopy" hidden>결과 코드 복사</button></div>`);
+ const inp=$('icIn'), show=()=>{ $('icT').textContent=IC_TARGETS[st.i]||''; }; show(); setTimeout(()=>inp.focus(),50);
+ const t=()=>Math.round(performance.now()-st.t0);
+ const log=(k,o)=>{ if(st.ev.length<1500) st.ev.push([t(),k,o]); };
+ inp.addEventListener('keydown',e=>{ log('kd',{k:e.key,c:e.code,kc:e.keyCode,ic:e.isComposing?1:0}); e.stopPropagation();
+  if((e.key===' '||e.key==='Enter')&&!e.isComposing&&e.keyCode!==229){ const v=inp.value.replace(/\s+$/,''); if(v.length>=[...IC_TARGETS[st.i]].length-1||e.key==='Enter'){ e.preventDefault(); finishLine(v); } } });
+ inp.addEventListener('keyup',e=>{ log('ku',{k:e.key,ic:e.isComposing?1:0}); e.stopPropagation(); });
+ ['compositionstart','compositionupdate','compositionend'].forEach(n=>inp.addEventListener(n,e=>log(n.replace('composition','c'),{d:e.data})));
+ inp.addEventListener('beforeinput',e=>log('bi',{it:e.inputType,d:e.data,ic:e.isComposing?1:0}));
+ inp.addEventListener('input',e=>log('in',{it:e.inputType,d:e.data,ic:e.isComposing?1:0,v:inp.value.slice(-6)}));
+ function finishLine(v){ const tg=IC_TARGETS[st.i]; st.res.push({tg,v,ok:v===tg}); log('line',{v}); $('icLog').innerHTML=st.res.map(r=>`<div class="${r.ok?'ok':'bad'}">${r.ok?'일치':'다름'}: ${esc(r.v)}</div>`).join(''); inp.value=''; st.i++;
+  if(st.i<IC_TARGETS.length){ show(); return; } inp.disabled=true; $('icT').textContent='끝'; report(); }
+ function report(){ const ev=st.ev, kd=ev.filter(e=>e[1]==='kd'), comp=ev.filter(e=>e[1]==='cend').length, k229=kd.filter(e=>e[2].kc===229).length;
+  const spaceInComp=kd.filter(e=>e[2].k===' '&&e[2].ic).length;
+  // 같은 글자가 두 번 들어간 흔적: 조합 끝 데이터가 바로 다음 insertText 로 다시 들어옴
+  let dup=0; for(let i=1;i<ev.length;i++){ if(ev[i][1]==='in'&&ev[i][2].it==='insertText'&&ev[i-1][1]==='cend'&&ev[i-1][2].d&&ev[i][2].d===ev[i-1][2].d) dup++; }
+  const ok=st.res.every(r=>r.ok), notes=[];
+  if(!comp) notes.push('한글 조합 이벤트가 없어요(한글 자판이 아니었거나, 이 브라우저가 조합 이벤트를 보내지 않아요).');
+  if(dup) notes.push(`같은 글자가 두 번 들어갈 수 있는 흔적 ${dup}번.`);
+  if(spaceInComp) notes.push(`글자를 조합하는 중에 Space를 누른 경우 ${spaceInComp}번(정상일 수 있어요).`);
+  if(!ok) notes.push('친 글과 보기가 다른 줄이 있어요. 오타였다면 괜찮아요.');
+  const pack={app:'tadak-inputcheck',v:1,at:new Date().toISOString(),bi,res:st.res,stat:{kd:kd.length,k229,comp,dup,spaceInComp},ev:st.ev};
+  st.code='TADAKIN1:'+btoa(unescape(encodeURIComponent(JSON.stringify(pack))));
+  $('icRes').hidden=false; $('icRes').innerHTML=`<b>${ok&&!dup&&comp?'문제가 보이지 않아요':'확인이 필요해요'}</b>${notes.length?'<ul>'+notes.map(n=>`<li>${n}</li>`).join('')+'</ul>':''}<p class="mnote">결과 코드를 복사해서 개발자에게 보내 주면 브라우저별로 고칠 수 있어요. 개인정보는 들어 있지 않아요(친 글, 키 이름, 브라우저 종류만).</p>`;
+  $('icCopy').hidden=false; $('icCopy').onclick=async()=>{ const ok2=await copyText(st.code); $('icCopy').textContent=ok2?'복사했어요':'복사 안 됨: 길게 눌러 선택'; };
+  if(SLOT&&SLOT.cloud&&typeof ClassLogin!=='undefined') ClassLogin.save('inputcheck',{at:pack.at,bi,stat:pack.stat,res:st.res}).catch(()=>null); } }
 // ---------- feedback ----------
 const LIKES=['마을 짓기','타자 연습','이야기','밤 침공','원정','꾸미기','상인과 거래','주민 부탁'];
 function openFeedback(){ if(!SLOT) return; const f={fun:0,feel:'',likes:[],note:''};
@@ -2588,7 +2626,7 @@ $('pkCode').onclick=async()=>{ const d=packGet(); if(!d){ $('pkMsg').textContent
 $('pkLink').onclick=async()=>{ const d=packGet(); if(!d){ $('pkMsg').textContent='먼저 저장해요.'; return; } const u=location.href.split('#')[0]+'#pack='+encodeURIComponent(packCode(d).slice(11)); $('pkMsg').textContent=(await copyText(u))?'학생용 링크를 복사했어요. 이 링크로 열면 그 컴퓨터에 글감이 저장되고, 학생이 고르면 "선생님" 글감으로 바뀌어요.':'복사가 안 됐어요.'; };
 $('pkPasteGo').onclick=()=>{ try{ packSave(packFromCode($('pkPaste').value)); $('pkPaste').value=''; fillPackForm(); }catch(e){ $('pkMsg').textContent='읽을 수 없는 코드예요.'; } };
 $('tPasteGo').onclick=()=>{ addTeacherRecords([$('tPaste').value]); $('tPaste').value=''; };
-$('btnFb').onclick=()=>{ closeSettings(); openFeedback(); }; $('btnMove').onclick=()=>{ closeSettings(); exportMove(); }; $('btnImport').onclick=()=>{ AU.init(); openImport(); }; $('btnExport').onclick=()=>{ closeSettings(); exportMine(); };
+$('btnFb').onclick=()=>{ closeSettings(); openFeedback(); }; $('btnInCheck').onclick=()=>{ closeSettings(); openInputCheck(); }; $('btnMove').onclick=()=>{ closeSettings(); exportMove(); }; $('btnImport').onclick=()=>{ AU.init(); openImport(); }; $('btnExport').onclick=()=>{ closeSettings(); exportMine(); };
 $('btnContinue').onclick=()=>{ const d=loadSave(P.last); if(d){ S=d; } enterWorld(); };
 $('btnFree').onclick=()=>{ const d=loadSave('free'); S=d||newState('free'); enterWorld(); };
 const TOY_NEED=100;
