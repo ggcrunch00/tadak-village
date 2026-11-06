@@ -125,6 +125,14 @@ async function renderClass() { const c = CLS.find(x => x.id === SEL), P = $('cls
    <p style="font-size:12.5px;margin-top:4px">범위는 "1-13", 여러 개는 쉼표로 "1-13, 31-43", 하나씩은 "7, 12"처럼 넣어요. 이미 있는 번호는 그대로 두고 없는 번호만 추가해요.</p>
    <h3>학생 (이름은 이 컴퓨터에만 저장)</h3><div class="tbl" id="roster">불러오는 중...</div>
    <h3>게임 기록</h3><div class="tabs" id="tabs"></div><div id="recs" class="tbl" style="max-height:none"></div><div id="props"></div>
+   <h3>수업 설정 <small style="font-weight:400;color:var(--ink-2)">(이 학급 학생 모두에게 적용. "학생이 고름"이면 학생 설정을 따라요)</small></h3>
+   <div class="pk" id="lset">
+    <label>밤 침공<select data-k="peace"><option value="">학생이 고름</option><option value="on">끄기 (평화 모드)</option><option value="off">켜기</option></select></label>
+    <label>글감 주제<select data-k="topic"><option value="">학생이 고름</option><option value="teacher">선생님 글감</option><option value="mix">섞기</option><option value="virtue">미덕</option><option value="study">교과</option><option value="village">마을 이야기</option></select></label>
+    <label>난이도<select data-k="diff"><option value="">학생이 고름</option><option value="easy">쉬움</option><option value="normal">보통</option><option value="hard">어려움</option></select></label>
+    <label>놀이 섬<select data-k="toy"><option value="">오늘 100번 입력하면 열림</option><option value="open">항상 열기</option><option value="lock">잠그기</option></select></label>
+   </div>
+   <div class="row" style="margin-top:8px"><button class="btn primary sm" id="lsSave">수업 설정 저장</button><span class="msg" id="lsMsg"></span></div>
    <h3>글감 보내기 <small style="font-weight:400;color:var(--ink-2)">(타자 게임용 낱말, 문장, 긴 글, 영단어)</small></h3>
    <div class="pk"><label>제목<input id="pkT" maxlength="30"></label><label>낱말 (띄어쓰기로 구분)<textarea id="pkW"></textarea></label><label>문장 (한 줄에 하나)<textarea id="pkS"></textarea></label><label>긴 글 (한 줄에 한 행)<textarea id="pkL"></textarea></label><label>영단어 (한 줄에 "단어=뜻")<textarea id="pkE"></textarea></label></div>
    <div class="row" style="margin-top:8px"><button class="btn primary sm" id="pkSend">이 학급에 보내기</button><button class="btn sm" id="pkLoad">보낸 글감 불러오기</button><span class="msg" id="pkMsg"></span></div>`;
@@ -133,6 +141,9 @@ async function renderClass() { const c = CLS.find(x => x.id === SEL), P = $('cls
   $('addStu').onclick = async () => { const nums = parseNums($('nums').value); if (!nums.length) { $('cMsg').textContent = '번호를 "1-13, 31-43"처럼 넣어요.'; return; } try { await T.rpc('cl_add_students', {p_class: c.id, p_nums: nums}); $('cMsg').textContent = `${nums.length}개 번호를 확인했어요. 이미 있던 번호는 그대로예요.`; loadRoster(c); } catch (e) { $('cMsg').textContent = '추가하지 못했어요: ' + (e.msg || e.code); } };
   $('print').onclick = () => printCards(c);
   $('pkSend').onclick = () => sendPack(c); $('pkLoad').onclick = () => loadPack(c);
+  $('lsSave').onclick = async () => { const d = await getPack(c) || {title: '선생님 글감', words: [], sents: [], lines: [], eng: []}; const st = {};
+    $('lset').querySelectorAll('select').forEach(x => { if (x.value) st[x.dataset.k] = x.value; }); d.settings = st;
+    try { await putPack(c, d); $('lsMsg').textContent = '저장했어요. 학생이 다음에 로그인하면 적용돼요.'; } catch (e) { $('lsMsg').textContent = '저장하지 못했어요: ' + (e.msg || e.code); } };
   await loadRoster(c); renderTabs(c); }
 
 async function loadRoster(c) { const el = $('roster');
@@ -153,6 +164,7 @@ function printCards(c) { const nm = names(c.id), games = GAMES.map(g => g.url).j
 
 function renderTabs(c) { $('tabs').innerHTML = GAMES.map(g => `<button data-a="${g.app}" class="${g.app === APP ? 'on' : ''}">${esc(g.title)}</button>`).join('');
   $('tabs').querySelectorAll('[data-a]').forEach(b => b.onclick = () => { APP = b.dataset.a; renderTabs(c); });
+  getPack(c).then(d => { const st = (d && d.settings) || {}; $('lset').querySelectorAll('select').forEach(x => x.value = st[x.dataset.k] || ''); });
   loadRecords(c); }
 async function loadRecords(c) { const el = $('recs'), pr = $('props'); el.innerHTML = '불러오는 중...'; pr.innerHTML = '';
   if (!ROSTER.length) { el.innerHTML = '<p style="padding:10px">학생이 없어요.</p>'; return; }
@@ -178,7 +190,7 @@ async function putPack(c, d) { await T.post('/rest/v1/cl_packs?on_conflict=class
 async function sendPack(c) { const prev = await getPack(c) || {};
   const d = {title: $('pkT').value.trim() || '선생님 글감', words: [...new Set($('pkW').value.split(/[\s,]+/).filter(Boolean))].slice(0, 300), sents: $('pkS').value.split(/\n+/).map(x => x.trim()).filter(Boolean).slice(0, 200),
     lines: $('pkL').value.split(/\n+/).map(x => x.trim()).filter(Boolean).slice(0, 40), eng: $('pkE').value.split(/\n+/).map(x => x.split(/\s*[=:]\s*/)).filter(x => /^[a-zA-Z' -]{2,20}$/.test((x[0] || '').trim())).map(x => [x[0].trim().toLowerCase(), (x[1] || '').trim()]).slice(0, 200),
-    approved: prev.approved || [], rejected: prev.rejected || []};
+    approved: prev.approved || [], rejected: prev.rejected || [], settings: prev.settings || {}};
   try { await putPack(c, d); $('pkMsg').textContent = `${gameTitle(APP)}에 보냈어요. 학생이 다음에 로그인하면 바뀌어요.`; } catch (e) { $('pkMsg').textContent = '보내지 못했어요: ' + (e.msg || e.code); } }
 async function loadPack(c) { const d = await getPack(c); if (!d) { $('pkMsg').textContent = '아직 보낸 글감이 없어요.'; return; }
   $('pkT').value = d.title || ''; $('pkW').value = (d.words || []).join(' '); $('pkS').value = (d.sents || []).join('\n'); $('pkL').value = (d.lines || []).join('\n'); $('pkE').value = (d.eng || []).map(x => x[0] + '=' + x[1]).join('\n'); $('pkMsg').textContent = '불러왔어요.'; }
