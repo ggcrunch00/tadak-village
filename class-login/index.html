@@ -304,7 +304,7 @@ $('newForm').onsubmit = async e => { e.preventDefault(); const n = $('newCls').v
 async function renderMain() { const M = $('main'), c = CLS.find(x => x.id === SEL);
   if (!c) { M.innerHTML = `<div class="empty"><h3>반을 골라요</h3><p>왼쪽 반 목록에서 반을 고르거나 새 반을 만들어요.</p></div>`; return; }
   if (!ROSTER) { M.innerHTML = head(c, null) + skel(4); bindHead(c);
-    try { ROSTER = await T.get(`/rest/v1/cl_students?select=id,num,secret,last_seen,locked_until&class_id=eq.${c.id}&order=num`); }
+    try { ROSTER = await T.get(`/rest/v1/cl_students?select=id,num,secret,last_seen,locked_until,fail_count&class_id=eq.${c.id}&order=num`); }
     catch (e) { if (c.id !== SEL) return; M.innerHTML = head(c, null) + `<div class="errbox">학생 명단을 불러오지 못했어요 (${esc(errText(e))}) <button class="btn sm" id="rl">다시 시도</button></div>`; bindHead(c); $('rl').onclick = renderMain; return; }
     if (c.id !== SEL) return; }
   if (!TAB) TAB = ROSTER.length ? 'records' : 'students'; // 학생이 있으면 가장 자주 보는 기록부터
@@ -344,7 +344,7 @@ function viewStudents(c) { const V = $('view'), nm = names(c.id);
   if ($('print')) $('print').onclick = () => printCards(c);
   const el = $('tbl');
   if (!ROSTER.length) { el.innerHTML = `<div class="empty"><h3>아직 학생이 없어요</h3><p>위 칸에 번호를 적고 학생 추가를 눌러요. 번호마다 그림 비밀번호가 하나씩 정해지고, 로그인 카드로 인쇄할 수 있어요.</p></div>`; $('nums').focus(); return; }
-  el.innerHTML = `<div class="tw"><table><thead><tr><th class="num sticky1">번호</th><th>이름 <span class="muted" style="font-weight:400">(이 컴퓨터에만)</span></th><th>그림 비밀번호</th><th>마지막 접속</th><th><span class="sr">관리</span></th></tr></thead><tbody>${ROSTER.map(s => `<tr data-id="${s.id}"><td class="num sticky1">${s.num}</td><td><input class="nm" data-n="${s.num}" value="${esc(nm[s.num] || '')}" placeholder="이름 적기" aria-label="${s.num}번 이름"></td><td>${picHTML(s.secret)}</td><td>${when(s.last_seen) || '<span class="muted">아직 없음</span>'}${s.locked_until && new Date(s.locked_until) > new Date() ? '<span class="tag">잠김</span>' : ''}</td><td><div class="rowact"><div class="menu"><button class="btn icon sm" data-m="${s.id}" aria-label="${s.num}번 관리" aria-haspopup="true" aria-expanded="false">${ICON.dots}</button><div class="pop" hidden><button data-renum="${s.id}">번호 바꾸기</button><button data-re="${s.id}">그림 비밀번호 새로 정하기</button><button data-del="${s.id}" class="bad">학생 지우기</button></div></div></div></td></tr>`).join('')}</tbody></table></div>`;
+  el.innerHTML = `<div class="tw"><table><thead><tr><th class="num sticky1">번호</th><th>이름 <span class="muted" style="font-weight:400">(이 컴퓨터에만)</span></th><th>그림 비밀번호</th><th>마지막 접속</th><th><span class="sr">관리</span></th></tr></thead><tbody>${ROSTER.map(s => `<tr data-id="${s.id}"><td class="num sticky1">${s.num}</td><td><input class="nm" data-n="${s.num}" value="${esc(nm[s.num] || '')}" placeholder="이름 적기" aria-label="${s.num}번 이름"></td><td>${picHTML(s.secret)}</td><td>${when(s.last_seen) || '<span class="muted">아직 없음</span>'}${s.locked_until && new Date(s.locked_until) > new Date() ? '<span class="tag">잠김</span>' : ''}</td><td><div class="rowact"><div class="menu"><button class="btn icon sm" data-m="${s.id}" aria-label="${s.num}번 관리" aria-haspopup="true" aria-expanded="false">${ICON.dots}</button><div class="pop" hidden><button data-renum="${s.id}">번호 바꾸기</button>${s.locked_until && new Date(s.locked_until) > new Date() ? `<button data-unlock="${s.id}">로그인 잠금 풀기</button>` : ''}<button data-re="${s.id}">그림 비밀번호 새로 정하기</button><button data-del="${s.id}" class="bad">학생 지우기</button></div></div></div></td></tr>`).join('')}</tbody></table></div>`;
   el.querySelectorAll('input.nm').forEach(i => { i.onchange = () => { setName(c.id, i.dataset.n, i.value.trim()); say($('sMsg'), `${i.dataset.n}번 이름을 이 컴퓨터에 저장했어요.`, 'ok'); }; i.onkeydown = e => { if (e.key === 'Enter') i.blur(); }; });
   el.querySelectorAll('[data-m]').forEach(b => b.onclick = e => { e.stopPropagation(); const p = b.nextElementSibling, open = p.hidden; document.querySelectorAll('.menu .pop').forEach(q => q.hidden = true); p.hidden = !open; b.setAttribute('aria-expanded', String(open)); if (open) p.querySelector('button').focus(); });
   el.querySelectorAll('.menu .pop').forEach(p => p.onkeydown = e => { if (e.key === 'Escape') { p.hidden = true; p.previousElementSibling.focus(); } });
@@ -357,6 +357,7 @@ function viewStudents(c) { const V = $('view'), nm = names(c.id);
     ok.onclick = async () => { const n = parseInt(inp.value, 10); if (!(n >= 1 && n <= 99)) { say($('sMsg'), '번호는 1부터 99까지예요.', 'err'); inp.focus(); return; } if (n === s.num) return done(); if (ROSTER.some(x => x.num === n)) { say($('sMsg'), `${n}번은 이미 있어요. 그 번호를 먼저 바꾸거나 지워요.`, 'err'); inp.focus(); return; }
       try { await T.patch('/rest/v1/cl_students?id=eq.' + s.id, {num: n}); const m = names(c.id); if (m[s.num]) { m[n] = m[s.num]; delete m[s.num]; LS.set('cl-names:' + c.id, JSON.stringify(m)); } const old = s.num; ROSTER = null; await renderMain(); say($('sMsg'), `${old}번을 ${n}번으로 바꿨어요.`, 'ok'); }
       catch (e) { say($('sMsg'), '번호를 바꾸지 못했어요: ' + errText(e), 'err'); } }; });
+  el.querySelectorAll('[data-unlock]').forEach(b => b.onclick = async () => { const s = stu(b.dataset.unlock); try { await T.patch('/rest/v1/cl_students?id=eq.' + s.id, {fail_count: 0, locked_until: null}); ROSTER = null; await renderMain(); say($('sMsg'), `${s.num}번 잠금을 풀었어요. 그림 비밀번호는 그대로예요.`, 'ok'); } catch (e) { say($('sMsg'), '잠금을 풀지 못했어요: ' + errText(e), 'err'); } });
   el.querySelectorAll('[data-re]').forEach(b => b.onclick = async () => { const s = stu(b.dataset.re); try { await T.rpc('cl_set_secret', {p_student: s.id}); ROSTER = null; await renderMain(); say($('sMsg'), `${s.num}번 그림 비밀번호를 새로 정했어요. 카드를 다시 인쇄해 주세요.`, 'ok'); } catch (e) { say($('sMsg'), '바꾸지 못했어요: ' + errText(e), 'err'); } });
   el.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { const s = stu(b.dataset.del), tr = rowOf(s.id); tr.classList.add('editing');
     tr.lastElementChild.innerHTML = `<div class="rowact"><span class="muted" style="font-size:12.5px">기록도 지워져요</span><button class="btn sm danger solid">${s.num}번 지우기</button><button class="btn sm ghost">취소</button></div>`;
@@ -386,10 +387,12 @@ async function viewRecords(c) { const V = $('view'), nm = names(c.id);
   const cols = []; rows.forEach(r => [...((r.data && r.data.cols) || []), ...Object.keys((r.data && r.data.fields) || {})].forEach(k => { if (!cols.includes(k)) cols.push(k); })); // 게임이 보낸 열 순서를 따름
   const val = (s, k) => k === '번호' ? s.num : k === '이름' ? (nm[s.num] || '') : k === '마지막 저장' ? (by[s.id] ? by[s.id].updated_at : '') : ((((by[s.id] || {}).data || {}).fields || {})[k] ?? '');
   const numeric = k => k === '번호' || ROSTER.some(s => typeof val(s, k) === 'number');
-  const done = ROSTER.filter(s => by[s.id] && isToday(by[s.id].updated_at)).length;
-  const list = (ONLY_TODAY ? ROSTER.filter(s => !(by[s.id] && isToday(by[s.id].updated_at))) : ROSTER.slice())
+  const tk = (d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'))(new Date());
+  const didToday = s => { const r = by[s.id]; if (!r) return false; const dy = r.data && r.data.day; return dy ? dy.date === tk && dy.n > 0 : isToday(r.updated_at); }; // 오늘 실제로 입력한 학생
+  const done = ROSTER.filter(didToday).length;
+  const list = (ONLY_TODAY ? ROSTER.filter(s => !didToday(s)) : ROSTER.slice())
     .sort((a, b) => { const x = val(a, SORT.k), y = val(b, SORT.k); if (x === y) return a.num - b.num; if (x === '' || x == null) return 1; if (y === '' || y == null) return -1; return (typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y), 'ko')) * SORT.d; });
-  say($('rMsg'), `오늘 기록이 있는 학생 ${done}명 / ${ROSTER.length}명`);
+  say($('rMsg'), `오늘 타자를 한 학생 ${done}명 / ${ROSTER.length}명`);
   const allCols = ['번호', '이름', ...cols, '마지막 저장'];
   const th = k => `<th class="${numeric(k) ? 'num' : ''} ${k === '번호' ? 'sticky1' : ''}" aria-sort="${SORT.k === k ? (SORT.d > 0 ? 'ascending' : 'descending') : 'none'}"><button data-s="${esc(k)}">${esc(k)}</button></th>`;
   if (!rows.length) $('tbl').innerHTML = `<div class="empty"><h3>아직 ${esc(gameTitle(APP))} 기록이 없어요</h3><p>학생이 학급 코드로 로그인해서 게임을 하면 몇 분 안에 여기에 기록이 생겨요. 코드는 위의 크게 보기로 교실 화면에 띄울 수 있어요.</p></div>`;
@@ -397,7 +400,7 @@ async function viewRecords(c) { const V = $('view'), nm = names(c.id);
   else $('tbl').innerHTML = `<div class="tw"><table><thead><tr>${allCols.map(th).join('')}</tr></thead><tbody>${list.map(s => `<tr>${allCols.map(k => { const v = val(s, k); return `<td class="${numeric(k) ? 'num' : ''} ${k === '번호' ? 'sticky1' : ''}">${k === '마지막 저장' ? (v ? when(v) : '<span class="muted">없음</span>') : esc(v)}</td>`; }).join('')}</tr>`).join('')}</tbody></table></div>`;
   $('tbl').querySelectorAll('[data-s]').forEach(b => b.onclick = () => { const k = b.dataset.s; SORT = SORT.k === k ? {k, d: -SORT.d} : {k, d: numeric(k) && k !== '번호' ? -1 : 1}; viewRecords(c); });
   const csv = $('csv'); csv.disabled = !rows.length;
-  csv.onclick = () => { const q = v => { v = String(v ?? ''); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  csv.onclick = () => { const q = v => { const str = typeof v === 'string'; v = String(v ?? ''); if (str && /^[=+\-@\t\r]/.test(v)) v = "'" + v; return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
     const lines = [allCols.join(','), ...ROSTER.map(s => allCols.map(k => k === '마지막 저장' ? when(val(s, k)) : val(s, k)).map(q).join(','))];
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + lines.join('\r\n')], {type: 'text/csv'})); a.download = `${c.name}_${gameTitle(APP)}_기록.csv`; a.click(); };
   // 학생이 보낸 낱말 제안

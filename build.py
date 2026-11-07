@@ -3,6 +3,9 @@ assets/ph.js        Phosphor fill icons (MIT) as a JS object
 assets/sprites.json sliced webp sprites (tools/slice_sheet.py over assets/sheet_*.png)"""
 import pathlib, json
 root=pathlib.Path(__file__).parent
+# 학급 로그인 모듈을 먼저 빌드 (원본 classlogin.src.js 만 고쳐도 배포에 반영되게)
+import subprocess, sys, shutil as _sh, re as _re, tempfile, os
+subprocess.run([sys.executable, str(root/'class-login'/'build.py')], check=True)
 src=(root/'src.html').read_text(encoding='utf-8')
 ph=(root/'assets'/'ph.js').read_text(encoding='utf-8')
 spr=json.loads((root/'assets'/'sprites.json').read_text())
@@ -44,3 +47,14 @@ if (cl/'classlogin.js').exists():
     for f in ('index.html','classlogin.js','privacy.html'): shutil.copy(cl/f, out_dir/f)
     if srv: (out_dir/'server.json').write_text(json.dumps({**srv,'games':[{'app':'island','title':'이름을 쓰는 섬','url':'https://ggcrunch00.github.io/tadak-village/'}]},ensure_ascii=False))
     print('class-login site copied')
+
+# 문법 검사: 빌드한 페이지의 인라인 스크립트를 node --check 로 확인 (node 가 있을 때만). 문법 오류면 배포를 멈춤
+def check_js(html, label):
+    if not _sh.which('node'): print('node 없음, 문법 검사 건너뜀'); return
+    for k, js in enumerate(_re.findall(r'<script>(.*?)</script>', html, _re.S)):
+        with tempfile.NamedTemporaryFile('w', suffix='.js', delete=False, encoding='utf-8') as f: f.write(js); fn = f.name
+        r = subprocess.run(['node', '--check', fn], capture_output=True, text=True); os.unlink(fn)
+        if r.returncode: print(r.stderr[:2000]); raise SystemExit(f'{label} 스크립트 {k} 문법 오류')
+    print(label, '문법 검사 통과')
+check_js(out, 'game')
+check_js((root/'class-login'/'index.html').read_text(encoding='utf-8'), 'class-login')

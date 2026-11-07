@@ -130,7 +130,8 @@ declare st public.cl_students%rowtype; cl public.cl_classes%rowtype; tok text;
 begin
   select * into cl from public.cl_classes where code = upper(trim(coalesce(p_code, '')));
   if not found then return json_build_object('ok', false, 'error', 'no_class'); end if;
-  select * into st from public.cl_students where class_id = cl.id and num = p_num;
+  -- for update: 같은 학생에게 동시에 여러 번 시도해도 한 번에 하나씩 확인 (잠금 우회 방지)
+  select * into st from public.cl_students where class_id = cl.id and num = p_num for update;
   if not found then return json_build_object('ok', false, 'error', 'no_student'); end if;
   if st.locked_until is not null and st.locked_until > now() then
     return json_build_object('ok', false, 'error', 'locked', 'until', st.locked_until);
