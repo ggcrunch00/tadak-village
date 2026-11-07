@@ -321,6 +321,8 @@ body.delving #map{filter:brightness(.5) saturate(.7);transition:filter .6s}
 .modal .ver{font-size:12px;color:var(--ink-3);margin-top:12px}
 
 /* title */
+.t-gear{position:absolute;top:calc(var(--gt) + 2px);right:var(--gxr);z-index:2;display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border:0;border-radius:var(--r-pill);background:var(--paper);color:var(--ink);font:inherit;font-weight:600;font-size:14px;cursor:pointer;box-shadow:var(--shadow)}
+.t-gear svg{width:17px;height:17px}.t-gear:hover{background:var(--paper-2)}
 .title{position:fixed;inset:0;z-index:100;display:flex;align-items:flex-start;padding:0 var(--gxr) calc(var(--gb) + 6vh) calc(var(--gx) + 3vw);
   background:linear-gradient(90deg,rgba(14,40,58,.62) 0%,rgba(14,40,58,.28) 42%,rgba(14,40,58,0) 70%)}
 .title.out{animation:titleOut .5s ease forwards}
@@ -630,6 +632,7 @@ body:has(#duel:not([hidden])) #map{filter:brightness(.55) saturate(.75);transiti
 </div>
 
 <div class="title" id="title">
+  <button class="t-gear" id="tSet" type="button" aria-haspopup="dialog"><span id="tSetIc"></span>소리·화면</button>
   <div class="t-inner">
     <div class="t-name" aria-label="이름을 쓰는 섬"><div class="t-row"><span>이</span><span style="animation-delay:.06s">름</span><span style="animation-delay:.12s">을</span></div><div class="t-row"><span style="animation-delay:.22s">쓰</span><span style="animation-delay:.28s">는</span><span class="isle" style="animation-delay:.4s">섬</span></div></div>
     <div class="t-sub">말결 군도 이야기</div>
@@ -1278,9 +1281,14 @@ function migrateLegacySlots(){ if(slotsAll().length) return; const legacy=LS.get
  const sl={id:'s'+Date.now().toString(36),num:null,name:'처음 영주',made:Date.now(),last:Date.now()};
  const copy=(from,to)=>{ const v=LS.get(from); if(v!=null) LS.set(`tadak@${sl.id}/${to}`,v); };
  copy(PROFILE_KEY,'profile'); copy('tadak-village-v2','free'); ['ch1','ch2','ch3','ch4','ch5','ch6'].forEach(c=>copy('tadak-camp-'+c,'camp-'+c)); slotsSave([sl]); }
-const P_DEFAULT=()=>({v:1,achs:[],set:{vol:70,music:true,shake:true,ghost:true,peace:false,big:false,diff:'normal',topic:'mix'},keyErr:{},keyTot:{},g:{},daily:null,camp:{done:{}},last:null,endingSeen:false,days:{},fb:[],best:{word:0,sentence:0,long:0,eng:0}});
+// 소리·화면 설정은 컴퓨터마다 저장 (학생을 바꿔도, 로그인 전 타이틀에서도 같은 값)
+const DEV_KEY='tadak-device-v1', DEV_KEYS=['vol','music','lite','big'];
+function devGet(){ try{ return JSON.parse(localStorage.getItem(DEV_KEY)||'{}')||{}; }catch(e){ return {}; } }
+function devSave(set){ const d={}; DEV_KEYS.forEach(k=>{ if(set&&set[k]!==undefined) d[k]=set[k]; }); try{ localStorage.setItem(DEV_KEY,JSON.stringify(d)); }catch(e){} }
+function devApply(set){ const d=devGet(); DEV_KEYS.forEach(k=>{ if(d[k]!==undefined) set[k]=d[k]; }); if(d.lite!==undefined) set.liteAsked=true; return set; }
+const P_DEFAULT=()=>({v:1,achs:[],set:devApply({vol:70,music:true,shake:true,ghost:true,peace:false,big:false,diff:'normal',topic:'mix'}),keyErr:{},keyTot:{},g:{},daily:null,camp:{done:{}},last:null,endingSeen:false,days:{},fb:[],best:{word:0,sentence:0,long:0,eng:0}});
 let P={v:1,achs:[],set:{vol:70,music:true,shake:true,ghost:true,peace:false,big:false,diff:'normal',topic:'mix'},keyErr:{},keyTot:{},g:{},daily:null,camp:{done:{}},last:null,endingSeen:false};
-function loadProfile(){ P=P_DEFAULT(); try{ const d=JSON.parse(LS.get(nsKey('profile'))||'null'); if(d&&d.v===1){ P=Object.assign(P,d); P.set=Object.assign({vol:70,music:true,shake:true,ghost:true,peace:false,big:false,diff:'normal',topic:'mix'},P.set||{}); P.camp=P.camp||{done:{}}; P.g=P.g||{}; P.achs=P.achs||[]; P.days=P.days||{}; P.fb=P.fb||[]; P.best=Object.assign({word:0,sentence:0,long:0,eng:0},P.best||{}); } }catch(e){} }
+function loadProfile(){ P=P_DEFAULT(); try{ const d=JSON.parse(LS.get(nsKey('profile'))||'null'); if(d&&d.v===1){ P=Object.assign(P,d); P.set=devApply(Object.assign({vol:70,music:true,shake:true,ghost:true,peace:false,big:false,diff:'normal',topic:'mix'},P.set||{})); P.camp=P.camp||{done:{}}; P.g=P.g||{}; P.achs=P.achs||[]; P.days=P.days||{}; P.fb=P.fb||[]; P.best=Object.assign({word:0,sentence:0,long:0,eng:0},P.best||{}); } }catch(e){} }
 function saveProfile(){ if(!SLOT) return; LS.set(nsKey('profile'),JSON.stringify(P)); }
 function gInc(k,n=1){ P.g[k]=(P.g[k]||0)+n; }
 function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed>>>15, 1|seed); t = t + Math.imul(t ^ t>>>7, 61|t) ^ t; return ((t ^ t>>>14)>>>0)/4294967296; }; }
@@ -1375,7 +1383,7 @@ function neighbors(x,y,z=1,skip,extra){
 function adjOf(o,extra){ const B=BUILD[o.t]; if(!B||o.natural) return 0; return B.adj(neighbors(o.gx,o.gy,szOf(o),o,extra)); }
 let _adjCache=null;
 function adjTotal(){ if(_adjCache===null) _adjCache=S.objs.reduce((s,o)=>s+adjOf(o),0); return _adjCache; }
-function dirty(){ _adjCache=null; _staff=null; rebuildOcc(); }
+let OBJKEY=''; function dirty(){ _adjCache=null; _staff=null; rebuildOcc(); OBJKEY=S.objs.map(o=>o.t+(o.seed||0)%3+'@'+o.gx+','+o.gy+':'+(o.sz||1)).join(';')+'|'+S.castle; }
 let _staff=null;
 function staffing(){ if(_staff) return _staff; let left=popOf(); const on=new Set(); let need=0;
  S.objs.forEach(o=>{ const B=built(o); if(!B||!B.workers) return; need+=B.workers; if(left>=B.workers){ left-=B.workers; on.add(o); } });
@@ -1775,10 +1783,13 @@ const FIT={ // w: drawn width in tiles per footprint tile, b: how far the image 
  market:{w:.9,b:.8}, library:{w:.98,b:.9}, fountain:{w:.82,b:.75}, clocktower:{w:.52,b:.62}, lighthouse:{w:.56,b:.62},
  castle1:{w:.95,b:.9}, castle2:{w:.86,b:.8,x:.04}, lumber:{w:1.0,b:.85}, echostone:{w:.55,b:.4}, lectern:{w:.62,b:.5}, quarry:{w:1.0,b:.8}, kiln:{w:.92,b:.85}, scriptorium:{w:.88,b:.9}, monument:{w:.9,b:.85}, castle3:{w:.98,b:.9}, castle4:{w:1.04,b:.92},
  oak:{w:.92,b:.35}, pine:{w:.62,b:.3}, apple:{w:.78,b:.35}, cherry:{w:.92,b:.35}, bush:{w:.5,b:.3}, flowerbed:{w:.9,b:.62}, rocks:{w:.66,b:.4}, boulder:{w:.74,b:.45},
- cave:{w:1.18,b:.7}, ruin:{w:1.0,b:.8}, wordstone:{w:.5,b:.4}, tower:{w:.78,b:.55}, camp:{w:.95,b:.7}, lamp:{w:.3,b:.2}, sign:{w:.35,b:.2}, chest:{w:.42,b:.3}, goblin:{w:.95,b:.5}, ship:{w:1.6,b:.6}, pier:{w:1,b:.6}, hay:{w:.55,b:.4} };
+ cave:{w:1.18,b:.7}, ruin:{w:1.0,b:.8}, wordstone:{w:.5,b:.4}, tower:{w:.78,b:.55}, camp:{w:.95,b:.7}, lamp:{w:.3,b:.2}, sign:{w:.35,b:.2}, chest:{w:.42,b:.3}, goblin:{w:.95,b:.5}, ship:{w:1.6,b:.6}, pier:{w:1,b:.6}, hay:{w:.66,b:.45}, windmill2:{w:.6,b:.72} };
+FIT.sign={w:.42,b:.3}; FIT.chest={w:.5,b:.35};
+// 풍차 날개: 몸통 그림에서 축이 있는 자리(비율)와 날개 크기(몸통 폭의 배수)
+const MILL={hx:.31,hy:.345,size:1.4};
 function spriteName(o){ if(o.t==='castle') return 'castle'+(THUMB?LVL:S.castle);
  const sd=o.seed||0; if(o.t==='wildtree') return ['oak','apple','oak'][sd%3]; if(o.t==='tree') return ['oak','cherry','apple'][sd%3]; if(o.t==='rock') return sd%2?'rocks':'boulder';
- if(o.t==='flowers') return 'flowerbed'; if(o.t==='sakura') return 'cherry'; if(o.t==='treasure') return 'chest'; if(o.t==='gardenrock') return 'boulder'; return o.t; }
+ if(o.t==='windmill'&&SPR.windmill2&&SPR.millsails) return 'windmill2'; if(o.t==='flowers') return 'flowerbed'; if(o.t==='sakura') return 'cherry'; if(o.t==='treasure') return 'chest'; if(o.t==='gardenrock') return 'boulder'; return o.t; }
 function loadSprites(){ if(typeof SPRITE_DATA==='undefined') return; const total=Object.keys(SPRITE_DATA).length; let left=total; const tl=$('tLoad'); if(tl){ tl.hidden=false; tl.textContent='그림을 불러오는 중이에요'; }
  for(const k in SPRITE_DATA){ const im=new Image(); im.onload=im.onerror=()=>{ if(im.naturalWidth) SPR[k]=im; --left; if(tl) tl.textContent=`그림을 불러오는 중이에요 ${Math.round(100*(total-left)/total)}%`; if(left===0){ if(tl) tl.hidden=true; if(drawerTab) renderDrawer(); drawThumbTo($('crestCv'),'castle'); } }; im.src=SPRITE_DATA[k].d; } }
 function spriteTop(o){ const n=spriteName(o), im=SPR[n], f=FIT[n]; if(!im||!f) return o.t==='castle'?100:o.natural?56:74; const z=szOf(o); const w=z*TW*f.w, h=w*im.height/im.width; return h-z*TH/2*f.b+10; }
@@ -1788,6 +1799,7 @@ function drawObj(o){ const n=spriteName(o), im=SPR[n], f=FIT[n], z=szOf(o), [cx,
  g.beginPath(); g.ellipse(x+5*z,y+2*z,z*TW*.36*Math.min(1,f.w+.1),z*TH*.32*Math.min(1,f.w+.1),0,0,Math.PI*2); g.fillStyle='rgba(28,58,34,.22)'; g.fill();
  const sway=(o.natural||o.t==='tree')&&!THUMB&&!LITE()?Math.sin(TIME*1.5+(o.seed||0))*0.012:0;
  if(sway){ g.save(); g.translate(x,by); g.transform(1,0,sway,1,0,0); g.drawImage(im,-w/2,-h,w,h); g.restore(); } else g.drawImage(im,x-w/2,by-h,w,h);
+ if(n==='windmill2'){ const sl=SPR.millsails, d=w*MILL.size, hx=x-w/2+w*MILL.hx, hy=by-h+h*MILL.hy, a=THUMB||LITE()?0.785:TIME*0.9+(o.seed||0); g.save(); g.translate(hx,hy); g.scale(0.82,1); g.rotate(a); g.drawImage(sl,-d/2,-d/2*sl.height/sl.width,d,d*sl.height/sl.width); g.restore(); }
  if(!THUMB&&NIGHT>0.25&&GLOW[o.t]) GLOW[o.t].forEach(([lx,ly,r])=>lights.push({x:x+lx*w,y:by-ly*h,r,a:.55}));
  if(!THUMB&&o.t==='lighthouse'){ const lx=x, ly=by-h*0.82; lights.push({x:lx,y:ly,r:70,a:1,always:.2}); if(NIGHT>.2){ const a=TIME*1.2; g.save(); g.globalAlpha=0.18*NIGHT; g.fillStyle='#fff3b0'; g.beginPath(); g.moveTo(lx,ly); g.arc(lx,ly,260,a,a+0.25); g.closePath(); g.fill(); g.restore(); } }
  if(!THUMB&&!o.born&&((o.t==='ruin')||((o.t==='wordstone'||o.t==='echostone')&&!o.awake)||(o.t==='tower'&&S.camp&&!S.camp.duelWon&&!S.objs.some(q=>q.t==='wordstone'&&!q.awake)))){ const my=by-h-12+Math.sin(TIME*3+(o.seed||0))*3; g.beginPath(); g.arc(x,my,9,0,Math.PI*2); g.fillStyle='#eba416'; g.fill(); g.lineWidth=2; g.strokeStyle='#2d2925'; g.stroke(); g.fillStyle='#3a2700'; g.font='700 13px "IBM Plex Sans KR", sans-serif'; g.textAlign='center'; g.fillText('!',x,my+4.5); }
@@ -1799,7 +1811,7 @@ function drawObj(o){ const n=spriteName(o), im=SPR[n], f=FIT[n], z=szOf(o), [cx,
  if(!THUMB&&o.t==='lamp') lights.push({x,y:by-h*0.85,r:60,a:.9,always:.12});
  if(!THUMB&&(o.t==='brickhouse'||o.t==='cottage'||o.t==='bakery')&&Math.random()<0.035) spawn({x:x+w*(o.t==='brickhouse'?.08:.14),y:by-h*0.97,vx:(Math.random()-.3)*4,vy:-12,life:2.4,max:2.4,r:2,grow:3,op:.4,col:'rgba(240,240,244,'});
 }
-const GLOW={cottage:[[-.12,.35,24],[.2,.32,22]],brickhouse:[[-.15,.45,24],[.15,.4,24],[-.1,.7,22]],bakery:[[-.15,.3,28]],school:[[-.2,.35,26],[.15,.3,26]],library:[[0,.3,32]],castle:[[0,.45,40]],clocktower:[[0,.55,24]],watchtower:[[0,.6,26]],market:[[.2,.5,26]]};
+const GLOW={cottage:[[-.12,.35,24],[.2,.32,22]],brickhouse:[[-.15,.45,24],[.15,.4,24],[-.1,.7,22]],bakery:[[-.15,.3,28]],school:[[-.2,.35,26],[.15,.3,26]],library:[[0,.3,32]],castle:[[0,.45,40]],clocktower:[[0,.55,24]],watchtower:[[0,.6,26]],market:[[.2,.5,26]],kiln:[[-.05,.35,34]],scriptorium:[[-.12,.35,24],[.15,.32,22]],lumber:[[-.25,.45,20]],windmill:[[0,.25,20]],quarry:[[.2,.45,18]],monument:[[0,.55,30]],fountain:[[0,.4,26]],well:[[0,.55,16]],lectern:[[0,.6,18]]};
 
 // particles
 let parts=[];
@@ -1835,7 +1847,10 @@ function stepFolk(dt){ const s=dt/1000;
   const dx=tx-f.x, dy=ty-f.y, d=Math.hypot(dx,dy), sp=(isPath(Math.round(f.x),Math.round(f.y))?1.25:0.85)*s;
   if(d<=sp){ f.x=tx; f.y=ty; f.path.shift(); } else { f.x+=dx/d*sp; f.y+=dy/d*sp; } const sdx=(dx-dy); if(Math.abs(sdx)>0.01) f.dir=sdx>0?1:-1; f.moving=true; }); }
 function drawFolk(f){ const [x,y]=W(f.x,f.y), bob=f.moving?Math.abs(Math.sin(TIME*12+f.x*3))*1.6:0;
- const vim=SPR['v'+((f.vi||0)%8+1)]; if(vim){ g.beginPath(); g.ellipse(x,y,6,3,0,0,Math.PI*2); g.fillStyle='rgba(20,40,20,.25)'; g.fill(); const h=30, w=h*vim.width/vim.height; g.save(); if(f.dir<0){ g.translate(x,0); g.scale(-1,1); g.translate(-x,0); } g.drawImage(vim,x-w/2,y-h+2-bob,w,h); g.restore();
+ const vim=SPR['v'+((f.vi||0)%8+1)]; if(vim){ const ph=TIME*9+(f.vi||0)*1.7, h=32, w=h*vim.width/vim.height;
+  const step=f.moving&&!LITE()?Math.sin(ph):0, hop=f.moving?Math.abs(Math.sin(ph))*2.4:0, breathe=f.moving?1:1+Math.sin(TIME*2.2+(f.vi||0))*0.018;
+  g.beginPath(); g.ellipse(x,y+1,7-hop*0.5,3.2-hop*0.25,0,0,Math.PI*2); g.fillStyle='rgba(20,40,20,.28)'; g.fill();
+  g.save(); g.translate(x,y+2); g.rotate(step*0.085); g.scale((f.dir<0?-1:1),breathe*(1-hop*0.01)); g.drawImage(vim,-w/2,-h-hop,w,h); g.restore();
   if(f.emote>0){ const yy=y-38-(1.6-f.emote)*4; g.globalAlpha=Math.min(1,f.emote*2); g.beginPath(); g.roundRect(x-7,yy-7,14,12,5); g.fillStyle='#fff'; g.fill(); g.fillStyle='#e5484d'; g.beginPath(); g.arc(x-1.7,yy-2,1.9,0,Math.PI*2); g.arc(x+1.7,yy-2,1.9,0,Math.PI*2); g.fill(); g.beginPath(); g.moveTo(x-3.5,yy-1.4); g.lineTo(x,yy+2.6); g.lineTo(x+3.5,yy-1.4); g.fill(); g.globalAlpha=1; } return; }
  g.beginPath(); g.ellipse(x,y,5,2.5,0,0,Math.PI*2); g.fillStyle='rgba(20,40,20,.25)'; g.fill(); g.fillStyle='#4a3a5a'; g.fillRect(x-2.6,y-5,2,5); g.fillRect(x+.6,y-5,2,5);
  g.beginPath(); g.roundRect(x-4,y-13-bob,8,9,3); g.fillStyle=f.col; g.fill(); blob(x,y-17-bob,3.8,'#f4c9a0'); g.beginPath(); g.arc(x,y-18-bob,3.9,Math.PI,0); g.fillStyle=f.hair; g.fill();
@@ -2332,7 +2347,7 @@ function drawAmbientWorld(){
 let gulls=[], gullNext=4;
 function drawGulls(w,h){ const im=SPR.gull; if(!im||NIGHT>0.5||!started) return; gullNext-=1/60; if(gullNext<=0&&gulls.length<3){ gullNext=14+Math.random()*16; const dir=Math.random()<0.5?1:-1; gulls.push({x:dir>0?-60:w+60,y:h*(0.12+Math.random()*0.35),v:dir*(0.6+Math.random()*0.5),s:0.8+Math.random()*0.4,p:Math.random()*6}); }
  gulls=gulls.filter(b=>b.x>-80&&b.x<w+80); gulls.forEach(b=>{ b.x+=b.v; const bw=46*b.s, bh=bw*im.height/im.width, fl=1+Math.sin(TIME*7+b.p)*0.18; g.save(); g.globalAlpha=0.9*(1-NIGHT*1.4); g.translate(b.x,b.y+Math.sin(TIME*1.5+b.p)*6); if(b.v<0) g.scale(-1,1); g.scale(1,fl); g.drawImage(im,-bw/2,-bh/2,bw,bh); g.restore(); }); }
-let groundCv=null, groundKey='';
+let groundCv=null, groundKey='', shadeCv=null, shadeKey='';
 const GSCALE=2;
 function groundBounds(){ const B=landBounds(); return {x:B.minX-40,y:B.minY+60,w:B.maxX-B.minX+80,h:B.maxY-B.minY-60+60}; }
 function drawGroundLayer(now){
@@ -2343,7 +2358,24 @@ function drawGroundLayer(now){
  if(!groundCv||groundKey!==key){ groundKey=key; groundCv=groundCv||document.createElement('canvas'); groundCv.width=Math.ceil(GB.w*GSCALE); groundCv.height=Math.ceil(GB.h*GSCALE);
   const c=groundCv.getContext('2d'); c.setTransform(GSCALE,0,0,GSCALE,-GB.x*GSCALE,-GB.y*GSCALE); c.clearRect(GB.x,GB.y,GB.w,GB.h); const pg=g; g=c; paintGround(c,now,grid); g=pg; }
  g.drawImage(groundCv,GB.x,GB.y,GB.w,GB.h);
+ const skey=OBJKEY+'|'+Object.keys(SPR).length+'|'+(LITE()?1:0)+'|'+GB.x+','+GB.y+','+GB.w+','+GB.h;
+ if(!shadeCv||shadeKey!==skey){ shadeKey=skey; shadeCv=shadeCv||document.createElement('canvas'); shadeCv.width=Math.ceil(GB.w); shadeCv.height=Math.ceil(GB.h); const c2=shadeCv.getContext('2d'); c2.setTransform(1,0,0,1,-GB.x,-GB.y); c2.clearRect(GB.x,GB.y,GB.w,GB.h); bakeObjGround(c2); }
+ g.drawImage(shadeCv,GB.x,GB.y,GB.w,GB.h);
 }
+// 건물 터(다진 흙 바닥)와 해 방향(왼쪽 위 → 오른쪽 아래) 그림자. 땅 캐시에 한 번만 그려서 매 프레임 부담이 없음
+const NO_LOT=new Set(['tree','wildtree','pine','rock','flowers','bush','hay','sign','sakura','treasure','gardenrock','lamp','lectern','ruin','wordstone','echostone','tower','cave','camp','pier']);
+const SIL={}; function silOf(n){ if(SIL[n]) return SIL[n]; const im=SPR[n]; if(!im) return null; const c=document.createElement('canvas'); c.width=Math.max(1,Math.round(im.width/2)); c.height=Math.max(1,Math.round(im.height/2)); const x=c.getContext('2d'); x.drawImage(im,0,0,c.width,c.height); x.globalCompositeOperation='source-in'; x.fillStyle='#1d2a1c'; x.fillRect(0,0,c.width,c.height); return SIL[n]=c; }
+function bakeObjGround(c){ if(!S||!S.objs) return;
+ // 터: 건물 바닥 마름모를 조금 안쪽으로, 가장자리는 흐리게
+ S.objs.forEach(o=>{ if(o.natural||NO_LOT.has(o.t)||!BUILD[o.t]&&o.t!=='castle') return; const z=szOf(o), ins=0.1;
+  const P=[[o.gx+ins,o.gy+ins],[o.gx+z-ins,o.gy+ins],[o.gx+z-ins,o.gy+z-ins],[o.gx+ins,o.gy+z-ins]].map(([x,y])=>{ const [a,b]=W(x-0.5,y-0.5); return [a,b]; });
+  c.beginPath(); P.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y)); c.closePath(); c.fillStyle='rgba(176,156,104,.34)'; c.fill(); c.lineWidth=1.5; c.strokeStyle='rgba(120,98,62,.22)'; c.stroke();
+  for(let k=0;k<3*z;k++){ const u=((o.gx*31+o.gy*17+k*13)%97)/97, v=((o.gx*7+o.gy*29+k*23)%89)/89; const [a,b]=W(o.gx+ins+u*(z-2*ins)-0.5,o.gy+ins+v*(z-2*ins)-0.5); c.beginPath(); c.ellipse(a,b,2.6,1.4,0,0,Math.PI*2); c.fillStyle=k%2?'rgba(150,124,86,.35)':'rgba(230,212,176,.45)'; c.fill(); } });
+ if(LITE()) return;
+ // 그림자: 그림 모양을 눕혀서 오른쪽 아래로
+ S.objs.forEach(o=>{ const n=spriteName(o), im=SPR[n], f=FIT[n]; if(!im||!f) return; const sil=silOf(n); if(!sil) return; const z=szOf(o), [cx,cy]=centerOf(o);
+  const [x0,y]=W(cx,cy), w=z*TW*f.w, h=w*im.height/im.width, by=y+z*TH/2*f.b, x=x0+(f.x||0)*z*TW, nat=o.natural||o.t==='tree';
+  c.save(); c.globalAlpha=nat?0.16:0.22; c.setTransform(c.getTransform().multiply(new DOMMatrix([1,0,-0.55,-0.3,x,by-(nat?2:4)]))); c.drawImage(sil,-w/2,-h,w,h); c.restore(); }); }
 function paintGround(c,now,grid){
  const tiles=[]; for(let s2=0;s2<2*N;s2++) for(let x=0;x<N;x++){ const y=s2-x; if(isLand(x,y)) tiles.push([x,y]); }
  const liftOf=(x,y)=>{ const ri=REGION_AT[y*N+x]; if(ri<0) return [0,1]; const t0=regionRise[REGIONS[ri].id]; if(!t0) return [0,1]; const t=Math.min(1,(now-t0)/900); return [(1-(1-Math.pow(1-t,3)))*30,t]; };
@@ -2649,6 +2681,16 @@ function openImport(){ showModal(`<h2>다른 컴퓨터에서 가져오기</h2><p
 const IC_TARGETS=['나무 하늘 바다','가는 말이 고와야 오는 말이 곱다.','apple 사과 쌍둥이'];
 function browserInfo(){ const u=navigator.userAgent; const b=/Whale\//.test(u)?'웨일':/Edg\//.test(u)?'엣지':/CrOS/.test(u)?'크롬북':/Chrome\//.test(u)?'크롬':/Firefox\//.test(u)?'파이어폭스':/Safari\//.test(u)?'사파리':'알 수 없음';
  const os=/CrOS/.test(u)?'ChromeOS':/Windows/.test(u)?'Windows':/Mac OS/.test(u)?'macOS':/Android/.test(u)?'Android':/Linux/.test(u)?'Linux':'?'; return {b,os,ua:u.slice(0,160),lang:navigator.language,w:innerWidth,h:innerHeight,dpr:devicePixelRatio}; }
+function openDeviceSettings(){ const s=(S&&S.set)||P.set;
+ showModal(`<h2>소리·화면</h2><p class="mtext">이 컴퓨터에 저장돼요. 이 컴퓨터를 쓰는 학생 모두에게 같은 설정이 적용돼요. 난이도와 글감은 로그인한 뒤 게임 안 설정에서 바꿔요.</p>
+  <div class="set"><label for="dsVol">효과음<small>타건음, 수집음, 건설음</small></label><input type="range" id="dsVol" min="0" max="100" step="5" value="${s.vol}"></div>
+  ${[['music','배경 음악','잔잔한 오르골 반주'],['lite','가벼운 그래픽','느린 컴퓨터나 크롬북에서 더 부드럽게'],['big','큰 글씨','타자 글자를 더 크게']].map(([k,l,d])=>`<div class="set"><label>${l}<small>${d}</small></label><button class="tog" data-ds="${k}" aria-pressed="${!!s[k]}" aria-label="${l}"></button></div>`).join('')}
+  <div class="set"><label>입력 점검<small>한글이나 학급 코드가 이상하게 쳐지면 눌러서 확인해요</small></label><button class="btn sm" id="dsCheck">점검하기</button></div>
+  <div class="foot"><span></span><button class="btn primary sm" data-m="x">닫기</button></div>`);
+ const w=$('modal2'), set=(S&&S.set)||P.set;
+ $('dsVol').oninput=e=>{ set.vol=+e.target.value; if(P.set!==set) P.set.vol=set.vol; devSave(set); AU.apply(); };
+ w.querySelectorAll('[data-ds]').forEach(b=>b.onclick=()=>{ const k=b.dataset.ds; set[k]=!set[k]; if(P.set!==set) P.set[k]=set[k]; if(k==='lite') set.liteAsked=true; devSave(set); b.setAttribute('aria-pressed',set[k]); AU.apply(); if(k==='lite'){ resize(); syncFolk(); } });
+ $('dsCheck').onclick=()=>{ w.hidden=true; openInputCheck(); }; }
 function openInputCheck(){ const st={i:0,t0:performance.now(),ev:[],res:[]}; const bi=browserInfo();
  showModal(`<h2>입력 점검</h2><p class="mtext">${bi.os} · ${bi.b}. 아래 글을 평소처럼 치고 <kbd>Space</kbd>나 <kbd>Enter</kbd>로 넘어가요. 틀려도 괜찮아요. 세 줄을 끝내면 결과가 나와요.</p>
   <div class="ic-target" id="icT"></div><input id="icIn" class="ic-in" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="ic-log" id="icLog"></div>
@@ -2761,8 +2803,8 @@ function closeSettings(){ $('settings').hidden=true; save(); refocus(); }
 $('btnCloseSet').onclick=closeSettings;
 $('setTopic').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.set.topic=b.dataset.v; syncDiff(); AU.tone(700,'triangle',0.05,0.05); T.queue=[]; S.long.p=null; S.long.l=0; loadTarget(); });
 $('setDiff').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.set.diff=b.dataset.v; syncDiff(); AU.tone(700,'triangle',0.05,0.05); renderPreview(); }); $('settings').addEventListener('click',e=>{ if(e.target.id==='settings') closeSettings(); });
-$('setVol').oninput=e=>{ S.set.vol=+e.target.value; AU.apply(); AU.tick(false); };
-['music','shake','ghost','peace','big','lite'].forEach(k=>{ const el=$('set'+k[0].toUpperCase()+k.slice(1)); el.onclick=()=>{ S.set[k]=!S.set[k]; if(k==='lite'){ S.set.liteAsked=true; resize(); syncFolk(); } el.setAttribute('aria-pressed',S.set[k]); AU.apply(); AU.tone(700,'triangle',0.05,0.05); }; });
+$('setVol').oninput=e=>{ S.set.vol=+e.target.value; devSave(S.set); AU.apply(); AU.tick(false); };
+['music','shake','ghost','peace','big','lite'].forEach(k=>{ const el=$('set'+k[0].toUpperCase()+k.slice(1)); el.onclick=()=>{ S.set[k]=!S.set[k]; if(DEV_KEYS.includes(k)) devSave(S.set); if(k==='lite'){ S.set.liteAsked=true; resize(); syncFolk(); } el.setAttribute('aria-pressed',S.set[k]); AU.apply(); AU.tone(700,'triangle',0.05,0.05); }; });
 const resetLabel=()=>{ const id=S.map||'free'; return id==='free'?'자유 모드 마을 처음부터':id==='toy'?'놀이 섬 처음부터':`${(chapterOf(id)||{}).title||'이 장'} 처음부터`; };
 $('btnReset').onclick=e=>{ const b=e.currentTarget; if(!b.dataset.arm){ b.dataset.arm='1'; b.textContent=`한 번 더 누르면 ${resetLabel().replace(' 처음부터','')}을 지워요`; b.classList.add('danger'); return; }
  const id=S.map||'free', nm=resetLabel().replace(' 처음부터',''); wipeSave(id); S=newState(id); closeSettings(); if(id==='free'||id==='toy') boot(); else enterWorld(); toast(`${nm}을 처음부터 시작해요. 다른 섬은 그대로예요`); };
@@ -2808,6 +2850,7 @@ $('pkCode').onclick=async()=>{ const d=packGet(); if(!d){ $('pkMsg').textContent
 $('pkLink').onclick=async()=>{ const d=packGet(); if(!d){ $('pkMsg').textContent='먼저 저장해요.'; return; } const u=location.href.split('#')[0]+'#pack='+encodeURIComponent(packCode(d).slice(11)); $('pkMsg').textContent=(await copyText(u))?'학생용 링크를 복사했어요. 이 링크로 열면 그 컴퓨터에 글감이 저장되고, 학생이 고르면 "선생님" 글감으로 바뀌어요.':'복사가 안 됐어요.'; };
 $('pkPasteGo').onclick=()=>{ try{ packSave(packFromCode($('pkPaste').value)); $('pkPaste').value=''; fillPackForm(); }catch(e){ $('pkMsg').textContent='읽을 수 없는 코드예요.'; } };
 $('tPasteGo').onclick=()=>{ addTeacherRecords([$('tPaste').value]); $('tPaste').value=''; };
+$('tSet').onclick=()=>openDeviceSettings(); $('tSetIc').innerHTML=PH.gear;
 $('btnFb').onclick=()=>{ closeSettings(); openFeedback(); }; $('btnInCheck').onclick=()=>{ closeSettings(); openInputCheck(); }; $('btnMove').onclick=()=>{ closeSettings(); exportMove(); }; $('btnImport').onclick=()=>{ AU.init(); openImport(); }; $('btnExport').onclick=()=>{ closeSettings(); exportMine(); };
 $('btnContinue').onclick=()=>{ if(P.last==='toy'&&!toyOpen()){ const f=loadSave('free'); S=f||newState('free'); enterWorld(); toast('놀이 섬이 지금은 닫혀 있어서 자유 모드로 들어왔어요'); return; } const d=loadSave(P.last); if(d){ S=d; } enterWorld(); };
 $('btnFree').onclick=()=>{ const d=loadSave('free'); S=d||newState('free'); enterWorld(); };
@@ -2822,7 +2865,7 @@ let last=performance.now(), prevNight=false, lastDayLabel='';
 // 느린 컴퓨터 감지: 게임 시작 뒤 8초 동안 프레임 간격을 재서 너무 느리면 가벼운 그래픽으로 (한 번만)
 let frameN=0, perfS={t:0,n:0,slow:0,done:false};
 function perfWatch(dt){ if(perfS.done||!started||document.hidden) return; perfS.t+=dt; perfS.n++; if(dt>34) perfS.slow++;
- if(perfS.t>8000){ perfS.done=true; if(perfS.slow/perfS.n>0.5&&!LITE()&&P.set.liteAsked!==true){ P.set.lite=true; P.set.liteAsked=true; saveProfile(); resize(); syncFolk(); toast('컴퓨터가 느려서 가벼운 그래픽으로 바꿨어요. 설정에서 끌 수 있어요'); } } }
+ if(perfS.t>8000){ perfS.done=true; if(perfS.slow/perfS.n>0.5&&!LITE()&&P.set.liteAsked!==true){ P.set.lite=true; P.set.liteAsked=true; devSave(P.set); saveProfile(); resize(); syncFolk(); toast('컴퓨터가 느려서 가벼운 그래픽으로 바꿨어요. 설정에서 끌 수 있어요'); } } }
 // 설정 창이나 알림 창이 열려 있으면 침공, 던전, 결투 시간을 멈춤
 function uiPaused(){ return !$('settings').hidden||!$('modal2').hidden; }
 function frame(now){ const dt=Math.min(50,now-last); last=now;
