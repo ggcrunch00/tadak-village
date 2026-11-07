@@ -249,8 +249,25 @@ body.big .tx .next,body.big .tx .prev{font-size:18px}
 .toast.act{pointer-events:auto;display:flex;align-items:center;gap:12px}
 .toast.act .btn{background:rgba(255,255,255,.16);color:#fff}
 /* dungeon */
-.dungeon{position:absolute;left:50%;bottom:calc(var(--gb) + var(--dockH,180px) + 12px);transform:translateX(-50%);width:min(560px,calc(100% - 32px));background:#232a38;color:#eef1f6;border-radius:var(--r-surface);box-shadow:var(--shadow);padding:16px 18px;z-index:6}
-.dungeon h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:20px;display:flex;justify-content:space-between;align-items:center}
+.dungeon{position:absolute;left:50%;bottom:calc(var(--gb) + var(--dockH,180px) + 12px);transform:translateX(-50%);width:min(660px,calc(100% - 32px));background:#1f2633;color:#eef1f6;border-radius:var(--r-surface);box-shadow:0 0 0 1.5px #0e131c,0 3px 0 1.5px #0e131c,0 24px 60px rgba(0,0,0,.45);padding:12px;z-index:6}
+body.delving #map{filter:brightness(.5) saturate(.7);transition:filter .6s}
+.dg-top{display:flex;align-items:center;gap:10px;padding:2px 4px 10px}.dg-top b{font-family:var(--f-display);font-weight:400;font-size:18px;flex:1}
+.dg-top .lan{display:flex;gap:2px}.dg-top .lan i{width:22px;height:22px;display:grid;place-items:center;color:#4b5568}.dg-top .lan i.on{color:#ffc65a;filter:drop-shadow(0 0 6px rgba(255,190,80,.7))}.dg-top .lan svg{width:18px;height:18px}
+.dg-scene{position:relative;display:block;width:100%;aspect-ratio:16/6.4;border-radius:10px;background:#2b3546 center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);overflow:hidden;border:0;padding:0;color:inherit;font:inherit;text-align:left}
+.dg-scene::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(14,19,28,.85),rgba(14,19,28,0) 55%);pointer-events:none}
+.dg-name{position:absolute;left:14px;top:12px;z-index:1;font-weight:700;font-size:14px;background:rgba(14,19,28,.6);padding:4px 10px;border-radius:999px}
+.dg-note{position:absolute;left:14px;bottom:12px;z-index:1;font-size:12.5px;color:#d9dfeb}
+.dg-fork{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dg-fork .dg-scene{aspect-ratio:16/9;cursor:pointer;transition:transform .15s,box-shadow .15s}.dg-fork .dg-scene:hover{transform:translateY(-2px);box-shadow:inset 0 0 0 2px var(--accent)}
+.dg-name kbd{background:var(--accent);color:var(--accent-ink);border-radius:5px;padding:0 6px;margin-right:4px;font-family:var(--f-mono)}
+.dg-path{position:absolute;left:14px;right:14px;bottom:10px;z-index:1;display:flex;align-items:center}
+.dg-path i{width:28px;height:28px;border-radius:50%;background:rgba(53,62,80,.92);display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:700;color:#aab4c6;flex:none;box-shadow:0 0 0 2px rgba(14,19,28,.6)}
+.dg-path i svg{width:15px;height:15px}.dg-path i.done{background:var(--good);color:#fff}.dg-path i.cur{background:var(--accent);color:var(--accent-ink);box-shadow:0 0 0 3px rgba(242,178,27,.35)}.dg-path i.fail{background:var(--bad);color:#fff}
+.dg-path em{flex:1;height:2px;background:rgba(170,180,198,.45)}
+.dg-talk{display:flex;gap:10px;align-items:center;padding:10px 4px 0}.dg-talk .pt{width:46px;height:46px;flex:none;border-radius:50%;background:#2b3546;overflow:hidden;box-shadow:0 0 0 2px #3a4559}.dg-talk .pt img{width:100%;height:100%;object-fit:cover;object-position:top}
+.dg-talk p{margin:0;font-size:15px;line-height:1.5;color:#eef1f6}.dg-talk p b{color:#ffd77a}.dg-talk p.q{font-size:17px;font-weight:600}
+.dg-choose-hint{margin:6px 0 0;font-size:15px;color:var(--ink-2)}
+@media (max-height:760px){ .dg-scene{aspect-ratio:16/5} .dg-fork .dg-scene{aspect-ratio:16/7} }
+@media (max-height:640px){ .dg-scene{aspect-ratio:16/3.6} .dg-talk .pt{width:36px;height:36px} }
 .dungeon p{margin:6px 0 0;color:#aeb7c7;font-size:13px}
 .path{display:flex;align-items:center;gap:0;margin:14px 0 10px}
 .path i{width:30px;height:30px;border-radius:50%;background:#353e50;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:700;color:#8e99ad;flex:none}
@@ -437,6 +454,8 @@ body.big .tx .next,body.big .tx .prev{font-size:18px}
 body.storying .objtrack{opacity:.4}
 /* duel */
 .duel{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(var(--gb) + var(--dockH,180px) + 12px);width:min(680px,calc(100% - 32px));background:#262a36;color:#eef1f6;border-radius:var(--r-surface);box-shadow:var(--shadow);display:flex;gap:16px;padding:14px 18px;z-index:8;align-items:center}
+.duel{background-size:cover;background-position:center 40%;min-height:150px}
+body:has(#duel:not([hidden])) #map{filter:brightness(.55) saturate(.75);transition:filter .6s}
 .duel .dp img{width:104px;display:block}
 .duel .dt{flex:1;min-width:0}
 .duel small{color:#a8b0c2;font-weight:700}
@@ -873,7 +892,40 @@ const RELICS = [
  {id:'bell',    name:'은빛 종',     icon:'bell',    desc:'콤보 상한 15에서 20으로'},
  {id:'scale',   name:'용의 비늘',   icon:'diamond', desc:'원정에서 보석 +1'},
 ];
-const ROOMS = ['이끼 낀 입구','거미줄 복도','지하 호수','잠든 석상','보물 방의 문지기'];
+// ---------- 원정: 잊힌 말의 동굴 ----------
+// 무음이 지운 말들이 섬 아래 동굴에 잠들어 있어요. 잉크 도깨비 핍이 길잡이를 해요.
+// 방 다섯 개: 입구 → 메아리 복도 → (갈림길: 지하 호수 또는 바람 다리) → 잠든 석상(수수께끼) → 보물 방의 문
+const DSTAGE = {
+ gate:  {name:'이끼 낀 입구', art:'exp_gate', kind:'short', how:'문 위 빈 돌판에 말을 새기면 문이 열려요',
+  pip:['여기가 잊힌 말의 동굴이야. 문 위 돌판이 비어 있지? 말을 새기면 열려.','문이 또 잠겼네. 이번 말은 뭐라고 새길까?'], ok:'끼이익, 문이 열렸다!', loot:{trade:6}},
+ echo:  {name:'메아리 복도', art:'exp_echo', kind:'eng', how:'박쥐들이 바다 건너 말을 들으면 길을 비켜 줘요',
+  pip:['쉿, 박쥐들이 자고 있어. 바다 건너 말로 속삭이면 깨지 않고 비켜 줄 거야.','박쥐들이 이 말을 좋아해. 또박또박 속삭여 봐.'], ok:'박쥐들이 날개를 접고 길을 비켜 줬다.', loot:{wisdom:8}},
+ lake:  {name:'지하 호수', art:'exp_lake', kind:'sent', how:'징검돌마다 한 글자씩, 빠뜨리지 말고 건너요',
+  pip:['징검돌마다 글자가 하나씩 숨어 있어. 하나라도 빠뜨리면 첨벙!','천천히 해도 괜찮아. 물이 잔잔하잖아.'], ok:'마지막 징검돌을 밟았다. 호수 바닥에서 무언가 반짝인다.', loot:'lake'},
+ bridge:{name:'바람 다리', art:'exp_bridge', kind:'words3', how:'판자마다 붙은 낱말 세 개를 빠르게 건너요',
+  pip:['바람이 세! 판자마다 붙은 낱말을 쭉 이어서 건너자.','흔들려도 멈추지 마. 낱말 세 개면 끝이야.'], ok:'휘이잉, 다리를 다 건넜다!', loot:{trade:10,wisdom:4}},
+ statue:{name:'잠든 석상', art:'exp_statue', kind:'riddle', how:'부엉이 석상의 수수께끼에 알맞은 답을 쳐요',
+  pip:['부엉이 석상이 눈을 떴어! 수수께끼를 맞히면 길을 열어 준대.','다른 수수께끼야. 셋 중에 하나를 골라 쳐 봐.'], ok:'석상이 고개를 끄덕이고 다시 잠들었다.', loot:{gem:1}},
+ door:  {name:'보물 방의 문', art:'exp_door', kind:'long', how:'문 가운데 빈 판에 긴 문장을 끝까지 새겨요',
+  pip:['마지막 문이야. 문 가운데 빈 판에 긴 문장을 끝까지 새기면 보물 방이 열려!','숨 한 번 쉬고, 처음부터 다시 새겨 보자.'], ok:'문이 천천히 열리고 금빛이 쏟아졌다!', loot:'door'}};
+const DFORK = [{id:'lake', key:'1', path:'물길', note:'긴 문장 하나 · 보석이 나올 수도'},{id:'bridge', key:'2', path:'바람길', note:'낱말 세 개 · 교역품과 지혜'}];
+// 수수께끼: 정답 하나와 헷갈리는 답 둘 (초등학생 눈높이)
+const RIDDLES = [
+ {q:'다리가 넷인데 걷지 못하고, 사람이 앉아도 꼼짝하지 않는 것은?', a:'의자', x:['강아지','자전거']},
+ {q:'늘 나를 따라다니지만 깜깜한 밤에는 사라지는 친구는?', a:'그림자', x:['거울','바람']},
+ {q:'세수할 때마다 나를 보고 똑같이 따라 하는 것은?', a:'거울', x:['수건','그림자']},
+ {q:'파면 팔수록 커지는 것은?', a:'구멍', x:['나무','모래성']},
+ {q:'먹으면 먹을수록 늘어나는 것은?', a:'나이', x:['밥','사탕']},
+ {q:'손이 없어도 문을 두드리고, 발이 없어도 집 안에 들어오는 것은?', a:'바람', x:['편지','고양이']},
+ {q:'펼치면 이야기가 나오고, 덮으면 조용해지는 것은?', a:'책', x:['상자','우산']},
+ {q:'비가 오면 펴지고, 비가 그치면 접히는 것은?', a:'우산', x:['꽃잎','책']},
+ {q:'낮에는 숨어 있다가 밤이 되면 하나둘 나타나는 것은?', a:'별', x:['해','무지개']},
+ {q:'바늘이 있어도 바느질을 못 하고, 하루 종일 같은 자리를 도는 것은?', a:'시계', x:['고슴도치','팽이']},
+ {q:'물에 넣으면 사라지는데 물맛을 바꾸는 하얀 가루는?', a:'소금', x:['모래','눈']},
+ {q:'이가 많아도 밥을 먹지 못하는 것은?', a:'빗', x:['숟가락','컵']},
+ {q:'날개가 없어도 하늘을 떠다니고, 눈이 없어도 비를 흘리는 것은?', a:'구름', x:['연','풍선']},
+ {q:'앞으로 걸을수록 뒤에 하나씩 남는 것은?', a:'발자국', x:['노래','바람']}];
+
 const N = 45, TW = 64, TH = 32, CLIFF = 20;
 // 지도 정의는 25칸 기준 좌표로 쓰고, 실제 섬은 GK배 크게 펼침
 const GD = 25, GK = 33/25, GOC = 12, GNC = (N-1)/2; // 섬은 33칸 시절 크기 그대로, 둘레 바다만 넓어짐(구역 확장용)
@@ -1432,7 +1484,7 @@ function renderDockTop(){
  if (T.special==='raid'){ $('dtop').innerHTML=`<div class="raidtag">${PH.sword}밤 침공<span style="font-weight:500;color:var(--ink-2)" id="raidCount"></span></div><div class="preview">적을 막으면 교역품과 보석</div>`; dock.classList.add('raid'); updateRaidCount(); return; }
  dock.classList.remove('raid');
  if (['story','restore','stone','duel'].includes(T.special)){ $('dtop').innerHTML=`<div class="raidtag" style="color:var(--ink)">${T.special==='duel'?PH.sword:PH.pen}${T.special==='duel'?'필경 결투':T.special==='restore'?'복원하기':T.special==='stone'?'비석 깨우기':'이야기'}</div><div class="preview">${T.special==='story'?'':`<button class="btn sm" id="askCancel">${T.special==='duel'?'물러나기':'취소'}</button>`}</div>`; const ac=$('askCancel'); if(ac) ac.onclick=()=>{ cancelAsk(); refocus(); }; return; }
- if (T.special==='dungeon'){ $('dtop').innerHTML=`<div class="raidtag" style="color:var(--ink)">${PH.compass}던전 원정</div><div class="preview">시간 안에 정확하게</div>`; return; }
+ if (T.special==='dungeon'||T.special==='riddle'){ $('dtop').innerHTML=`<div class="raidtag" style="color:var(--ink)">${PH.compass}원정 · 잊힌 말의 동굴</div><div class="preview">${T.special==='riddle'?'수수께끼':'시간 안에 정확하게'}</div>`; return; }
  $('dtop').innerHTML=`<div class="seg" role="tablist">${MODE_KEYS.map(m=>`<button data-mode="${m}" class="${T.mode===m?'on':''}" role="tab" aria-selected="${T.mode===m}">${MODES[m].res.map(r=>ICON[r]).join('')}<span>${MODES[m].name}</span></button>`).join('')}</div><div class="preview">${T.weak&&T.mode==='word'?`<button class="btn sm" id="weakOff">약한 키 연습 중 ${PH.x}</button>`:''}<span id="preview" class="preview"></span></div>`;
  const wo=$('weakOff'); if(wo) wo.onclick=()=>{ T.weak=null; T.queue=[]; renderDockTop(); loadTarget(); refocus(); };
  $('dtop').querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{ setMode(b.dataset.mode); refocus(); });
@@ -1462,6 +1514,7 @@ function loadTarget(){
 }
 function renderTyped(){
  if (T.special==='raid'){ renderRaidTyped(); return; }
+ if (T.special==='riddle'){ renderRiddleTyped(); return; }
  const v=[...typer.value], t=[...T.target], comp=T.composing, committed=comp?v.length-1:v.length; let newErr=false;
  for (let i=0;i<t.length;i++){ const s=T.spans[i]; let cls='ch'+(t[i]===' '?' sp':'');
   if (i<v.length){
@@ -1491,6 +1544,7 @@ typer.addEventListener('keydown',e=>{
  if(uiPaused()){ if(e.key==='Escape'&&!$('settings').hidden){ e.preventDefault(); closeSettings(); } else if(e.key==='Enter'||e.key==='Tab'){ e.preventDefault(); } return; }
  if(story&&!(story.typing&&T.special==='story')){ e.preventDefault(); if(e.key==='Enter'||e.key===' ') advanceStory(); return; }
  if((e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')&&lastBuild&&!typer.value){ e.preventDefault(); undoBuild(); return; }
+ if(dun&&dun.phase==='choose'&&(e.key==='1'||e.key==='2')){ e.preventDefault(); dunChoose(e.key); return; }
  if(e.key==='Tab'){ e.preventDefault(); if(!T.special){ const i=MODE_KEYS.indexOf(T.mode); setMode(MODE_KEYS[(i+(e.shiftKey?3:1))%4]); } return; }
  if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); /* 문서 쪽 Esc 처리가 방금 연 설정 창을 바로 닫지 않게 */ onEscape(); return; }
  if(e.key==='Enter'){ e.preventDefault(); if(e.isComposing||T.composing) T.pending=true; else submit(); return; }
@@ -1498,8 +1552,9 @@ typer.addEventListener('keydown',e=>{
 });
 function onInput(){
  if(story&&!(story.typing&&T.special==='story')){ typer.value=''; return; }
+ if(T.special==='dungeon'&&dun&&dun.phase!=='room'){ typer.value=''; return; }
  let v=typer.value;
- const wordish = T.special==='raid' || (!T.special && (T.mode==='word'||T.mode==='eng'));
+ const wordish = T.special==='raid' || T.special==='riddle' || (!T.special && (T.mode==='word'||T.mode==='eng'));
  if (wordish && !T.composing){
   if (v===' '){ typer.value=''; v=''; }
   else if (/\s$/.test(v)){ typer.value=v.replace(/\s+$/,''); submit(true); return; }
@@ -1510,6 +1565,8 @@ function onInput(){
 }
 function submit(viaSpace){
  if (T.special==='raid'){ raidSubmit(); return; }
+ if (T.special==='riddle'){ riddleSubmit(); return; }
+ if (T.special==='dungeon'&&dun&&dun.phase!=='room'){ resetInput(); return; }
  const v=typer.value.replace(/\s+$/,''), now=performance.now();
  if (!v.trim()||now-T.lastSubmit<60) return; T.lastSubmit=now;
  const t=[...T.target], vv=[...v]; let correct=0, st=0;
@@ -1518,7 +1575,7 @@ function submit(viaSpace){
  const finalWrong=(t.length-correct)+Math.max(0,vv.length-t.length), errs=Math.max(T.errors,finalWrong);
  const acc=Math.max(0,(t.length-errs)/t.length), perfect=errs===0&&v===T.target;
  const ms=Math.max(350,now-(T.startAt||now-1500)), cpm=Math.round(st/(ms/60000));
- if (T.special){ logTyping('special',st,ms,acc); if(S.camp){ S.camp.accSum+=acc; S.camp.accN++; } }
+ if (T.special&&T.special!=='riddle'&&!(T.special==='dungeon'&&dun&&dun.phase!=='room')){ logTyping('special',st,ms,acc); if(S.camp){ S.camp.accSum+=acc; S.camp.accN++; } }
  if (['story','restore','stone','duel'].includes(T.special)){ let fixOk=true; if(T.fix){ fixOk=T.fix.all?v===T.target:T.fix.pos.every(i=>vv[i]===t[i]); } promptSubmit(acc, perfect, fixOk); return; }
  if (T.special==='dungeon'){ dungeonSubmit(acc, perfect, ms); return; }
  // 마지막에 남은 글이 절반 넘게 틀리면(지운 오타는 빼고) 완료로 치지 않고 같은 글을 다시 씀: 보상, 진도, 기록 없음
@@ -1839,13 +1896,14 @@ function raidSubmit(){ const v=typer.value.trim(); if(!v||!raid) return; if(cast
  if(e){ killEnemy(e,false); AU.pluck(Math.min(raid.killed,9)); } else errorFx(); typer.value=''; renderRaidTyped(); }
 function drawEnemy(e){ const [x,y]=W(e.x,e.y), bob=Math.sin(TIME*3+e.seed)*1.5; let a=1; if(!e.alive){ if(e.dead){ return; } a=Math.max(0,e.leaving/6); } g.globalAlpha=a;
  g.beginPath(); g.ellipse(x,y+3,18,6,0,0,Math.PI*2); g.fillStyle='rgba(255,255,255,.35)'; g.fill();
- if(SPR.goblin){ const im=SPR.goblin, w=58, h=w*im.height/im.width; g.save(); if(e.tx<e.sx){ g.translate(x,0); g.scale(-1,1); g.translate(-x,0); } g.drawImage(im,x-w/2,y-h+8+bob,w,h); g.restore(); } else {
+ if(SPR.goblin){ const im=SPR.goblin, w=Math.max(58,44/cam.s), h=w*im.height/im.width; g.save(); if(e.tx<e.sx){ g.translate(x,0); g.scale(-1,1); g.translate(-x,0); } g.drawImage(im,x-w/2,y-h+8+bob,w,h); g.restore(); } else {
  g.beginPath(); g.moveTo(x-16,y-4+bob); g.lineTo(x+16,y-4+bob); g.lineTo(x+11,y+3+bob); g.lineTo(x-11,y+3+bob); g.closePath(); g.fillStyle='#6b4423'; g.fill(); g.strokeStyle='#3b2412'; g.lineWidth=1; g.stroke();
  g.strokeStyle='#3b2412'; g.lineWidth=1.5; g.beginPath(); g.moveTo(x+2,y-4+bob); g.lineTo(x+2,y-30+bob); g.stroke(); poly([[x+3,y-29+bob],[x+15,y-12+bob],[x+3,y-10+bob]],'#2b3446');
  blob(x-5,y-9+bob,5,'#6fae5c'); blob(x-7,y-10+bob,1.2,'#fff'); blob(x-3,y-10+bob,1.2,'#fff'); poly([[x-9,y-13+bob],[x-11,y-18+bob],[x-7,y-14+bob]],'#e5d9a8'); poly([[x-1,y-13+bob],[x+1,y-18+bob],[x-3,y-14+bob]],'#e5d9a8'); }
- if(e.alive){ const v=typer.value.trim(), m=v&&prefixOK(v,e.word)?[...v].length:0; g.font='700 15px "Nanum Gothic Coding", monospace'; const wd=g.measureText(e.word).width+16, ly=y-64+bob;
-  g.fillStyle=e.t>0.75?'#e5484d':'#ffffff'; g.beginPath(); g.roundRect(x-wd/2,ly-13,wd,24,12); g.fill(); g.textAlign='left'; const chars=[...e.word]; let cx=x-wd/2+8;
-  chars.forEach((c,i)=>{ g.fillStyle=e.t>0.75?'#ffffff':(i<m?'#c48a17':'#1f2a37'); g.fillText(c,cx,ly+4); cx+=g.measureText(c).width; }); }
+ if(e.alive){ const v=typer.value.trim(), m=v&&prefixOK(v,e.word)?[...v].length:0, fs=Math.max(15,15/cam.s); g.font=`700 ${fs}px "Nanum Gothic Coding", monospace`; const wd=g.measureText(e.word).width+fs*1.1, lh=fs*1.6, ly=y-Math.max(64,50/cam.s)+bob;
+  g.fillStyle='rgba(20,28,40,.25)'; g.beginPath(); g.roundRect(x-wd/2,ly-lh*0.55+2,wd,lh,lh/2); g.fill();
+  g.fillStyle=e.t>0.75?'#e5484d':m?'#fff6dc':'#ffffff'; g.beginPath(); g.roundRect(x-wd/2,ly-lh*0.55,wd,lh,lh/2); g.fill(); if(m){ g.strokeStyle='#c48a17'; g.lineWidth=Math.max(1.5,1.5/cam.s); g.stroke(); } g.textAlign='left'; const chars=[...e.word]; let cx=x-wd/2+fs*0.55;
+  chars.forEach((c,i)=>{ g.fillStyle=e.t>0.75?'#ffffff':(i<m?'#c48a17':'#1f2a37'); g.fillText(c,cx,ly+fs*0.3); cx+=g.measureText(c).width; }); }
  g.globalAlpha=1; }
 
 /* ================================================================
@@ -1996,32 +2054,73 @@ function startExpedition(){
  if(raid){ toast('침공을 막은 뒤에 떠날 수 있어요'); return; }
  const wait=Math.ceil(((S.expReadyAt||0)-Date.now())/1000); if(wait>0){ toast(`원정대가 쉬는 중이에요. ${wait}초 남았어요`); return; }
  if(!canPay(expCost())){ AU.error(); toast('보급품(나무, 돌, 벽돌)이 부족해요'); return; }
- spend(expCost()); closeDrawer(); dun={room:0,results:[],loot:{trade:0,wisdom:0,gem:0},relic:null,timeLeft:0,limit:0,phase:'room'}; S.stats.expeditions++;
- AU.tone(330,'triangle',0.1,0.3); AU.tone(392,'triangle',0.1,0.3,0.15); nextRoom();
+ spend(expCost()); closeDrawer(); dun={room:0,route:['gate','echo',null,'statue','door'],results:[],loot:{trade:0,wisdom:0,gem:0},relic:null,timeLeft:0,limit:0,phase:'room',lanterns:3,tries:0,line:''}; S.stats.expeditions++;
+ document.body.classList.add('delving'); AU.tone(330,'triangle',0.1,0.3); AU.tone(392,'triangle',0.1,0.3,0.15); nextRoom();
 }
-function roomText(i){ if(i===0) return draw(SENTENCES.filter(s=>[...s].length<=12),'d0'); if(i===1){ return draw(EN_WORDS,'d1')[0]+' '+draw(EN_WORDS,'d1')[0]; } if(i===2) return draw(SENTENCES,'d2'); if(i===3){ const P=POEMS[Math.floor(Math.random()*POEMS.length)]; return P.lines.filter(l=>[...l].length>=8)[0]||P.lines[0]; } return draw(SENTENCES.filter(s=>[...s].length>=16),'d4'); }
-function nextRoom(){ const i=dun.room, text=roomText(i); dun.text=text; dun.limit=(4+strokesOf(text)*0.6)*(hasRelic('compass')?1.15:1); dun.timeLeft=dun.limit+1; dun.phase='room';
- T.prevMode=T.prevMode&&T.special?T.prevMode:T.mode; T.special='dungeon'; T.target=text; resetInput(); renderDockTop(); $('hint').innerHTML='<kbd>Space</kbd> 또는 <kbd>Enter</kbd> 입력';
- txBody.className=''; txBody.innerHTML=`<div class="head"><span><b>${ROOMS[i]}</b></span><span>${i+1} / 5번째 방</span></div><div class="cur" id="cur"></div>`; buildSpans($('cur')); renderTyped(); renderNums(); renderDungeon(); refocus(); }
-function renderDungeon(){ const el=$('dungeon'); if(!dun){ el.hidden=true; return; } el.hidden=false;
- const nodes=ROOMS.map((_,i)=>{ const r=dun.results[i]; const cls=r===true?'done':r===false?'fail':i===dun.room&&dun.phase==='room'?'cur':''; return `<i class="${cls}">${i===4?PH.chest:i+1}</i>`; }).join('<em></em>');
+const dStage=()=>dun&&DSTAGE[dun.route[dun.room]];
+// 학생 자기 속도에 맞춘 제한 시간: 최근 문장·긴 글 기록의 평균 타수(정확도 80% 이상)로 계산, 여유 25%
+function dunPace(){ const h=(S.stats.hist||[]).filter(x=>(x.m==='sentence'||x.m==='long')&&x.a>=80).slice(-10); let v=h.length?h.reduce((a,x)=>a+x.c,0)/h.length:(P&&P.best&&P.best.sentence?P.best.sentence*0.7:120); return Math.max(60,Math.min(400,v)); }
+function dunLimit(text,kind){ const dk=classSet('diff')||(S.set&&S.set.diff)||'normal', k=dk==='easy'?1.35:dk==='hard'?0.85:1;
+ const base=kind==='riddle'?14:4, slack=kind==='words3'?0.9:0.75; return (base+strokesOf(text)/(dunPace()*slack)*60)*k*(hasRelic('compass')?1.15:1); }
+function dunText(kind){ if(kind==='short') return draw(SENTENCES.filter(s=>[...s].length<=12),'d0');
+ if(kind==='eng') return draw(EN_WORDS,'d1')[0]+' '+draw(EN_WORDS,'d1')[0];
+ if(kind==='sent') return draw(SENTENCES,'d2');
+ if(kind==='words3') return [0,1,2].map(()=>draw(KO_WORDS.filter(w=>[...w].length<=4),'d3')).join(' ');
+ const P2=POEMS[Math.floor(Math.random()*POEMS.length)]; return P2.lines.filter(l=>[...l].length>=10)[0]||draw(SENTENCES.filter(s=>[...s].length>=16),'d4'); }
+function nextRoom(){ const st=dStage();
+ if(!st){ dun.phase='choose'; T.prevMode=T.prevMode&&T.special?T.prevMode:T.mode; T.special='dungeon'; T.target=' '; resetInput(); renderDockTop(); $('hint').innerHTML='<kbd>1</kbd> 또는 <kbd>2</kbd> 길 고르기';
+  txBody.className=''; txBody.innerHTML=`<div class="head"><span><b>갈림길</b></span><span>3 / 5번째 방</span></div><p class="dg-choose-hint">물길(1)과 바람길(2) 중 하나를 골라요. 숫자를 누르거나 위 그림을 눌러요.</p>`;
+  dun.line='길이 둘로 갈라졌어. 물길로 갈래, 바람길로 갈래?'; renderDungeon(); refocus(); return; }
+ dun.phase='room'; T.prevMode=T.prevMode&&T.special?T.prevMode:T.mode; resetInput();
+ if(st.kind==='riddle'){ const pool=RIDDLES.filter(r=>!(dun.usedR||[]).includes(r.a)); const R=pool[Math.floor(Math.random()*pool.length)]; dun.usedR=[...(dun.usedR||[]),R.a];
+  dun.riddle={...R,opts:[R.a,...R.x].sort(()=>Math.random()-0.5)}; dun.text=R.a; T.special='riddle'; T.target=' '; dun.limit=dunLimit(dun.riddle.opts.join(' '),'riddle'); dun.timeLeft=dun.limit+1;
+  renderDockTop(); $('hint').innerHTML='답을 치고 <kbd>Space</kbd> 또는 <kbd>Enter</kbd>';
+  txBody.className='wordy'; txBody.innerHTML=`<div class="line"><div class="cur" id="cur"></div><div class="up">${dun.riddle.opts.map(o=>`<span>${esc(o)}</span>`).join('')}</div></div><div class="raidhint">셋 중에 알맞은 답을 쳐요</div>`;
+  T.curEl=$('cur'); T.spans=[]; T.extraEl=document.createElement('span'); T.curEl.appendChild(T.extraEl); T.caret=document.createElement('i'); T.caret.className='caret idle'; T.curEl.appendChild(T.caret); T.ghostEl=null; renderRiddleTyped(); }
+ else { const text=dunText(st.kind); dun.text=text; dun.limit=dunLimit(text,st.kind); dun.timeLeft=dun.limit+1; T.special='dungeon'; T.target=text; renderDockTop(); $('hint').innerHTML='<kbd>Space</kbd> 또는 <kbd>Enter</kbd> 입력';
+  txBody.className=''; txBody.innerHTML=`<div class="head"><span><b>${st.name}</b> ${st.how}</span><span>${dun.room+1} / 5번째 방</span></div><div class="cur" id="cur"></div>`; buildSpans($('cur')); renderTyped(); }
+ dun.line=st.pip[dun.tries?1:0]; renderNums(); renderDungeon(); refocus(); }
+function renderRiddleTyped(){ const v=typer.value.trim(); T.extraEl.textContent=typer.value||' '; const ok=!v||(dun&&dun.riddle&&dun.riddle.opts.some(o=>o.startsWith(v)||prefixOK(v,o))); T.extraEl.className='ch '+(ok?'ok':'bad'); }
+function riddleSubmit(){ const v=typer.value.trim(); if(!v||!dun||!dun.riddle||dun.phase!=='room') return;
+ if(!dun.riddle.opts.includes(v)){ errorFx(); showGrade('셋 중에서 골라요'); resetInput(); renderRiddleTyped(); return; }
+ logTyping('special',strokesOf(v),1000,1); roomResult(v===dun.riddle.a, true); }
+function dunChoose(k){ if(!dun||dun.phase!=='choose') return; const f=DFORK.find(x=>x.key===k||x.id===k); if(!f) return; dun.route[2]=f.id; AU.tone(523,'triangle',0.08,0.15); dun.phase='wait'; renderDungeon(); setTimeout(()=>{ if(dun&&dun.phase==='wait') nextRoom(); },300); }
+const LANTERN_SVG='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 2h6v2h-6zM8 5h8l1 3H7zM7 9h10v9a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2zm5 2.2c-1.4 1.6-2 2.7-2 3.6a2 2 0 0 0 4 0c0-.9-.6-2-2-3.6zM9 21h6v1H9z"/></svg>';
+const lanternHTML=()=>`<span class="lan" aria-label="남은 등불 ${dun.lanterns}개">${[0,1,2].map(i=>`<i class="${i<dun.lanterns?'on':''}">${LANTERN_SVG}</i>`).join('')}</span>`;
+function dunArt(id){ const st=DSTAGE[id], d=st&&typeof SPRITE_DATA!=='undefined'&&SPRITE_DATA[st.art]; return d?`background-image:url(${d.d})`:''; }
+function renderDungeon(){ const el=$('dungeon'); if(!dun){ el.hidden=true; document.body.classList.remove('delving'); return; } el.hidden=false;
+ const nodes=dun.route.map((id,i)=>{ const r=dun.results[i]; const cls=r===true?'done':r===false?'fail':i===dun.room&&dun.phase!=='win'&&dun.phase!=='end'?'cur':''; const nm=id?DSTAGE[id].name:'갈림길'; return `<i class="${cls}" title="${nm}">${i===4?PH.chest:i+1}</i>`; }).join('<em></em>');
  const lootTxt=Object.entries(dun.loot).filter(([,n])=>n>0).map(([k,n])=>`<span class="rc">${ICON[k]}+${n}</span>`).join('')+(dun.relic?`<span class="rc">${PH[RELICS.find(r=>r.id===dun.relic).icon]}${RELICS.find(r=>r.id===dun.relic).name}</span>`:'');
- if(dun.phase==='room') el.innerHTML=`<h2>던전 원정<button class="btn sm" id="dRetreat">후퇴하기</button></h2><div class="path">${nodes}</div><p>${ROOMS[dun.room]}: 시간 안에 아래 글을 정확하게 치면 통과해요.</p><div class="timer"><b id="dTimer"></b></div><div class="loot">모은 전리품 ${lootTxt||'아직 없음'}</div>`;
- else el.innerHTML=`<h2>${dun.phase==='win'?'던전 정복':'원정 종료'}</h2><div class="path">${nodes}</div><p>${dun.phase==='win'?'보물 방까지 모두 돌파했어요.':`${dun.results.filter(r=>r).length}개의 방을 돌파하고 돌아왔어요.`}</p><div class="loot">전리품 ${lootTxt||'없음'}</div><div class="btns"><button class="btn primary" id="dHome">마을로 돌아가기</button></div>`;
+ const pip=portraitHTML('pip'), st=dStage();
+ const top=`<div class="dg-top"><b>잊힌 말의 동굴</b>${lanternHTML()}${dun.phase==='win'||dun.phase==='end'?'':`<button class="btn sm" id="dRetreat">돌아가기</button>`}</div>`;
+ let scene, talk, extra='';
+ if(dun.phase==='choose'||(dun.phase==='wait'&&!dun.route[2]&&dun.room===2)){ scene=`<div class="dg-fork">${DFORK.map(f=>`<button class="dg-scene sm" data-fork="${f.id}" style="${dunArt(f.id)}"><span class="dg-name"><kbd>${f.key}</kbd> ${f.path}: ${DSTAGE[f.id].name}</span><span class="dg-note">${f.note}</span></button>`).join('')}</div>`; talk=dun.line; }
+ else if(dun.phase==='win'||dun.phase==='end'){ scene=`<div class="dg-scene" style="${dunArt(dun.phase==='win'?'door':(dun.route[dun.room]||'gate'))}"><span class="dg-name">${dun.phase==='win'?'보물 방':'동굴 밖으로'}</span><div class="dg-path">${nodes}</div></div>`;
+  talk=dun.phase==='win'?'해냈어! 잊힌 말들이 보물 방에서 깨어났어. 다음에 또 오자.':dun.lanterns<=0?'등불이 다 꺼졌어. 모은 건 챙겨서 돌아가자. 다음엔 더 멀리 갈 수 있을 거야.':'오늘은 여기까지. 모은 건 잘 챙겼어.';
+  extra=`<div class="loot">전리품 ${lootTxt||'없음'}</div><div class="btns"><button class="btn primary" id="dHome">마을로 돌아가기</button></div>`; }
+ else { scene=`<div class="dg-scene" style="${dunArt(dun.route[dun.room])}"><span class="dg-name">${st?st.name:''}</span><div class="dg-path">${nodes}</div></div>`;
+  talk=dun.riddle&&st&&st.kind==='riddle'&&dun.phase==='room'?`<b>부엉이 석상:</b> ${esc(dun.riddle.q)}`:dun.line;
+  extra=`<div class="timer"><b id="dTimer"></b></div><div class="loot">모은 전리품 ${lootTxt||'아직 없음'}</div>`; }
+ el.innerHTML=top+scene+`<div class="dg-talk">${pip?`<div class="pt">${pip}</div>`:''}<p class="${dun.riddle&&dun.phase==='room'?'q':''}">${talk||''}</p></div>`+extra;
+ el.querySelectorAll('[data-fork]').forEach(b=>b.onclick=()=>{ dunChoose(b.dataset.fork); refocus(); });
  const rb=$('dRetreat'); if(rb) rb.onclick=()=>{ finishExpedition(false); refocus(); }; const hb=$('dHome'); if(hb) hb.onclick=()=>{ closeExpedition(); refocus(); }; }
 function stepDungeon(dt){ if(!dun||dun.phase!=='room') return; dun.timeLeft-=dt/1000; const b=$('dTimer'); if(b) b.style.transform=`scaleX(${Math.max(0,Math.min(1,dun.timeLeft/dun.limit))})`; if(b) b.style.background=dun.timeLeft<dun.limit*0.25?'var(--bad)':''; if(dun.timeLeft<=0) roomResult(false); }
 function dungeonSubmit(acc,perfect){ if(!dun||dun.phase!=='room') return; roomResult(acc>=0.85, perfect); }
-function roomResult(ok,perfect){ const i=dun.room; dun.results[i]=ok;
- if(ok){ AU.pluck(i*2+2); const gemBonus=(hasTech('alchemy')?1:0)+(hasRelic('scale')?1:0);
-  if(i===0) dun.loot.trade+=6; if(i===1) dun.loot.wisdom+=8; if(i===2){ if(Math.random()<0.6) dun.loot.gem+=1; else dun.loot.trade+=10; } if(i===3) dun.loot.gem+=1;
-  if(i===4){ dun.loot.gem+=2+gemBonus; const left=RELICS.filter(r=>!S.relics.includes(r.id)); if(left.length) dun.relic=left[Math.floor(Math.random()*left.length)].id; }
+function roomResult(ok,perfect){ const i=dun.room, st=dStage(); if(!st) return;
+ if(ok){ dun.results[i]=true; dun.tries=0; AU.pluck(i*2+2); const gemBonus=(hasTech('alchemy')?1:0)+(hasRelic('scale')?1:0);
+  if(st.loot==='lake'){ if(Math.random()<0.6) dun.loot.gem+=1; else dun.loot.trade+=10; }
+  else if(st.loot==='door'){ dun.loot.gem+=2+gemBonus; const left=RELICS.filter(r=>!S.relics.includes(r.id)); if(left.length) dun.relic=left[Math.floor(Math.random()*left.length)].id; }
+  else for(const k in st.loot) dun.loot[k]+=st.loot[k];
   if(perfect) dun.loot.trade+=2; showGrade(perfect?'정확':'통과',perfect); burstAt(caretPoint(),perfect);
-  S.stats.bestRooms=Math.max(S.stats.bestRooms,i+1);
-  if(i<4){ dun.room++; renderDungeon(); dun.phase='wait'; resetInput(); setTimeout(()=>{ if(dun&&dun.phase==='wait') nextRoom(); },500); } else finishExpedition(true); }
- else { errorFx(); showGrade('실패'); finishExpedition(false); } }
+  S.stats.bestRooms=Math.max(S.stats.bestRooms,i+1); dun.line=st.ok; dun.riddle=null;
+  if(i<4){ dun.room++; dun.phase='wait'; T.special='dungeon'; resetInput(); renderDungeon(); setTimeout(()=>{ if(dun&&dun.phase==='wait') nextRoom(); },900); } else finishExpedition(true); }
+ else { errorFx(); dun.lanterns--; dun.tries++; dun.riddle&&(dun.riddle=null);
+  if(dun.lanterns<=0){ showGrade('등불이 꺼졌어요'); dun.results[i]=false; finishExpedition(false); return; }
+  // 실패해도 바로 끝나지 않음: 등불 하나를 쓰고 같은 방을 새 글로 다시
+  showGrade(`등불 하나가 꺼졌어요 (${dun.lanterns}개 남음)`); dun.phase='wait'; T.special='dungeon'; resetInput(); dun.line='괜찮아, 등불이 아직 남았어. 다시 해 보자.'; renderDungeon(); setTimeout(()=>{ if(dun&&dun.phase==='wait') nextRoom(); },1100); } }
 function finishExpedition(win){ if(!dun) return; dun.phase=win?'win':'end'; T.special=null; typer.value=''; const r={}; for(const k in dun.loot) if(dun.loot[k]>0) r[k]=dun.loot[k];
  if(Object.keys(r).length) addRes(r,{x:innerWidth/2,y:innerHeight*0.45}); if(dun.relic&&!S.relics.includes(dun.relic)){ S.relics.push(dun.relic); const R=RELICS.find(x=>x.id===dun.relic); setTimeout(()=>{ levelBanner('보물 발견',R.name,R.desc); AU.fanfare();; },500); }
- S.expReadyAt=Date.now()+90000; renderDungeon(); setMode(T.prevMode||'word',true); T.prevMode=null; afterProgress(); }
+ const dk=classSet('diff')||(S.set&&S.set.diff)||'normal'; S.expReadyAt=Date.now()+(dk==='easy'?45000:90000); renderDungeon(); setMode(T.prevMode||'word',true); T.prevMode=null; afterProgress(); }
 function closeExpedition(){ dun=null; renderDungeon(); }
 
 /* ================================================================
@@ -2157,8 +2256,17 @@ function render(now){
  g.setTransform(dpr*cam.s,0,0,dpr*cam.s,dpr*(cam.ox+sx),dpr*(cam.oy+sy));
  // shoals (unclaimed land): 살 수 있는 구역은 밝게, 아직 먼 구역은 아주 흐리게
  const RSTATE=REGIONS.map((R,i)=>regionState(i));
- for(let y=0;y<N;y++) for(let x=0;x<N;x++){ const ri=shoalAt(x,y); if(ri<0) continue; const R=REGIONS[ri], [cx,cy]=W(x,y,0,0,-6), avail=(RSTATE[ri]||regionState(ri))==='open', hv=hover&&shoalAt(hover[0],hover[1])===ri;
-  poly([[cx,cy-TH/2],[cx+TW/2,cy],[cx,cy+TH/2],[cx-TW/2,cy]], `rgba(190,240,236,${(hv?0.55:avail?0.32:0.16)*(1-NIGHT*0.7)})`); }
+ { const hvR=hover?shoalAt(hover[0],hover[1]):-1, kx=TW/Math.SQRT2, ky=TH/Math.SQRT2, day=1-NIGHT*0.65;
+  const shape=(R,grow)=>{ g.beginPath(); (R.blobs||[[R.c[0],R.c[1],R.r]]).forEach(([bx,by,br])=>{ const [x,y]=W(bx,by,0,0,-6), r=br+grow; g.moveTo(x+r*kx,y); g.ellipse(x,y,r*kx,r*ky,0,0,Math.PI*2); }); };
+  REGIONS.forEach((R,ri)=>{ const st=RSTATE[ri]; if(st==='own') return; const hv=hvR===ri, avail=st==='open';
+   const a=(hv?0.5:avail?0.3:st==='castle'?0.15:0.06)*day; if(a<0.02) return;
+   shape(R,0.55); g.fillStyle=`rgba(190,240,236,${a*0.45})`; g.fill();   // 바깥 번짐
+   shape(R,0); g.fillStyle=`rgba(206,246,238,${a})`; g.fill();          // 얕은 물
+   if(avail||hv){ // 바깥 테두리만: 원마다 다른 원 안쪽은 잘라내고 점선을 그림
+    const bl=(R.blobs||[[R.c[0],R.c[1],R.r]]).map(([bx,by,br])=>{ const [x,y]=W(bx,by,0,0,-6); return [x,y,br-0.15]; });
+    g.setLineDash([7,9]); g.lineDashOffset=-TIME*8; g.lineWidth=hv?2.4:1.6; g.strokeStyle=`rgba(255,255,255,${(hv?0.85:0.55)*day})`;
+    bl.forEach(([x,y,r],k)=>{ g.save(); g.beginPath(); g.rect(-1e5,-1e5,2e5,2e5); bl.forEach(([x2,y2,r2],k2)=>{ if(k2!==k){ g.moveTo(x2+r2*kx,y2); g.ellipse(x2,y2,r2*kx,r2*ky,0,0,Math.PI*2); } }); g.clip('evenodd');
+     g.beginPath(); g.ellipse(x,y,r*kx,r*ky,0,0,Math.PI*2); g.stroke(); g.restore(); }); g.setLineDash([]); } }); }
  REGIONS.forEach((R,i)=>{ const st=RSTATE[i]||regionState(i); if(st==='own'||st==='far') return; const [x,y]=W(R.c[0],R.c[1],0,0,-6), avail=st==='open';
   g.strokeStyle='#5b4030'; g.lineWidth=1.6; g.beginPath(); g.moveTo(x,y); g.lineTo(x,y-26); g.stroke(); poly([[x,y-26],[x+15,y-21],[x,y-16]],avail?'#f2b21b':'#c9d2dc');
   });
@@ -2356,7 +2464,7 @@ function renderDrawer(){ if(!drawerTab) return; const id=drawerTab, body=$('drBo
   body.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{ buyRegion(+b.dataset.r); refocus(); });
  } else if(id==='expedition'){
   const wait=Math.max(0,Math.ceil(((S.expReadyAt||0)-Date.now())/1000));
-  let h=`<p>섬의 동굴 아래 다섯 개의 방이 있어요. 방마다 제한 시간 안에 글을 정확하게 치면(정확도 85% 이상) 다음 방으로 가요. 마지막 방에는 보물이 있어요.</p>`;
+  let h=`<p><b>잊힌 말의 동굴</b>: 무음이 지운 말들이 섬 아래 동굴에 잠들어 있어요. 잉크 도깨비 핍과 함께 다섯 방을 지나 보물 방까지 가요.</p><p>방마다 제한 시간 안에 글을 정확하게(85% 이상) 치면 다음 방으로 가요. 중간 갈림길에서 길을 고르고, 부엉이 석상의 수수께끼도 풀어요. 등불이 세 개라서 실패해도 두 번까지는 다시 할 수 있어요. 제한 시간은 내 타자 속도에 맞춰져요.</p>`;
   h+=`<h3>출발 준비</h3><ul class="checks"><li class="${S.castle>=2?'ok':''}">${PH.check}${MAP.campaign?(MAP.expedition?'이 장에서 원정 가능':'이 장에서는 원정 불가'):'성채 이상 (지금: '+CASTLE[S.castle].name+')'}</li><li class="${canPay(expCost())?'ok':''}">${PH.check}보급품 ${costHTML(expCost())}</li><li class="${wait?'':'ok'}">${PH.check}${wait?`원정대 휴식 ${wait}초`:'원정대 준비 완료'}</li></ul><button class="btn primary" id="btnGo" ${featureOn('expedition')&&!wait&&canPay(expCost())&&!raid?'':'disabled'}>${PH.compass}원정 출발</button>`;
   h+=`<h3>보물 ${S.relics.length} / ${RELICS.length}</h3><div class="relics">${RELICS.map(r=>`<div class="relic ${hasRelic(r.id)?'on':''}" title="${hasRelic(r.id)?r.name+': '+r.desc:'아직 찾지 못한 보물'}">${hasRelic(r.id)?PH[r.icon]:PH.lock}</div>`).join('')}</div>`;
   const got=RELICS.filter(r=>hasRelic(r.id)); if(got.length) h+=`<div style="margin-top:10px">${got.map(r=>`<div class="row"><div class="ic">${PH[r.icon]}</div><div class="txt"><b>${r.name}</b><span>${r.desc}</span></div></div>`).join('')}</div>`;
@@ -2483,6 +2591,7 @@ function startDuel(){ const ch=curChapter(); if(!ch) return; if(S.objs.filter(o=
  closePop(); closeDrawer(); duel={i:0,hp:DUEL.length,limit:0,left:0}; AU.horn(); $('duel').hidden=false; duelStep(); }
 function duelStep(){ const d=DUEL[duel.i]; duel.limit=(6+strokesOf(d.a)*0.62); duel.left=duel.limit+1.2; renderDuel(); askType(d.a,'duel',null); }
 function renderDuel(){ const el=$('duel'); if(!duel){ el.hidden=true; return; } const d=DUEL[Math.min(duel.i,DUEL.length-1)];
+ const bg=typeof SPRITE_DATA!=='undefined'&&SPRITE_DATA.duel_top; el.style.backgroundImage=bg?`linear-gradient(90deg,rgba(22,24,34,.92) 0,rgba(22,24,34,.72) 45%,rgba(22,24,34,.12)),url(${bg.d})`:'';
  el.innerHTML=`<div class="dp">${portraitHTML('mueum')}</div><div class="dt"><small>침묵왕 무음</small><p>${d.m}</p><div class="hp">${DUEL.map((_,i)=>`<i class="${i<duel.i?'gone':''}"></i>`).join('')}</div><div class="timer"><b id="duelTimer"></b></div></div>`; }
 function stepDuel(dt){ if(!duel||T.special!=='duel') return; duel.left-=dt/1000; const b=$('duelTimer'); if(b){ b.style.transform=`scaleX(${Math.max(0,Math.min(1,duel.left/duel.limit))})`; b.style.background=duel.left<duel.limit*.25?'var(--bad)':''; }
  if(duel.left<=0){ S.camp.duelFails++; errorFx(); showGrade('안개가 짙어졌다'); toast('시간이 다 됐어요. 같은 문장을 다시 써 봐요'); duel.left=duel.limit+2; resetInput(); renderTyped(); } }
