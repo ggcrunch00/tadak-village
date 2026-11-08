@@ -173,9 +173,22 @@ dialog.big::backdrop{background:var(--bg)}
  body{background:#fff}.topbar,.side,.tabs,.bar,.btn,.savebar,.danger,.back,.menu,.note,.props button{display:none!important}
  .shell{display:block}.main{padding:0}.tw{max-height:none;overflow:visible;border:0}
  thead{display:table-header-group}tr{break-inside:avoid}th{position:static}
- body.cards .shell{display:none!important}body.cards #cards{display:flex;flex-wrap:wrap;gap:8px;padding:8px}
- .lc{width:62mm;border:1px dashed #888;border-radius:6px;padding:8px 10px;font-family:var(--f-ui);break-inside:avoid}
- .lc .t{font-size:11px;color:#555}.lc .n{font-size:20px;font-weight:700}.lc .c{font-family:var(--f-mono);font-size:18px;letter-spacing:.12em}.lc .p{display:flex;gap:6px;margin-top:4px}.lc .p img{width:46px;height:46px}.lc .u{font-size:9px;color:#666;margin-top:4px;word-break:break-all}}
+ /* 로그인 카드: A4 한 장에 3열 × 6줄 = 18명. 카드 60×43mm, 자르는 선은 점선 */
+ @page{size:A4;margin:10mm}
+ body.cards .shell{display:none!important}
+ body.cards #cards{display:flex;flex-wrap:wrap;gap:3mm;width:186mm;margin:0 auto;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .lc{width:60mm;height:43mm;box-sizing:border-box;border:.3mm dashed #9a9a9a;border-radius:2mm;padding:2.6mm 3mm 2.2mm;font-family:var(--f-ui);color:#222;break-inside:avoid;display:flex;flex-direction:column;overflow:hidden}
+ .lc-h{display:flex;justify-content:space-between;align-items:baseline;gap:2mm;border-bottom:.25mm solid #e3dccd;padding-bottom:1mm;margin-bottom:1.2mm}
+ .lc-h b{font-size:8pt;font-weight:700;white-space:nowrap}.lc-h span{font-size:6.5pt;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .lc-b{flex:1;display:flex;gap:2.5mm;min-height:0}
+ .lc-l{flex:1;min-width:0;display:flex;flex-direction:column}
+ .lc .n{font-size:14pt;font-weight:700;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lc .n small{font-size:8pt;font-weight:600;margin-left:1mm}
+ .lc .t{font-size:6pt;color:#777;margin-top:1mm;line-height:1.2}
+ .lc .c{font-family:var(--f-mono);font-size:11.5pt;letter-spacing:.14em;line-height:1.2}
+ .lc .p{display:flex;gap:1.2mm;margin-top:.6mm}.lc .p img{width:8.6mm;height:8.6mm;object-fit:contain}
+ .lc-q{width:19mm;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8mm}
+ .lc-q svg{width:19mm;height:19mm;display:block}.lc-q small{font-size:5.5pt;color:#666;text-align:center;line-height:1.2;white-space:nowrap}
+ .lc-u{font-size:5.5pt;color:#888;margin-top:.8mm;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 </style>
 </head>
 <body>
@@ -221,6 +234,7 @@ dialog.big::backdrop{background:var(--bg)}
 <dialog class="big" id="big"><div class="in"><button class="btn x" id="bigX">닫기 (Esc)</button><div class="nm" id="bigNm"></div><div class="cd" id="bigCd"></div>
   <ol><li>게임 첫 화면에서 <b>학급으로 로그인</b>을 눌러요.</li><li>위 학급 코드와 자기 번호를 넣어요.</li><li>내 그림 두 개(동물, 과일)를 눌러요.</li></ol></div></dialog>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" integrity="sha512-ZDSPMa/JM1D+7kdg2x3BsruQ6T/JpJo3jWDWkCZsP+5yVyp1KfESqLI+7RqB5k24F7p2cV7i2YHh/890y6P6Sw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="classlogin.js"></script>
 <script>
 (async () => {
@@ -366,8 +380,17 @@ function viewStudents(c) { const V = $('view'), nm = names(c.id);
 // [1,2,3,5,31,32] → "1-3, 5, 31-32"
 const shortList = ns => { const out = []; for (let i = 0; i < ns.length; i++) { let j = i; while (j + 1 < ns.length && ns[j + 1] === ns[j] + 1) j++; out.push(j > i ? `${ns[i]}-${ns[j]}` : `${ns[i]}`); i = j; } return out.join(', '); };
 
-function printCards(c) { const nm = names(c.id), games = GAMES.map(g => g.url).join('  ');
-  $('cards').innerHTML = ROSTER.map(s => { const p = CL.parseSecret(s.secret); return `<div class="lc"><div class="t">${esc(c.name)}</div><div class="n">${s.num}번 ${esc(nm[s.num] || '')}</div><div class="t">학급 코드</div><div class="c">${c.code}</div><div class="t">그림 비밀번호</div><div class="p">${p ? CL.icon('a', p[0]) + CL.icon('f', p[1]) : ''}</div><div class="u">${esc(games)}</div></div>`; }).join('');
+// QR: 게임 주소에 학급 코드와 번호를 붙여서, 찍으면 로그인 칸이 채워진 채로 열림(그림 비밀번호는 넣지 않음)
+function qrSVG(text) { if (typeof qrcode === 'undefined') return ''; try { const q = qrcode(0, 'M'); q.addData(text); q.make(); const n = q.getModuleCount(); let d = '';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`;
+  return `<svg viewBox="-2 -2 ${n + 4} ${n + 4}" shape-rendering="crispEdges" aria-hidden="true"><rect x="-2" y="-2" width="${n + 4}" height="${n + 4}" fill="#fff"/><path d="${d}" fill="#111"/></svg>`; } catch (e) { return ''; } }
+function printCards(c) { const nm = names(c.id), g0 = GAMES[0] || {title: '', url: ''}, host = String(g0.url).replace(/^https?:\/\//, '').replace(/\/$/, '');
+  $('cards').innerHTML = ROSTER.map(s => { const p = CL.parseSecret(s.secret); let qurl = ''; try { const u = new URL(g0.url); u.searchParams.set('code', c.code); u.searchParams.set('num', s.num); qurl = u.toString(); } catch (e) {} const qr = qurl ? qrSVG(qurl) : '';
+    return `<div class="lc"><div class="lc-h"><b>${esc(g0.title)}</b><span>${esc(c.name)}</span></div>
+     <div class="lc-b"><div class="lc-l"><div class="n">${s.num}번${nm[s.num] ? `<small>${esc(nm[s.num])}</small>` : ''}</div>
+      <div class="t">학급 코드</div><div class="c">${c.code}</div><div class="t">그림 비밀번호</div><div class="p">${p ? CL.icon('a', p[0]) + CL.icon('f', p[1]) : ''}</div></div>
+      ${qr ? `<div class="lc-q">${qr}<small>찍으면 로그인 화면</small></div>` : ''}</div>
+     <div class="lc-u">${esc(host)}</div></div>`; }).join('');
   document.body.classList.add('cards'); setTimeout(() => window.print(), 300); }
 addEventListener('afterprint', () => document.body.classList.remove('cards'));
 

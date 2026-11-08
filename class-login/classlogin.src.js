@@ -58,7 +58,7 @@
   const icon = (kind, i) => ICONS[kind + i] ? `<img src="${ICONS[kind + i]}" alt="${(kind === 'a' ? ANIMALS : FRUITS)[i]}">` : `<span class="clx-txt">${(kind === 'a' ? ANIMALS : FRUITS)[i]}</span>`;
 
   const ERR = { no_class: '그런 학급 코드가 없어요. 다시 확인해요.', no_student: '그 번호는 이 학급에 없어요. 선생님께 물어봐요.', bad_secret: '그림 비밀번호가 달라요.', locked: '여러 번 틀려서 5분 동안 잠겼어요. 잠시 뒤에 해요.', offline: '서버에 연결할 수 없어요. 인터넷을 확인해요.' };
-  function mountStudentLogin(el, { onLogin, onCancel } = {}) {
+  function mountStudentLogin(el, { onLogin, onCancel, code: preCode, num: preNum } = {}) {
     let pick = { a: null, f: null };
     el.innerHTML = `<form class="clx" autocomplete="off">
       <div class="clx-row"><label>학급 코드<input name="code" maxlength="12" placeholder="예: K7M2Q" autocapitalize="characters" autocomplete="off" spellcheck="false" lang="en" style="text-transform:uppercase"></label>
@@ -70,6 +70,8 @@
     const f = el.querySelector('form'), msg = el.querySelector('.clx-msg');
     // 조합 중에는 건드리지 않고, 조합이 끝나거나 영문으로 쳤을 때 바로 대문자 코드로 바꿈
     const fix = () => { const v = toCode(f.code.value); if (v !== f.code.value) f.code.value = v; };
+    // 로그인 카드의 QR 로 열면 학급 코드와 번호가 미리 채워져 있음(비밀번호인 그림은 학생이 고름)
+    if (preCode) f.code.value = toCode(preCode); if (preNum && /^\d{1,2}$/.test(String(preNum))) f.num.value = String(preNum);
     f.code.addEventListener('compositionend', () => setTimeout(fix, 0)); f.code.addEventListener('input', e => { if (!e.isComposing) fix(); }); f.code.addEventListener('blur', fix);
     el.querySelectorAll('.clx-grid').forEach(g => g.querySelectorAll('button').forEach(b => b.onclick = () => {
       pick[g.dataset.k] = +b.dataset.i; g.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); }));

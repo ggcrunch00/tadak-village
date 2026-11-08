@@ -730,7 +730,7 @@ body:has(#duel:not([hidden])) #map{filter:brightness(.55) saturate(.75);transiti
   const icon = (kind, i) => ICONS[kind + i] ? `<img src="${ICONS[kind + i]}" alt="${(kind === 'a' ? ANIMALS : FRUITS)[i]}">` : `<span class="clx-txt">${(kind === 'a' ? ANIMALS : FRUITS)[i]}</span>`;
 
   const ERR = { no_class: '그런 학급 코드가 없어요. 다시 확인해요.', no_student: '그 번호는 이 학급에 없어요. 선생님께 물어봐요.', bad_secret: '그림 비밀번호가 달라요.', locked: '여러 번 틀려서 5분 동안 잠겼어요. 잠시 뒤에 해요.', offline: '서버에 연결할 수 없어요. 인터넷을 확인해요.' };
-  function mountStudentLogin(el, { onLogin, onCancel } = {}) {
+  function mountStudentLogin(el, { onLogin, onCancel, code: preCode, num: preNum } = {}) {
     let pick = { a: null, f: null };
     el.innerHTML = `<form class="clx" autocomplete="off">
       <div class="clx-row"><label>학급 코드<input name="code" maxlength="12" placeholder="예: K7M2Q" autocapitalize="characters" autocomplete="off" spellcheck="false" lang="en" style="text-transform:uppercase"></label>
@@ -742,6 +742,8 @@ body:has(#duel:not([hidden])) #map{filter:brightness(.55) saturate(.75);transiti
     const f = el.querySelector('form'), msg = el.querySelector('.clx-msg');
     // 조합 중에는 건드리지 않고, 조합이 끝나거나 영문으로 쳤을 때 바로 대문자 코드로 바꿈
     const fix = () => { const v = toCode(f.code.value); if (v !== f.code.value) f.code.value = v; };
+    // 로그인 카드의 QR 로 열면 학급 코드와 번호가 미리 채워져 있음(비밀번호인 그림은 학생이 고름)
+    if (preCode) f.code.value = toCode(preCode); if (preNum && /^\d{1,2}$/.test(String(preNum))) f.num.value = String(preNum);
     f.code.addEventListener('compositionend', () => setTimeout(fix, 0)); f.code.addEventListener('input', e => { if (!e.isComposing) fix(); }); f.code.addEventListener('blur', fix);
     el.querySelectorAll('.clx-grid').forEach(g => g.querySelectorAll('button').forEach(b => b.onclick = () => {
       pick[g.dataset.k] = +b.dataset.i; g.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); }));
@@ -2962,7 +2964,7 @@ function useSlot(sl){ if(!sl) return; if(S&&SLOT) save(); SLOT=sl; const all=slo
  loadProfile(); if(sl.cloud){ applyPackStatus(); if(CLOUD_PACK&&packGet()) P.set.topic=P.set.topic==='mix'?'teacher':P.set.topic; }
  if(window.__packJustLoaded){ P.set.topic='teacher'; saveProfile(); toast('선생님 글감 “'+window.__packJustLoaded+'”으로 연습해요'); } S=(P.last&&loadSave(P.last))||loadSave('free')||newState('free'); boot(); showTitle(); }
 function showTitle(){ started=false; document.body.classList.add('titled'); $('camp').hidden=true; const t=$('title'); t.hidden=false; t.classList.remove('out');
- if(SLOT&&SLOT.cloud) syncNow(); $('btnBackCloud').hidden=!CLOUD.on(); $('btnTeacher').textContent=CLOUD.on()?'이 컴퓨터 기록 (선생님)':'선생님 화면'; $('cloudBox').hidden=!CLOUD.on()||!!SLOT; $('localOpen').hidden=!CLOUD.on()||!!SLOT; if(CLOUD.on()&&!SLOT) $('who').hidden=true; if(!SLOT&&CLOUD.on()) ClassLogin.mountStudentLogin($('clMount'),{onLogin:ss=>{ AU.init(); cloudEnter(ss); }}); if(!CLOUD.on()) $('who').hidden=!!SLOT; else if(SLOT) $('who').hidden=true; $('tBtns').hidden=!SLOT; document.querySelector('.t-foot').hidden=!SLOT; $('me').hidden=!SLOT; $('whoNew').hidden=true; if(SLOT){ $('meName').innerHTML=`<b>${esc(slotLabel(SLOT))}</b> 영주님`+(SLOT.cloud?` <small class="cls">${esc(SLOT.cls||'')}</small>`:''); } else renderWho();
+ if(SLOT&&SLOT.cloud) syncNow(); $('btnBackCloud').hidden=!CLOUD.on(); $('btnTeacher').textContent=CLOUD.on()?'이 컴퓨터 기록 (선생님)':'선생님 화면'; $('cloudBox').hidden=!CLOUD.on()||!!SLOT; $('localOpen').hidden=!CLOUD.on()||!!SLOT; if(CLOUD.on()&&!SLOT) $('who').hidden=true; if(!SLOT&&CLOUD.on()) ClassLogin.mountStudentLogin($('clMount'),{code:new URLSearchParams(location.search).get('code')||'',num:new URLSearchParams(location.search).get('num')||'',onLogin:ss=>{ AU.init(); cloudEnter(ss); }}); if(!CLOUD.on()) $('who').hidden=!!SLOT; else if(SLOT) $('who').hidden=true; $('tBtns').hidden=!SLOT; document.querySelector('.t-foot').hidden=!SLOT; $('me').hidden=!SLOT; $('whoNew').hidden=true; if(SLOT){ $('meName').innerHTML=`<b>${esc(slotLabel(SLOT))}</b> 영주님`+(SLOT.cloud?` <small class="cls">${esc(SLOT.cls||'')}</small>`:''); } else renderWho();
  const lastId=P.last&&hasSave(P.last)?P.last:null; $('tFirst').hidden=!SLOT||!!lastId; const cb=$('btnContinue'); cb.hidden=!lastId; if(lastId){ cb.textContent=lastId==='free'?'이어하기 (자유 모드)':lastId==='toy'?'이어하기 (놀이 섬)':`이어하기 (${chapterOf(lastId).no}장 ${chapterOf(lastId).title})`; } renderCoach(); renderObjTrack(); }
 function startGame(){ AU.init(); AU.apply(); document.body.classList.remove('titled'); const t=$('title'); t.classList.add('out'); setTimeout(()=>{ t.hidden=true; },500); started=true; renderCoach(); renderObjTrack(); resize(); refocus(); }
 $('btnCamp').onclick=()=>{ AU.init(); openCampaign(); };
@@ -2971,7 +2973,7 @@ $('whoNew').onsubmit=e=>{ e.preventDefault(); const name=$('whoName').value.trim
  const dup=all.find(x=>x.name===name&&(x.num??null)===num); if(dup){ AU.init(); useSlot(dup); return; }
  const sl={id:'s'+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36),num,name,made:Date.now(),last:Date.now()}; all.push(sl); slotsSave(all); $('whoName').value=''; $('whoNum').value=''; AU.init(); useSlot(sl); };
 $('whoCancel').onclick=()=>{ $('whoNew').hidden=true; };
-if(CLOUD.on()){ CLOUD.init(); ClassLogin.mountStudentLogin($('clMount'),{onLogin:ss=>{ AU.init(); cloudEnter(ss); }}); }
+if(CLOUD.on()){ CLOUD.init(); ClassLogin.mountStudentLogin($('clMount'),{code:new URLSearchParams(location.search).get('code')||'',num:new URLSearchParams(location.search).get('num')||'',onLogin:ss=>{ AU.init(); cloudEnter(ss); }}); }
 $('btnSwitch').onclick=async()=>{ save(); if(SLOT&&SLOT.cloud) await cloudLogout(); SLOT=null; S=newState('free'); P=P_DEFAULT(); boot(); showTitle(); };
 $('btnGuest').onclick=()=>{ SLOT=null; P=P_DEFAULT(); S=newState('free'); boot(); $('who').hidden=true; $('tBtns').hidden=false; $('me').hidden=false; $('meName').innerHTML='<b>손님</b> (저장되지 않아요)'; $('btnContinue').hidden=true; };
 $('btnTeacher').onclick=openTeacher; $('btnTeacher2').onclick=()=>{ window.open(CLOUD.dashboard(),'_blank','noopener'); }; $('btnLocal').onclick=()=>{ $('cloudBox').hidden=true; $('localOpen').hidden=true; $('who').hidden=false; renderWho(); };
