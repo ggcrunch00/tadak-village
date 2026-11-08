@@ -636,17 +636,16 @@ body:has(#duel:not([hidden])) #map{filter:brightness(.55) saturate(.75);transiti
   <div class="t-inner">
     <div class="t-name" aria-label="이름을 쓰는 섬"><div class="t-row"><span>이</span><span style="animation-delay:.06s">름</span><span style="animation-delay:.12s">을</span></div><div class="t-row"><span style="animation-delay:.22s">쓰</span><span style="animation-delay:.28s">는</span><span class="isle" style="animation-delay:.4s">섬</span></div></div>
     <div class="t-sub">말결 군도 이야기</div>
-    <div class="t-tag">나무라고 치면 나무가 생기는 섬. 글자로 마을을 지어요.</div>
     <div class="whobox cloudbox" id="cloudBox" hidden>
       <div class="who-h"><b>학급으로 로그인</b><span>선생님이 알려 준 학급 코드와 내 번호를 넣고, 내 그림 비밀번호(동물 하나, 과일 하나)를 눌러요.</span></div>
       <div id="clMount"></div>
     </div>
-    <p class="localopen" id="localOpen" hidden><button class="linkbtn" id="btnLocal">학급 로그인 없이 이 컴퓨터에 저장하며 하기</button> · <button class="linkbtn" id="btnTeacher2">선생님 화면</button></p>
+    <p class="localopen" id="localOpen" hidden><button class="linkbtn" id="btnLocal">학급 로그인 없이 이 컴퓨터에 저장하며 하기</button> · <button class="linkbtn" id="btnTeacher2">선생님 관리 페이지 ↗</button></p>
     <div class="whobox" id="who">
       <div class="who-h"><b>누가 플레이하나요?</b><span>내 번호와 이름을 골라요. 처음이면 새로 만들어요.</span></div>
       <div class="who-list" id="whoList"></div>
       <form class="who-new" id="whoNew" hidden autocomplete="off"><input id="whoNum" inputmode="numeric" maxlength="2" placeholder="번호"><input id="whoName" maxlength="10" placeholder="이름"><button class="btn primary sm" type="submit">만들기</button><button class="btn sm" type="button" id="whoCancel">취소</button></form>
-      <div class="who-foot"><button class="linkbtn" id="btnTeacher">선생님 화면</button><button class="linkbtn" id="btnImport">다른 컴퓨터에서 가져오기</button><button class="linkbtn" id="btnGuest">이름 없이 해 보기 (저장 안 됨)</button></div>
+      <div class="who-foot"><button class="linkbtn" id="btnBackCloud" hidden>← 학급으로 로그인</button><button class="linkbtn" id="btnTeacher">선생님 화면</button><button class="linkbtn" id="btnImport">다른 컴퓨터에서 가져오기</button><button class="linkbtn" id="btnGuest">이름 없이 해 보기 (저장 안 됨)</button></div>
     </div>
     <div class="me" id="me" hidden><span id="meName"></span><button class="linkbtn" id="btnSwitch">다른 학생</button></div>
     <div class="t-btns" id="tBtns" hidden>
@@ -2753,7 +2752,7 @@ function renderProps(){ const rows=[]; slotsAll().forEach(sl=>{ let pr; try{ pr=
 function renderSrv(){ const el=$('tSrv');
  el.innerHTML=CLOUD.on()?`<h3>학급 서버</h3><p class="mtext">학급 만들기, 학생 번호와 그림 비밀번호, 로그인 카드 인쇄, 학급 기록, 글감 보내기는 <b>학급 로그인 관리</b> 사이트에서 해요. Google 계정으로 로그인해요. 학생 이름은 서버로 보내지 않아요.</p><div class="cl-row"><a class="btn primary sm" href="${CLOUD.dashboard()}" target="_blank" rel="noopener">학급 로그인 관리 열기</a></div>`
   :`<h3>학급 서버</h3><p class="mtext">학급 서버를 연결하면 학생이 학급 코드, 번호, 그림 비밀번호로 로그인하고 어느 컴퓨터에서든 이어서 해요. 설정 방법은 저장소의 SERVER.md에 있어요.</p>`; }
-function openTeacher(){ renderSrv(); fillPackForm(); renderProps(); teacherRows=slotsAll().map(sl=>({...recordOf(sl).sum,_id:sl.id,_src:'이 컴퓨터'})); renderTeacher(); $('teacher').hidden=false; }
+function openTeacher(){ $('tTitle').textContent=CLOUD.on()?'이 컴퓨터 기록 (학급 로그인 없이 한 학생)':'선생님 화면'; renderSrv(); fillPackForm(); renderProps(); teacherRows=slotsAll().map(sl=>({...recordOf(sl).sum,_id:sl.id,_src:'이 컴퓨터'})); renderTeacher(); $('teacher').hidden=false; }
 function renderTeacher(){ const rows=teacherRows.slice().sort((a,b)=>((a.num===''?999:+a.num)-(b.num===''?999:+b.num))||String(a.name).localeCompare(String(b.name),'ko'));
  const n=rows.length, avg=k=>n?Math.round(rows.reduce((a,r)=>a+(+r[k]||0),0)/n):0, fbs=rows.filter(r=>r.fun!=='');
  $('tSum').innerHTML=`<div class="stat"><small>학생</small><b>${n}</b></div><div class="stat"><small>평균 플레이</small><b>${avg('playMin')}<em>분</em></b></div><div class="stat"><small>평균 타수</small><b>${avg('cpm')}</b></div><div class="stat"><small>평균 정확도</small><b>${avg('acc')}<em>%</em></b></div><div class="stat"><small>소감</small><b>${fbs.length}<em>명</em></b></div><div class="stat"><small>평균 재미</small><b>${fbs.length?(fbs.reduce((a,r)=>a+r.fun,0)/fbs.length).toFixed(1):'-'}</b></div>`;
@@ -2829,7 +2828,7 @@ function useSlot(sl){ if(!sl) return; if(S&&SLOT) save(); SLOT=sl; const all=slo
  loadProfile(); if(sl.cloud){ applyPackStatus(); if(CLOUD_PACK&&packGet()) P.set.topic=P.set.topic==='mix'?'teacher':P.set.topic; }
  if(window.__packJustLoaded){ P.set.topic='teacher'; saveProfile(); toast('선생님 글감 “'+window.__packJustLoaded+'”으로 연습해요'); } S=(P.last&&loadSave(P.last))||loadSave('free')||newState('free'); boot(); showTitle(); }
 function showTitle(){ started=false; document.body.classList.add('titled'); $('camp').hidden=true; const t=$('title'); t.hidden=false; t.classList.remove('out');
- if(SLOT&&SLOT.cloud) syncNow(); $('cloudBox').hidden=!CLOUD.on()||!!SLOT; $('localOpen').hidden=!CLOUD.on()||!!SLOT; if(CLOUD.on()&&!SLOT) $('who').hidden=true; if(!SLOT&&CLOUD.on()) ClassLogin.mountStudentLogin($('clMount'),{onLogin:ss=>{ AU.init(); cloudEnter(ss); }}); if(!CLOUD.on()) $('who').hidden=!!SLOT; else if(SLOT) $('who').hidden=true; $('tBtns').hidden=!SLOT; document.querySelector('.t-foot').hidden=!SLOT; $('me').hidden=!SLOT; $('whoNew').hidden=true; if(SLOT){ $('meName').innerHTML=`<b>${esc(slotLabel(SLOT))}</b> 영주님`+(SLOT.cloud?` <small class="cls">${esc(SLOT.cls||'')}</small>`:''); } else renderWho();
+ if(SLOT&&SLOT.cloud) syncNow(); $('btnBackCloud').hidden=!CLOUD.on(); $('btnTeacher').textContent=CLOUD.on()?'이 컴퓨터 기록 (선생님)':'선생님 화면'; $('cloudBox').hidden=!CLOUD.on()||!!SLOT; $('localOpen').hidden=!CLOUD.on()||!!SLOT; if(CLOUD.on()&&!SLOT) $('who').hidden=true; if(!SLOT&&CLOUD.on()) ClassLogin.mountStudentLogin($('clMount'),{onLogin:ss=>{ AU.init(); cloudEnter(ss); }}); if(!CLOUD.on()) $('who').hidden=!!SLOT; else if(SLOT) $('who').hidden=true; $('tBtns').hidden=!SLOT; document.querySelector('.t-foot').hidden=!SLOT; $('me').hidden=!SLOT; $('whoNew').hidden=true; if(SLOT){ $('meName').innerHTML=`<b>${esc(slotLabel(SLOT))}</b> 영주님`+(SLOT.cloud?` <small class="cls">${esc(SLOT.cls||'')}</small>`:''); } else renderWho();
  const lastId=P.last&&hasSave(P.last)?P.last:null; $('tFirst').hidden=!SLOT||!!lastId; const cb=$('btnContinue'); cb.hidden=!lastId; if(lastId){ cb.textContent=lastId==='free'?'이어하기 (자유 모드)':lastId==='toy'?'이어하기 (놀이 섬)':`이어하기 (${chapterOf(lastId).no}장 ${chapterOf(lastId).title})`; } renderCoach(); renderObjTrack(); }
 function startGame(){ AU.init(); AU.apply(); document.body.classList.remove('titled'); const t=$('title'); t.classList.add('out'); setTimeout(()=>{ t.hidden=true; },500); started=true; renderCoach(); renderObjTrack(); resize(); refocus(); }
 $('btnCamp').onclick=()=>{ AU.init(); openCampaign(); };
@@ -2841,7 +2840,8 @@ $('whoCancel').onclick=()=>{ $('whoNew').hidden=true; };
 if(CLOUD.on()){ CLOUD.init(); ClassLogin.mountStudentLogin($('clMount'),{onLogin:ss=>{ AU.init(); cloudEnter(ss); }}); }
 $('btnSwitch').onclick=async()=>{ save(); if(SLOT&&SLOT.cloud) await cloudLogout(); SLOT=null; S=newState('free'); P=P_DEFAULT(); boot(); showTitle(); };
 $('btnGuest').onclick=()=>{ SLOT=null; P=P_DEFAULT(); S=newState('free'); boot(); $('who').hidden=true; $('tBtns').hidden=false; $('me').hidden=false; $('meName').innerHTML='<b>손님</b> (저장되지 않아요)'; $('btnContinue').hidden=true; };
-$('btnTeacher').onclick=openTeacher; $('btnTeacher2').onclick=openTeacher; $('btnLocal').onclick=()=>{ $('cloudBox').hidden=true; $('localOpen').hidden=true; $('who').hidden=false; renderWho(); }; $('tClose').onclick=()=>{ $('teacher').hidden=true; if(!SLOT) renderWho(); };
+$('btnTeacher').onclick=openTeacher; $('btnTeacher2').onclick=()=>{ window.open(CLOUD.dashboard(),'_blank','noopener'); }; $('btnLocal').onclick=()=>{ $('cloudBox').hidden=true; $('localOpen').hidden=true; $('who').hidden=false; renderWho(); };
+$('btnBackCloud').onclick=()=>{ $('who').hidden=true; $('whoNew').hidden=true; $('cloudBox').hidden=false; $('localOpen').hidden=false; const f=$('clMount').querySelector('input'); if(f) f.focus(); }; $('tClose').onclick=()=>{ $('teacher').hidden=true; if(!SLOT) renderWho(); };
 $('tCsv').onclick=async()=>{ const ok=await download(`이름을쓰는섬_학급기록_${dateKey()}.csv`,teacherCSV(),'text/csv;charset=utf-8'); $('tMsg').textContent=ok?'CSV를 받았어요. 엑셀에서 바로 열 수 있어요.':'파일을 받지 못했어요.'; };
 $('tFiles').onchange=async e=>{ const fs=[...e.target.files]; const texts=await Promise.all(fs.map(f=>f.text())); addTeacherRecords(texts); e.target.value=''; };
 $('pkSave').onclick=()=>{ const d=readPackForm(); if(!(d.words.length||d.sents.length||d.lines.length||d.eng.length)){ $('pkMsg').textContent='넣은 내용이 없어요.'; return; } packSave(d); fillPackForm(); };
