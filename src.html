@@ -310,6 +310,16 @@ body.delving #map{filter:brightness(.5) saturate(.7);transition:filter .6s}
 .modal h2{margin:0 0 10px;font-family:var(--f-display);font-weight:400;font-size:22px}
 .set{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
 .set label{font-size:14px;font-weight:600}
+.tour{position:fixed;inset:0;z-index:95}
+.tour-hole{position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(14,30,42,.6),0 0 0 3px var(--accent),0 0 24px 6px rgba(242,178,27,.45);transition:left .25s,top .25s,width .25s,height .25s;pointer-events:none}
+.tour-card{position:fixed;width:min(360px,calc(100vw - 24px));background:var(--paper);border-radius:var(--r-surface);box-shadow:var(--shadow);padding:16px 18px 14px}
+.tour-card h3{font-family:var(--f-display);font-weight:400;font-size:21px;margin:0 0 6px}
+.tour-card p{margin:0;font-size:15px;line-height:1.65;color:var(--ink-2);word-break:keep-all}
+.tour-card .tf{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px}.tour-card .tf span{display:flex;gap:6px}.tour-card .tf small{color:var(--ink-3);font-weight:600}
+.helpq details{border-top:1px solid var(--line);padding:9px 2px}.helpq summary{cursor:pointer;font-weight:700;font-size:15px}.helpq p{margin:6px 0 2px;font-size:14.5px;line-height:1.65;color:var(--ink-2);word-break:keep-all}
+.qic{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;border:2px solid currentColor;font-style:normal;font-weight:800;font-size:12px;line-height:1}
+.wipewarn{color:var(--bad);font-weight:700}.wipelist{margin:8px 0 4px;padding-left:1.2em;font-size:14px;line-height:1.7;color:var(--ink-2)}
+.btn.danger{background:var(--bad);color:#fff;box-shadow:0 0 0 1.5px #7a1f22,0 2px 0 1.5px #7a1f22}
 .set small{display:block;font-size:12px;color:var(--ink-2);font-weight:400}
 .set input[type=range]{width:140px;accent-color:var(--ink)}
 .tog{width:48px;height:28px;border-radius:var(--r-pill);border:0;background:#d9cfbb;position:relative;cursor:pointer;flex:none}
@@ -508,7 +518,7 @@ body:has(#duel:not([hidden])) #map{filter:brightness(.55) saturate(.75);transiti
 @media (max-width:760px){ .zoomctl{padding:3px;top:40%} .zoomctl button{width:34px;height:30px} .objtrack{left:var(--gx);right:var(--gxr);width:auto;top:calc(var(--gt) + 184px)} .story{padding:12px 14px 10px 92px;min-height:100px} .story .sp{width:88px;height:120px} .story .sp img{max-width:88px;max-height:120px} .story .say{font-size:14.5px} .duel .dp img{width:64px} }
 @media (max-width:760px){
   .rail{top:auto;bottom:auto;transform:none;flex-direction:row;top:calc(var(--gt) + 120px);right:var(--gxr);padding:5px;gap:0}
-  .rail button{width:auto;flex:1;min-width:0;font-size:10.5px;padding:6px 0 4px}
+  .rail button{width:auto;flex:1;min-width:0;font-size:10.5px;padding:6px 0 4px;letter-spacing:-.04em} .rail button span{white-space:nowrap}
   .rail button svg{width:20px;height:20px}
   .rail .badge{right:2px}
   .rail hr{width:1px;height:auto;margin:6px 2px}
@@ -1382,7 +1392,7 @@ function neighbors(x,y,z=1,skip,extra){
 function adjOf(o,extra){ const B=BUILD[o.t]; if(!B||o.natural) return 0; return B.adj(neighbors(o.gx,o.gy,szOf(o),o,extra)); }
 let _adjCache=null;
 function adjTotal(){ if(_adjCache===null) _adjCache=S.objs.reduce((s,o)=>s+adjOf(o),0); return _adjCache; }
-let OBJKEY=''; function dirty(){ _adjCache=null; _staff=null; rebuildOcc(); OBJKEY=S.objs.map(o=>o.t+(o.seed||0)%3+'@'+o.gx+','+o.gy+':'+(o.sz||1)).join(';')+'|'+S.castle; }
+let OBJKEY=''; function dirty(){ _adjCache=null; _staff=null; rebuildOcc(); OBJKEY=S.objs.map(o=>o.t+(o.seed||0)%3+'@'+o.gx+','+o.gy+':'+(o.sz||1)+(o.flip?'f':'')).join(';')+'|'+S.castle; }
 let _staff=null;
 function staffing(){ if(_staff) return _staff; let left=popOf(); const on=new Set(); let need=0;
  S.objs.forEach(o=>{ const B=built(o); if(!B||!B.workers) return; need+=B.workers; if(left>=B.workers){ left-=B.workers; on.add(o); } });
@@ -1552,6 +1562,7 @@ typer.addEventListener('keydown',e=>{
  if(story&&!(story.typing&&T.special==='story')){ e.preventDefault(); if(e.key==='Enter'||e.key===' ') advanceStory(); return; }
  if((e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')&&lastBuild&&!typer.value){ e.preventDefault(); undoBuild(); return; }
  if(dun&&dun.phase==='choose'&&(e.key==='1'||e.key==='2')){ e.preventDefault(); dunChoose(e.key); return; }
+ if((placing||moving)&&e.code==='KeyR'&&!typer.value&&!e.ctrlKey&&!e.metaKey){ e.preventDefault(); flipPlacing(); return; }
  if(e.key==='Tab'){ e.preventDefault(); if(!T.special){ const i=MODE_KEYS.indexOf(T.mode); setMode(MODE_KEYS[(i+(e.shiftKey?3:1))%4]); } return; }
  if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); /* 문서 쪽 Esc 처리가 방금 연 설정 창을 바로 닫지 않게 */ onEscape(); return; }
  if(e.key==='Enter'){ e.preventDefault(); if(e.isComposing||T.composing) T.pending=true; else submit(); return; }
@@ -1797,9 +1808,11 @@ function drawObj(o){ const n=spriteName(o), im=SPR[n], f=FIT[n], z=szOf(o), [cx,
  const [x0,y]=W(cx,cy), w=z*TW*f.w, h=w*im.height/im.width, by=y+z*TH/2*f.b, x=x0+(f.x||0)*z*TW; // f.x: 그림의 바닥이 한쪽으로 치우친 스프라이트 보정
  g.beginPath(); g.ellipse(x+5*z,y+2*z,z*TW*.36*Math.min(1,f.w+.1),z*TH*.32*Math.min(1,f.w+.1),0,0,Math.PI*2); g.fillStyle='rgba(28,58,34,.22)'; g.fill();
  const sway=(o.natural||o.t==='tree')&&!THUMB&&!LITE()?Math.sin(TIME*1.5+(o.seed||0))*0.012:0;
+ const fl=!!o.flip&&!o.natural; if(fl){ g.save(); g.translate(x,0); g.scale(-1,1); g.translate(-x,0); } // 돌린 건물은 좌우를 뒤집어 그림
  if(sway){ g.save(); g.translate(x,by); g.transform(1,0,sway,1,0,0); g.drawImage(im,-w/2,-h,w,h); g.restore(); } else g.drawImage(im,x-w/2,by-h,w,h);
  if(n==='windmill2'){ const sl=SPR.millsails, d=w*MILL.size, hx=x-w/2+w*MILL.hx, hy=by-h+h*MILL.hy, a=THUMB||LITE()?0.785:TIME*0.9+(o.seed||0); g.save(); g.translate(hx,hy); g.scale(0.82,1); g.rotate(a); g.drawImage(sl,-d/2,-d/2*sl.height/sl.width,d,d*sl.height/sl.width); g.restore(); }
- if(!THUMB&&NIGHT>0.25&&GLOW[o.t]) GLOW[o.t].forEach(([lx,ly,r])=>lights.push({x:x+lx*w,y:by-ly*h,r,a:.55}));
+ if(fl) g.restore();
+ if(!THUMB&&NIGHT>0.25&&GLOW[o.t]) GLOW[o.t].forEach(([lx,ly,r])=>lights.push({x:x+(fl?-lx:lx)*w,y:by-ly*h,r,a:.55}));
  if(!THUMB&&o.t==='lighthouse'){ const lx=x, ly=by-h*0.82; lights.push({x:lx,y:ly,r:70,a:1,always:.2}); if(NIGHT>.2){ const a=TIME*1.2; g.save(); g.globalAlpha=0.18*NIGHT; g.fillStyle='#fff3b0'; g.beginPath(); g.moveTo(lx,ly); g.arc(lx,ly,260,a,a+0.25); g.closePath(); g.fill(); g.restore(); } }
  if(!THUMB&&!o.born&&((o.t==='ruin')||((o.t==='wordstone'||o.t==='echostone')&&!o.awake)||(o.t==='tower'&&S.camp&&!S.camp.duelWon&&!S.objs.some(q=>q.t==='wordstone'&&!q.awake)))){ const my=by-h-12+Math.sin(TIME*3+(o.seed||0))*3; g.beginPath(); g.arc(x,my,9,0,Math.PI*2); g.fillStyle='#eba416'; g.fill(); g.lineWidth=2; g.strokeStyle='#2d2925'; g.stroke(); g.fillStyle='#3a2700'; g.font='700 13px "IBM Plex Sans KR", sans-serif'; g.textAlign='center'; g.fillText('!',x,my+4.5); }
  if(o.t==='wordstone'&&o.word){ const ch=[...o.word][0], fs=Math.max(9,w*0.3), fx=x-w*0.06, fy=by-h*0.47; g.save(); g.font=`700 ${fs}px "IBM Plex Sans KR", sans-serif`; g.textAlign='center'; g.textBaseline='middle';
@@ -2140,7 +2153,8 @@ function closeExpedition(){ dun=null; renderDungeon(); }
 /* ================================================================
    CAMERA / INPUT
    ================================================================ */
-let hover=null, placing=null, demolish=false, dragging=null;
+let hover=null, placing=null, demolish=false, dragging=null, placeFlip=false;
+function flipPlacing(){ if(moving){ moving.flip=!moving.flip; dirty(); } else if(placing) placeFlip=!placeFlip; else return false; AU.tone(620,'triangle',0.05,0.06); return true; }
 function landBounds(){ let minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9; const reach=REGIONS.map((R,i)=>!S||!MAP||!MAP.zoneAdj||regionReach(i)); for(let y=0;y<N;y++) for(let x=0;x<N;x++) if(LAND&&LAND[y*N+x]||BASE[y*N+x]||(REGION_AT[y*N+x]>=0&&reach[REGION_AT[y*N+x]])){ const [px,py]=W(x,y); minX=Math.min(minX,px); maxX=Math.max(maxX,px); minY=Math.min(minY,py); maxY=Math.max(maxY,py); } return {minX:minX-TW/2,maxX:maxX+TW/2,minY:minY-100,maxY:maxY+TH/2+CLIFF}; }
 const LITE=()=>!!(P&&P.set&&P.set.lite);
 function resize(){ const dpr=LITE()?1:Math.min(2,devicePixelRatio||1), w=innerWidth, h=innerHeight; cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); cv._dpr=dpr; cv._w=w; cv._h=h; fxc.width=Math.round(w*dpr); fxc.height=Math.round(h*dpr); fxc._dpr=dpr; layoutCam(); }
@@ -2190,7 +2204,7 @@ function clickTile(x,y){
  const before=happyOf(); spend(COST); clearNatural(x,y,z);
  let made;
  if(B.ground){ S.paths.push(`${x},${y}`); made={path:`${x},${y}`}; }
- else { const o={t:placing,gx:x,gy:y,sz:z,seed:Math.floor(Math.random()*1e6),born:performance.now()}; S.objs.push(o); made={o}; }
+ else { const o={t:placing,gx:x,gy:y,sz:z,seed:Math.floor(Math.random()*1e6),born:performance.now()}; if(placeFlip) o.flip=true; S.objs.push(o); made={o}; }
  dirty(); S.stats.builtTotal++; AU.build(); const cx=x+(z-1)/2, cy=y+(z-1)/2; puff(cx,cy,B.ground?6:18*z); if(!B.ground){ sparkle(cx,cy,12*z); shake(B.pts>=30?6:3); }
  const gain=happyOf()-before; if(B.pop) floatText(cx,cy,`주민 +${B.pop}`,'#bff3c9'); if(gain>0) floatText(cx,cy,`만족 +${gain}`,'#ffd3d5',B.pop?72:50);
  const wasFree=!!(S.free&&S.free[placing]>0); if(wasFree){ S.free[placing]--; if(!S.free[placing]) delete S.free[placing]; }
@@ -2229,19 +2243,19 @@ function renderPop(){ const o=popObj, el=$('pop'); if(!o){ el.hidden=true; retur
  else if(o.t==='wordstone') btns+=o.awake?'':`<button class="btn primary sm" data-p="wake">${PH.pen}깨우기</button>`;
  else if(o.t==='echostone') btns+=o.awake?'':`<button class="btn primary sm" data-p="wake">${PH.pen}바로잡기</button>`;
  else if(o.t==='tower') btns+=S.camp&&!S.camp.duelWon?`<button class="btn primary sm" data-p="duel">${PH.sword}결투</button>`:'';
- else if(B) btns+=`<button class="btn sm" data-p="move">${PH.arrowRight}옮기기</button><button class="btn sm danger" data-p="del">${PH.trash}철거</button>`;
+ else if(B) btns+=`<button class="btn sm" data-p="move">${PH.arrowRight}옮기기</button>${B.ground?'':'<button class="btn sm" data-p="flip">돌리기</button>'}<button class="btn sm danger" data-p="del">${PH.trash}철거</button>`;
  else btns+=`<button class="btn sm danger" data-p="del">${PH.axe}치우기</button>`;
  el.innerHTML=`<div class="pt"><b>${name}</b><span>${info}</span></div><div class="pb">${btns}</div>`;
- el.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{ const k=b.dataset.p; if(k==='del') removeObj(o); if(k==='move') startMove(o); if(k==='castle'){ closePop(); openDrawer('research'); } if(k==='exp'){ closePop(); openDrawer('expedition'); } if(k==='restore') restoreRuin(o); if(k==='wake') wakeStone(o); if(k==='duel') startDuel(); refocus(); });
+ el.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{ const k=b.dataset.p; if(k==='flip'){ o.flip=!o.flip; dirty(); save(); puff(o.gx,o.gy,8); AU.tone(620,'triangle',0.05,0.06); refocus(); return; } if(k==='del') removeObj(o); if(k==='move') startMove(o); if(k==='castle'){ closePop(); openDrawer('research'); } if(k==='exp'){ closePop(); openDrawer('expedition'); } if(k==='restore') restoreRuin(o); if(k==='wake') wakeStone(o); if(k==='duel') startDuel(); refocus(); });
  placePop(); }
 function placePop(){ const o=popObj, el=$('pop'); if(!o||el.hidden) return; const [cx,cy]=centerOf(o), [wx,wy]=W(cx,cy,0,0,0), z=szOf(o); const sx=cam.ox+wx*cam.s, sy=cam.oy+(wy-z*TH/2)*cam.s;
  const r=el.getBoundingClientRect(); el.style.transform=`translate(${Math.round(Math.max(8,Math.min(innerWidth-r.width-8,sx-r.width/2)))}px,${Math.round(Math.max(8,sy-r.height-80*cam.s))}px)`; }
-function startMove(o){ closePop(); placing=null; demolish=false; moving=o; AU.tone(784,'triangle',0.07,0.08); showBanner(`<span><b>${o.t==='castle'?CASTLE[S.castle].name:BUILD[o.t].name}</b> 옮길 곳을 클릭하세요. 옮기기는 무료예요.</span><button class="btn sm" data-act="cancel">취소</button>`); }
+function startMove(o){ closePop(); placing=null; demolish=false; moving=o; AU.tone(784,'triangle',0.07,0.08); showBanner(`<span><b>${o.t==='castle'?CASTLE[S.castle].name:BUILD[o.t].name}</b> 옮길 곳을 클릭하세요. 옮기기는 무료예요.</span><button class="btn sm" data-act="flip">돌리기 <kbd>R</kbd></button><button class="btn sm" data-act="cancel">취소</button>`); }
 function startPlace(t){ if(!unlocked(t)){ AU.error(); return; } demolish=false; moving=null; closePop(); placing=t; if(innerWidth<760) closeDrawer(); AU.tone(784,'triangle',0.07,0.08);
- showBanner(`<span><b>${BUILD[t].name}</b> 지을 곳을 클릭하세요. 초록 숫자는 이웃 보너스예요.</span><button class="btn sm" data-act="cancel">취소</button>`); renderDrawer(); }
+ showBanner(`<span><b>${BUILD[t].name}</b> 지을 곳을 클릭하세요. 초록 숫자는 이웃 보너스예요.</span>${BUILD[t].ground?'':'<button class="btn sm" data-act="flip">돌리기 <kbd>R</kbd></button>'}<button class="btn sm" data-act="cancel">취소</button>`); renderDrawer(); }
 function startDemolish(){ placing=null; moving=null; closePop(); demolish=!demolish; setTimeout(syncDemoBtn,0); if(demolish&&innerWidth<760) closeDrawer(); if(demolish) showBanner(`<span><b>철거</b> 클릭해서 치워요. 길과 나무, 장식은 끌어서 한 번에 치울 수 있어요. 건물은 비용의 절반을 돌려받아요.</span><button class="btn sm" data-act="cancel">끝내기</button>`); else hideBanner(); renderDrawer(); }
 function cancelPlace(silent){ if(!placing&&!demolish&&!moving) return; placing=null; demolish=false; moving=null; setTimeout(syncDemoBtn,0); hideBanner(); if(!silent) AU.cancel(); renderDrawer(); }
-function showBanner(html){ const b=$('banner'); b.innerHTML=html; b.hidden=false; b.querySelectorAll('[data-act]').forEach(x=>x.onclick=()=>{ const a=x.dataset.act; if(a==='cancel') cancelPlace(); if(a==='buy') buyRegion(+x.dataset.r); if(a==='close') hideBanner(); if(a==='trade'){ hideBanner(); openDrawer('trade'); } refocus(); }); }
+function showBanner(html){ const b=$('banner'); b.innerHTML=html; b.hidden=false; b.querySelectorAll('[data-act]').forEach(x=>x.onclick=()=>{ const a=x.dataset.act; if(a==='flip'){ flipPlacing(); refocus(); return; } if(a==='cancel') cancelPlace(); if(a==='buy') buyRegion(+x.dataset.r); if(a==='close') hideBanner(); if(a==='trade'){ hideBanner(); openDrawer('trade'); } refocus(); }); }
 function hideBanner(){ $('banner').hidden=true; }
 function offerRegion(i){ const R=REGIONS[i], st=regionState(i), C=regionCost(R);
  if(st==='far'){ showBanner(`<span><b>${R.name}</b> 가진 땅과 맞닿은 구역부터 살 수 있어요.</span><button class="btn sm" data-act="close">닫기</button>`); return; }
@@ -2294,7 +2308,7 @@ function render(now){
   if(demolish){ const o=objAt(x,y); if(o){ const z=szOf(o); for(let dy=0;dy<z;dy++) for(let dx=0;dx<z;dx++) tint(o.gx+dx,o.gy+dy,'rgba(229,72,77,.4)'); } else tint(x,y,isPath(x,y)?'rgba(229,72,77,.4)':'rgba(255,255,255,.15)'); }
   else { const t=moving?moving.t:placing, z=moving?szOf(moving):(BUILD[t].sz||1), ok=canPlace(t,x,y,moving||undefined);
    for(let dy=0;dy<z;dy++) for(let dx=0;dx<z;dx++) if(x+dx<N&&y+dy<N) tint(x+dx,y+dy, ok?'rgba(134,214,114,.5)':'rgba(229,72,77,.45)');
-   if(ok&&(moving||!BUILD[t].ground)) preview={t,gx:x,gy:y,sz:z,seed:moving?moving.seed:3,ref:moving}; } }
+   if(ok&&(moving||!BUILD[t].ground)) preview={t,gx:x,gy:y,sz:z,seed:moving?moving.seed:3,ref:moving,flip:moving?moving.flip:placeFlip}; } }
  else if(hover&&isLand(hover[0],hover[1])){ const o=objAt(hover[0],hover[1]); const z=o?szOf(o):1, ax=o?o.gx:hover[0], ay=o?o.gy:hover[1];
   g.strokeStyle='rgba(255,255,255,.7)'; g.lineWidth=1.5; const P=(x,y)=>W(x,y); const a=P(ax-.5,ay-.5), b=P(ax+z-.5,ay-.5), c=P(ax+z-.5,ay+z-.5), d=P(ax-.5,ay+z-.5);
   g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.lineTo(c[0],c[1]); g.lineTo(d[0],d[1]); g.closePath(); g.stroke(); }
@@ -2374,7 +2388,7 @@ function bakeObjGround(c){ if(!S||!S.objs) return;
  // 그림자: 그림 모양을 눕혀서 오른쪽 아래로
  S.objs.forEach(o=>{ const n=spriteName(o), im=SPR[n], f=FIT[n]; if(!im||!f) return; const sil=silOf(n); if(!sil) return; const z=szOf(o), [cx,cy]=centerOf(o);
   const [x0,y]=W(cx,cy), w=z*TW*f.w, h=w*im.height/im.width, by=y+z*TH/2*f.b, x=x0+(f.x||0)*z*TW, nat=o.natural||o.t==='tree';
-  c.save(); c.globalAlpha=nat?0.16:0.22; c.setTransform(c.getTransform().multiply(new DOMMatrix([1,0,-0.55,-0.3,x,by-(nat?2:4)]))); c.drawImage(sil,-w/2,-h,w,h); c.restore(); }); }
+  c.save(); c.globalAlpha=nat?0.16:0.22; c.setTransform(c.getTransform().multiply(new DOMMatrix([1,0,-0.55,-0.3,x,by-(nat?2:4)]))); if(o.flip&&!nat) c.scale(-1,1); c.drawImage(sil,-w/2,-h,w,h); c.restore(); }); }
 function paintGround(c,now,grid){
  const tiles=[]; for(let s2=0;s2<2*N;s2++) for(let x=0;x<N;x++){ const y=s2-x; if(isLand(x,y)) tiles.push([x,y]); }
  const liftOf=(x,y)=>{ const ri=REGION_AT[y*N+x]; if(ri<0) return [0,1]; const t0=regionRise[REGIONS[ri].id]; if(!t0) return [0,1]; const t=Math.min(1,(now-t0)/900); return [(1-(1-Math.pow(1-t,3)))*30,t]; };
@@ -2429,10 +2443,10 @@ const railTitle=id=>id==='quest'&&isCamp()?'목표':null;
 const RAIL=[['build','건설','build'],['research','성·연구','castle'],['expedition','원정','compass'],['quest','의뢰','quest'],['album','도감','book'],['lore','이야기','scroll2'],['record','기록','record']];
 let drawerTab=null;
 function buildRail(){ $('rail').innerHTML=RAIL.map(([id,label0,ic])=>{ const label=id==='quest'&&isCamp()?'목표':label0; return [id,label,ic]; }).map(([id,label,ic])=>`<button data-d="${id}" aria-label="${label}">${PH[ic]}<span>${label}</span>${id==='quest'?'<i class="badge" id="qBadge" hidden></i>':id==='research'?'<i class="badge" id="rBadge" hidden></i>':id==='album'?'<i class="badge" id="aBadge" hidden></i>':''}</button>`).join('')+
- `<button id="btnMap" aria-label="캠페인 지도">${PH.map}<span>지도</span></button><button id="btnDemo" aria-label="철거" class="${demolish?'on':''}">${PH.trash}<span>철거</span></button><hr><button id="btnSound" aria-label="소리">${muted?PH.sndOff:PH.sndOn}<span>소리</span></button><button id="btnSettings" aria-label="설정">${PH.gear}<span>설정</span></button>`;
+ `<button id="btnMap" aria-label="캠페인 지도">${PH.map}<span>지도</span></button><button id="btnDemo" aria-label="철거" class="${demolish?'on':''}">${PH.trash}<span>철거</span></button><hr><button id="btnSound" aria-label="소리">${muted?PH.sndOff:PH.sndOn}<span>소리</span></button><button id="btnHelp" aria-label="도움말"><i class="qic">?</i><span>도움말</span></button><button id="btnSettings" aria-label="설정">${PH.gear}<span>설정</span></button>`;
  $('rail').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{ const d=b.dataset.d; if(drawerTab===d) closeDrawer(); else openDrawer(d); refocus(); });
  $('btnSound').onclick=()=>{ muted=!muted; AU.init(); AU.apply(); $('btnSound').innerHTML=`${muted?PH.sndOff:PH.sndOn}<span>소리</span>`; refocus(); };
- $('btnSettings').onclick=openSettings; $('btnMap').onclick=()=>openCampaign(isCamp()?S.map:null); $('btnDemo').onclick=()=>{ startDemolish(); refocus(); }; }
+ $('btnSettings').onclick=openSettings; $('btnHelp').onclick=()=>{ openHelp(); }; $('btnMap').onclick=()=>openCampaign(isCamp()?S.map:null); $('btnDemo').onclick=()=>{ startDemolish(); refocus(); }; }
 function syncDemoBtn(){ const b=$('btnDemo'); if(b) b.classList.toggle('on',demolish); }
 function openDrawer(id){ const was=drawerTab; drawerTab=id; $('drawer').hidden=false; AU.tone(700,'triangle',0.05,0.06); renderDrawer(); if(!was) resize(); $('rail').querySelectorAll('[data-d]').forEach(b=>b.classList.toggle('on',b.dataset.d===id)); }
 function closeDrawer(){ const was=drawerTab; drawerTab=null; $('drawer').hidden=true; if(was) resize(); $('rail').querySelectorAll('[data-d]').forEach(b=>b.classList.remove('on')); }
@@ -2557,6 +2571,10 @@ const curChapter=()=>isCamp()?chapterOf(S.map):null;
 let story=null; // {lines,i,shown,full,typing,done,timer}
 const storyOn=()=>!!story;
 function busy(){ return !!(raid||(dun&&dun.phase==='room')||duel||(T.special&&T.special!=='story')); }
+// 기록을 지우는 일은 모두 이 창을 거침. 기본 초점은 「취소」(Enter를 눌러도 지워지지 않게)
+function confirmWipe(title,lines,okText,cb){ showModal(`<h2>${title}</h2><p class="mtext wipewarn">지우면 되돌릴 수 없어요.</p><ul class="wipelist">${lines.map(l=>`<li>${l}</li>`).join('')}</ul><div class="foot"><button class="btn sm" data-m="no">취소</button><button class="btn danger sm" data-m="ok">${okText}</button></div>`, m=>{ if(m==='ok') cb(); }); }
+function mapSummary(d){ if(!d) return '아직 진행한 내용이 없어요'; const b=(d.objs||[]).filter(o=>!o.natural&&o.t!=='castle').length, g=d.camp?Object.keys(d.camp.done||{}).length:0, r=(d.regions||[]).length;
+ return [`지은 건물 ${b}채`,d.camp?`끝낸 목표 ${g}개`:'',r?`산 구역 ${r}곳`:'',`성: ${CASTLE[d.castle||1].name}`].filter(Boolean).join(', '); }
 function whenFree(fn){ if(!busy()&&$('modal2').hidden){ fn(); return; } setTimeout(()=>whenFree(fn),900); }
 function playScript(lines,done){ if(!lines||!lines.length){ done&&done(); return; } if(story){ const prev=story.done; story.lines=story.lines.concat(lines); story.done=()=>{ prev&&prev(); done&&done(); }; return; }
  story={lines:lines.slice(),i:-1,done}; closePop(); cancelPlace(true); $('story').hidden=false; document.body.classList.add('storying'); nextLine(); }
@@ -2757,7 +2775,7 @@ function renderTeacher(){ const rows=teacherRows.slice().sort((a,b)=>((a.num==='
  const n=rows.length, avg=k=>n?Math.round(rows.reduce((a,r)=>a+(+r[k]||0),0)/n):0, fbs=rows.filter(r=>r.fun!=='');
  $('tSum').innerHTML=`<div class="stat"><small>학생</small><b>${n}</b></div><div class="stat"><small>평균 플레이</small><b>${avg('playMin')}<em>분</em></b></div><div class="stat"><small>평균 타수</small><b>${avg('cpm')}</b></div><div class="stat"><small>평균 정확도</small><b>${avg('acc')}<em>%</em></b></div><div class="stat"><small>소감</small><b>${fbs.length}<em>명</em></b></div><div class="stat"><small>평균 재미</small><b>${fbs.length?(fbs.reduce((a,r)=>a+r.fun,0)/fbs.length).toFixed(1):'-'}</b></div>`;
  $('tTable').innerHTML=n?`<table><thead><tr>${COLS.map(c=>`<th>${c[1]}</th>`).join('')}<th></th></tr></thead><tbody>${rows.map(r=>`<tr>${COLS.map(c=>`<td class="c-${c[0]}">${esc(String(cellOf(r,c[0])))}</td>`).join('')}<td>${r._id?`<button class="linkbtn" data-del="${r._id}">지우기</button>`:''}</td></tr>`).join('')}</tbody></table>`:'<p class="mtext">아직 기록이 없어요. 학생이 이 컴퓨터에서 플레이하거나, 학생이 낸 기록 파일이나 코드를 아래에서 불러와요.</p>';
- $('tTable').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ if(b.dataset.arm!=='1'){ b.dataset.arm='1'; b.textContent='정말 지우기'; return; } deleteSlot(b.dataset.del); openTeacher(); }); }
+ $('tTable').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ const sl=slotsAll().find(x=>x.id===b.dataset.del); confirmWipe(`${esc(sl?slotLabel(sl):'이 학생')}의 기록을 지울까요?`,['이 컴퓨터에 저장된 이 학생의 섬, 캠페인 진행과 별, 타자 기록이 모두 지워져요','지우기 전에 「엑셀용 CSV 받기」로 기록을 받아 두면 안전해요'],'지우기',()=>{ deleteSlot(b.dataset.del); openTeacher(); }); }); }
 function deleteSlot(id){ slotsSave(slotsAll().filter(x=>x.id!==id)); SAVE_PARTS.forEach(k=>LS.del(`tadak@${id}/${k}`)); if(SLOT&&SLOT.id===id){ SLOT=null; } }
 function addTeacherRecords(texts){ let ok=0,bad=0; texts.forEach(t=>{ t.split(/\s+(?=TADAK1:)|\n+/).map(x=>x.trim()).filter(Boolean).forEach(x=>{ try{ const r=decRec(x); teacherRows=teacherRows.filter(q=>!(q.name===r.slot.name&&String(q.num)===String(r.slot.num??'')&&(q.playMin+q.items)<=(r.sum.playMin+r.sum.items))); if(teacherRows.some(q=>q.name===r.slot.name&&String(q.num)===String(r.slot.num??''))){ ok++; return; } teacherRows.push({...r.sum,_src:'불러옴'}); ok++; }catch(e){ bad++; } }); }); renderTeacher(); $('tMsg').textContent=`${ok}명 불러왔어요`+(bad?`, ${bad}개는 읽지 못했어요`:''); }
 function teacherCSV(){ const q=v=>{ const isStr=typeof v==='string'; v=String(v??''); if(isStr&&/^[=+\-@\t\r]/.test(v)) v="'"+v; return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }; return '\ufeff'+[COLS.map(c=>c[1]).join(','),...teacherRows.map(r=>COLS.map(c=>q(cellOf(r,c[0]))).join(','))].join('\r\n'); }
@@ -2780,7 +2798,8 @@ function openCampaign(sel){ $('modal2').hidden=true; save(); started=false; clos
  el.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{ campSel=b.dataset.c; AU.tone(700,'triangle',0.05,0.06); openCampaign(campSel); });
  el.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{ const a=b.dataset.a; AU.init();
   if(a==='cont'){ const d=loadSave(ch.id); if(d){ S=d; enterWorld(); } }
-  else if(a==='new'){ if(has&&!b.dataset.arm){ b.dataset.arm='1'; b.textContent='진행 지우고 새로 시작'; return; } wipeSave(ch.id); S=newState(ch.id); enterWorld(); }
+  else if(a==='new'){ const go=()=>{ wipeSave(ch.id); S=newState(ch.id); enterWorld(); }; if(!has){ go(); return; }
+   confirmWipe(`${ch.no}장 ${ch.title}을 처음부터 할까요?`,[`지금까지 이 장에서 한 것이 모두 지워져요: ${mapSummary(loadSave(ch.id))}`,'이미 받은 별과 다른 장, 자유 모드 마을은 그대로 남아요','계속하려면 「취소」를 누르고 「이어하기」를 눌러요'],'지우고 처음부터',go); }
   else if(a==='free'){ const d=loadSave('free'); S=d||newState('free'); enterWorld(); }
   else if(a==='title'){ el.hidden=true; showTitle(); } }); }
 function enterWorld(){ $('camp').hidden=true; $('modal2').hidden=true; P.last=S.map; saveProfile(); boot(); startGame(); const ch=curChapter();
@@ -2793,9 +2812,63 @@ let toastQ=Promise.resolve();
 function achToast(a){ toastQ=toastQ.then(()=>new Promise(r=>{ const t=document.createElement('div'); t.className='toast'; t.innerHTML=`<div class="ic">${PH.medal}</div><div><small>업적 달성</small><b>${a.name}</b>${a.desc}</div>`; $('toasts').appendChild(t); setTimeout(()=>AU.chime(),150); setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(),450); },4000); setTimeout(r,900); })); }
 function toast(msg){ const t=document.createElement('div'); t.className='toast plain'; t.textContent=msg; $('toasts').appendChild(t); setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(),450); },2600); }
 function levelBanner(small,big,sub){ const w=$('levelWrap'); w.innerHTML=`<div class="levelup"><small>${small}</small><b>${big}</b><span>${sub||''}</span></div>`; clearTimeout(w._t); w._t=setTimeout(()=>w.innerHTML='',3000); }
-function renderCoach(){ const el=$('coachWrap'); if(!S.coach||!started){ el.innerHTML=''; return; }
+
+// ---------- 처음 안내: 메뉴를 하나씩 가리키며 설명 (학생 피드백: 의뢰·연구가 어디 있는지 몰랐음) ----------
+const TOURS={
+ free:[
+  {sel:'#dock',t:'타자 칸',d:'여기 나온 글자를 그대로 치고 <kbd>Space</kbd>나 <kbd>Enter</kbd>를 누르면 자원이 생겨요. <kbd>Tab</kbd>을 누르면 단어·문장·긴 글·영단어로 바뀌고, 모드마다 생기는 자원이 달라요.'},
+  {sel:'#res',t:'자원',d:'지금 모은 자원이에요. 건물을 짓고, 연구를 하고, 성을 키우는 데 써요.'},
+  {sel:'[data-d="build"]',t:'건설',d:'자원으로 집과 건물을 지어요. 건물을 고른 뒤 섬의 빈 땅을 누르면 지어져요. 지은 건물을 누르면 옮기기, 돌리기, 철거를 할 수 있어요.'},
+  {sel:'[data-d="research"]',t:'성·연구',d:'여기서 <b>연구</b>를 하면 새 건물이 열리고, 성을 <b>증축</b>하면 원정과 밤 침공 같은 새 놀이가 열려요. 바다 위 구역을 사서 섬을 넓히는 것도 여기서 해요. 빨간 숫자가 뜨면 지금 할 수 있는 것이 있다는 뜻이에요.'},
+  {sel:'[data-d="quest"]',t:'의뢰',d:'<b>주민 부탁</b>과 <b>오늘의 연습</b>이 여기 모여 있어요. 다 하면 「받기」를 눌러 보상을 받아요. 빨간 숫자는 받을 보상이 있다는 뜻이에요.'},
+  {sel:'[data-d="expedition"]',t:'원정',d:'성이 성채가 되면 섬 아래 동굴로 원정을 떠날 수 있어요.'},
+  {sel:['[data-d="album"]','[data-d="record"]'],t:'도감·이야기·기록',d:'모은 건물과 업적(도감), 섬의 옛이야기(이야기), 내 타자 기록(기록)을 볼 수 있어요.'},
+  {sel:'#btnHelp',t:'도움말',d:'헷갈리면 언제든 여기를 눌러요. 이 안내도 다시 볼 수 있어요.'}],
+ camp:[
+  {sel:'#dock',t:'타자 칸',d:'여기 나온 글자를 그대로 치고 <kbd>Space</kbd>나 <kbd>Enter</kbd>를 누르면 자원이 생겨요. <kbd>Tab</kbd>으로 단어·문장·긴 글·영단어를 바꿔요.'},
+  {sel:'#objTrack',t:'이 장의 목표',d:'이 장에서 할 일이에요. 목표를 모두 채우면 장을 깨고 별을 받아요.'},
+  {sel:'[data-d="quest"]',t:'목표',d:'목표를 자세히 보고, 무엇을 해야 하는지 확인해요.'},
+  {sel:'[data-d="build"]',t:'건설',d:'자원으로 건물을 지어요. 건물을 고른 뒤 섬의 빈 땅을 눌러요.'},
+  {sel:'[data-d="research"]',t:'성·연구',d:'<b>연구</b>를 하면 새 건물이 열리고, 성을 <b>증축</b>하면 새 놀이가 열려요. 목표에 「연구」나 「증축」이 있으면 여기서 해요.'},
+  {sel:'#btnMap',t:'지도',d:'다른 장으로 가거나 지금 장을 이어서 해요. 「처음부터」를 누르면 이 장에서 한 것이 지워지니 조심해요.'},
+  {sel:'#btnHelp',t:'도움말',d:'헷갈리면 언제든 여기를 눌러요. 이 안내도 다시 볼 수 있어요.'}]};
+let tour=null;
+function tourRect(sel){ const L=(Array.isArray(sel)?sel:[sel]).map(q=>document.querySelector(q)).filter(e=>e&&e.getClientRects().length&&e.getBoundingClientRect().width>0);
+ if(!L.length) return null; const R=L.map(e=>e.getBoundingClientRect()); return {left:Math.min(...R.map(r=>r.left)),top:Math.min(...R.map(r=>r.top)),right:Math.max(...R.map(r=>r.right)),bottom:Math.max(...R.map(r=>r.bottom))}; }
+function startTour(kind){ if(!started||tour) return; closeDrawer(); closePop(); hideBanner(); const steps=(TOURS[kind]||[]).filter(s=>tourRect(s.sel)); if(!steps.length) return; tour={kind,steps,i:0}; renderTour(); }
+function endTour(){ if(!tour) return; P.tour=P.tour||{}; P.tour[tour.kind]=true; saveProfile(); tour=null; renderTour(); }
+function renderTour(){ let el=$('tour'); if(!tour){ if(el) el.remove(); refocus(); return; }
+ if(!el){ el=document.createElement('div'); el.id='tour'; el.className='tour'; document.body.appendChild(el); }
+ const s=tour.steps[tour.i], r=tourRect(s.sel); if(!r){ tour.i<tour.steps.length-1?(tour.i++,renderTour()):endTour(); return; }
+ const pad=6, last=tour.i===tour.steps.length-1;
+ el.innerHTML=`<div class="tour-hole" style="left:${r.left-pad}px;top:${r.top-pad}px;width:${r.right-r.left+pad*2}px;height:${r.bottom-r.top+pad*2}px"></div>
+  <div class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tourT"><h3 id="tourT">${s.t}</h3><p>${s.d}</p>
+  <div class="tf"><small>${tour.i+1} / ${tour.steps.length}</small><span><button class="btn sm" data-t="skip">그만 보기</button>${tour.i?'<button class="btn sm" data-t="prev">이전</button>':''}<button class="btn primary sm" data-t="next">${last?'시작하기':'다음'}</button></span></div></div>`;
+ const c=el.querySelector('.tour-card'), cw=c.offsetWidth, ch=c.offsetHeight, m=14; let x, y;
+ if(r.right+m+cw<innerWidth&&r.right-r.left<220){ x=r.right+m; y=(r.top+r.bottom)/2-ch/2; }           // 왼쪽 메뉴: 오른쪽에
+ else if(r.top-m-ch>8){ x=(r.left+r.right)/2-cw/2; y=r.top-m-ch; }                                       // 아래쪽 칸: 위에
+ else { x=(r.left+r.right)/2-cw/2; y=r.bottom+m; }                                                         // 위쪽 칸: 아래에
+ c.style.left=Math.max(12,Math.min(innerWidth-cw-12,x))+'px'; c.style.top=Math.max(12,Math.min(innerHeight-ch-12,y))+'px';
+ el.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{ const a=b.dataset.t; if(a==='skip') endTour(); else if(a==='prev'){ tour.i--; renderTour(); } else { if(last) endTour(); else { tour.i++; AU.tone(660,'triangle',0.04,0.05); renderTour(); } } });
+ setTimeout(()=>{ const n=el.querySelector('[data-t="next"]'); if(n) n.focus({preventScroll:true}); },0); }
+addEventListener('resize',()=>{ if(tour) renderTour(); });
+document.addEventListener('keydown',e=>{ if(!tour) return; if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); endTour(); } else if(e.key==='ArrowRight'){ e.preventDefault(); const n=$('tour').querySelector('[data-t="next"]'); n&&n.click(); } else if(e.key==='ArrowLeft'&&tour.i){ e.preventDefault(); tour.i--; renderTour(); } },true);
+// 도움말: 자주 묻는 것 + 안내 다시 보기
+const HELP=[
+ ['자원은 어떻게 모아요?','아래 타자 칸의 글자를 치고 <kbd>Space</kbd>나 <kbd>Enter</kbd>를 눌러요. 단어는 나무·돌, 문장은 벽돌, 긴 글은 지혜, 영단어는 교역품이 생겨요. 정확하게 칠수록 많이 생겨요.'],
+ ['건물은 어떻게 지어요?','왼쪽 <b>건설</b>을 누르고 건물을 고른 뒤, 섬의 빈 땅을 눌러요. 짓기 전에 <kbd>R</kbd>을 누르면 방향을 바꿀 수 있어요. 지은 건물을 누르면 옮기기, 돌리기, 철거를 할 수 있어요.'],
+ ['연구는 어디서 해요?','왼쪽 <b>성·연구</b>를 눌러요. 연구를 마치면 새 건물이 열려요. 연구에는 주로 지혜(긴 글)가 필요해요.'],
+ ['주민 부탁과 오늘의 연습은 어디 있어요?','왼쪽 <b>의뢰</b>를 눌러요(캠페인에서는 <b>목표</b>). 다 하면 「받기」를 눌러 보상을 받아요.'],
+ ['성은 어떻게 키워요?','<b>성·연구</b>에서 증축 조건(주민 수, 연구, 자원)을 채우면 증축할 수 있어요. 성이 커지면 원정과 밤 침공이 열려요.'],
+ ['섬을 넓히고 싶어요','<b>성·연구</b>의 구역 목록이나 바다 위 깃발을 눌러 구역을 사요. 가진 땅과 맞닿은 구역만 살 수 있어요.'],
+ ['밤 침공은 어떻게 막아요?','배 위에 적힌 단어를 치고 <kbd>Space</kbd>를 눌러요. 가까운 배부터 치면 좋아요.'],
+ ['캠페인을 처음부터 하고 싶어요','지도에서 장을 고르고 「처음부터」를 누르면 확인 창이 나와요. 지우면 되돌릴 수 없으니, 이어서 하려면 「이어하기」를 눌러요.']];
+function openHelp(){ showModal(`<h2>도움말</h2><div class="helpq">${HELP.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div><div class="foot"><button class="btn sm" data-m="tour">처음 안내 다시 보기</button><button class="btn primary sm" data-m="x">닫기</button></div>`, m=>{ if(m==='tour') setTimeout(()=>startTour(isCamp()?'camp':'free'),200); }); }
+function renderCoach_old(){ const el=$('coachWrap'); if(!S.coach||!started){ el.innerHTML=''; return; }
  el.innerHTML=`<div class="coach"><b class="t">어서 오세요, 영주님</b><ol><li>아래 단어를 치고 <kbd>Space</kbd>를 누르면 나무와 돌이 날아와요</li><li><kbd>Tab</kbd>으로 모드를 바꾸면 다른 자원이 모여요. 긴 글은 연구에 쓰는 지혜를 줘요</li><li>왼쪽 <b>건설</b>에서 건물을 고르고 섬을 눌러 지어요. 집 옆에 나무를 심으면 이웃 보너스!</li><li><b>성·연구</b>에서 연구를 마치고 성을 증축하면 원정과 밤 침공이 열려요</li></ol><div class="row2"><button class="btn primary sm" id="coachOk">시작하기</button></div></div>`;
  $('coachOk').onclick=()=>{ S.coach=false; renderCoach(); save(); refocus(); }; }
+// 예전 글 안내 상자 대신, 처음 들어온 학생에게 메뉴를 가리키는 안내를 한 번 보여 줌(학생마다 기록)
+function renderCoach(){ $('coachWrap').innerHTML=''; if(!started||!P) return; const kind=isCamp()?'camp':(S.map==='free'?'free':null); if(!kind||(P.tour&&P.tour[kind])) return; S.coach=false; setTimeout(()=>whenFree(()=>{ const k=isCamp()?'camp':(S.map==='free'?'free':null); if(k===kind&&!(P.tour&&P.tour[kind])) startTour(kind); }),900); }
 function syncDiff(){ const cd=classSet('diff'), ct=classSet('topic'), cp=classSet('peace'); $('setDiff').querySelectorAll('button').forEach(b=>{ b.classList.toggle('on',b.dataset.v===(cd||S.set.diff||'normal')); b.disabled=!!cd; }); $('setTopic').querySelectorAll('button').forEach(b=>b.disabled=!!ct); $('setPeace').disabled=!!cp; if(cp) $('setPeace').setAttribute('aria-pressed',cp==='on'); $('lockNote').hidden=!(cd||ct||cp); $('setTopic').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===topic())); $('topTeacher').hidden=!packGet(); }
 function openSettings(){ $('settings').hidden=false; setTimeout(()=>{ const f=$('settings').querySelector('input,button'); if(f) f.focus({preventScroll:true}); },0); syncDiff(); $('setWho').textContent=SLOT?(SLOT.cloud?`${slotLabel(SLOT)} · ${syncStatus()}`:`${slotLabel(SLOT)} · 선생님께 기록과 소감을 보내요`):'손님은 기록이 저장되지 않아요'; $('btnFb').disabled=$('btnExport').disabled=$('btnMove').disabled=!SLOT; $('setVol').value=S.set.vol; ['music','shake','ghost','peace','big','lite'].forEach(k=>$('set'+k[0].toUpperCase()+k.slice(1)).setAttribute('aria-pressed',k==='peace'?peaceOn():!!S.set[k])); $('btnReset').textContent=resetLabel(); $('btnReset').dataset.arm=''; $('btnReset').classList.remove('danger'); }
 function closeSettings(){ $('settings').hidden=true; save(); refocus(); }
@@ -2805,8 +2878,8 @@ $('setDiff').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.set.diff=b.
 $('setVol').oninput=e=>{ S.set.vol=+e.target.value; devSave(S.set); AU.apply(); AU.tick(false); };
 ['music','shake','ghost','peace','big','lite'].forEach(k=>{ const el=$('set'+k[0].toUpperCase()+k.slice(1)); el.onclick=()=>{ S.set[k]=!S.set[k]; if(DEV_KEYS.includes(k)) devSave(S.set); if(k==='lite'){ S.set.liteAsked=true; resize(); syncFolk(); } el.setAttribute('aria-pressed',S.set[k]); AU.apply(); AU.tone(700,'triangle',0.05,0.05); }; });
 const resetLabel=()=>{ const id=S.map||'free'; return id==='free'?'자유 모드 마을 처음부터':id==='toy'?'놀이 섬 처음부터':`${(chapterOf(id)||{}).title||'이 장'} 처음부터`; };
-$('btnReset').onclick=e=>{ const b=e.currentTarget; if(!b.dataset.arm){ b.dataset.arm='1'; b.textContent=`한 번 더 누르면 ${resetLabel().replace(' 처음부터','')}을 지워요`; b.classList.add('danger'); return; }
- const id=S.map||'free', nm=resetLabel().replace(' 처음부터',''); wipeSave(id); S=newState(id); closeSettings(); if(id==='free'||id==='toy') boot(); else enterWorld(); toast(`${nm}을 처음부터 시작해요. 다른 섬은 그대로예요`); };
+$('btnReset').onclick=()=>{ const id=S.map||'free', nm=resetLabel().replace(' 처음부터',''); save(); closeSettings();
+ confirmWipe(`${nm}을 처음부터 할까요?`,[`지금 섬이 모두 지워져요: ${mapSummary(S)}`,'다른 섬과 캠페인 별, 선생님께 가는 타자 기록은 그대로 남아요'],'지우고 처음부터',()=>{ wipeSave(id); S=newState(id); if(id==='free'||id==='toy') boot(); else enterWorld(); toast(`${nm}을 처음부터 시작해요. 다른 섬은 그대로예요`); }); };
 $('btnTitle').onclick=()=>{ closeSettings(); save(); showTitle(); };
 $('btnCredits').onclick=()=>{ $('settings').hidden=true; showCredits(); };
 function showCredits(){ showModal(`<h2>만든 것들</h2><div class="credits"><p><b>이름을 쓰는 섬</b> 말결 군도에서 글자로 섬의 이름을 되찾는 타자 연습 게임</p><p><b>시</b> 윤동주 「서시」, 김소월 「진달래꽃」 「산유화」 「엄마야 누나야」, 이육사 「청포도」. 저작권 보호 기간이 끝난 공유 저작물이에요.</p><p><b>그림</b> 건물, 자연물, 인물, 지도는 생성형 이미지 모델(GPT Image)로 만든 뒤 다듬었어요.</p><p><b>글꼴</b> Bagel Fat One, IBM Plex Sans KR, Nanum Gothic Coding (SIL Open Font License)</p><p><b>아이콘</b> Phosphor Icons (MIT)</p><p><b>소리</b> 모든 효과음과 음악은 브라우저에서 실시간으로 합성해요.</p></div><div class="foot"><span></span><button class="btn primary" data-m="ok">닫기</button></div>`); }
@@ -2816,7 +2889,7 @@ document.addEventListener('keydown',e=>{ if(!started){ if(e.key==='Enter'&&!$('t
  if(story&&document.activeElement!==typer&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); advanceStory(); return; }
  if(!$('settings').hidden){ if(e.key==='Escape') closeSettings(); return; }
  if(document.activeElement!==typer&&!e.metaKey&&!e.ctrlKey){ if(e.key==='Escape'){ onEscape(); return; } if(e.key==='Tab'){ e.preventDefault(); if(!T.special){ const i=MODE_KEYS.indexOf(T.mode); setMode(MODE_KEYS[(i+1)%4]); } } typer.focus(); } });
-function refocus(){ if(started&&$('settings').hidden) setTimeout(()=>typer.focus({preventScroll:true}),0); }
+function refocus(){ if(started&&$('settings').hidden&&!tour) setTimeout(()=>typer.focus({preventScroll:true}),0); }
 $('tx').addEventListener('pointerdown',()=>refocus());
 
 let started=false;
@@ -2867,7 +2940,7 @@ let frameN=0, perfS={t:0,n:0,slow:0,done:false};
 function perfWatch(dt){ if(perfS.done||!started||document.hidden) return; perfS.t+=dt; perfS.n++; if(dt>34) perfS.slow++;
  if(perfS.t>8000){ perfS.done=true; if(perfS.slow/perfS.n>0.5&&!LITE()&&P.set.liteAsked!==true){ P.set.lite=true; P.set.liteAsked=true; devSave(P.set); saveProfile(); resize(); syncFolk(); toast('컴퓨터가 느려서 가벼운 그래픽으로 바꿨어요. 설정에서 끌 수 있어요'); } } }
 // 설정 창이나 알림 창이 열려 있으면 침공, 던전, 결투 시간을 멈춤
-function uiPaused(){ return !$('settings').hidden||!$('modal2').hidden; }
+function uiPaused(){ return !$('settings').hidden||!$('modal2').hidden||!!tour; }
 function frame(now){ const dt=Math.min(50,now-last); last=now;
  if(started){ S.stats.playMs+=dt; S.clock+=dt/1000*(raid?0.35:(S.speed||1)); if(S.speed>1&&dayPhase().p>=0.64) S.speed=1; } else S.clock+=dt/1000*0.25;
  TIME=now/1000; const dp=dayPhase(); NIGHT=dp.n;
