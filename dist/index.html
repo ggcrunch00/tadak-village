@@ -184,7 +184,41 @@ kbd{font-family:var(--f-type);font-size:11px;background:var(--paper);border-radi
 .heat svg{width:100%;height:auto;display:block}
 .empty{color:var(--ink-3);font-size:13px;text-align:center;padding:18px 6px}
 
+/* 손가락 자리: 타자 칸 아래 화면 키보드와 두 손 */
+.fg{display:grid;grid-template-columns:88px 1fr 88px;grid-template-rows:auto auto;column-gap:10px;row-gap:6px;margin:2px 0 8px;align-items:end}
+.fg[hidden]{display:none}
+.fgcap{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;color:var(--ink-2);min-height:22px;flex-wrap:wrap}
+.fgcap b{color:var(--ink);font-weight:700}
+.fgcap kbd{font-family:var(--f-ui);font-size:12px;font-weight:700;min-width:22px;text-align:center;padding:1px 6px;border-radius:5px;background:var(--paper);box-shadow:0 0 0 1px var(--edge),0 1.5px 0 1px var(--edge);color:var(--ink)}
+.fgcap .dot{width:10px;height:10px;border-radius:50%;display:inline-block;box-shadow:0 0 0 1px rgba(45,41,37,.25)}
+.fghand{width:88px;height:auto;display:block}
+.fghand .fing,.fghand .palm{fill:var(--paper-2);stroke:rgba(45,41,37,.32);stroke-width:1.4}
+.fghand .fing.on{stroke:var(--ink);stroke-width:2}
+.fghand .fing.home{stroke-dasharray:none}
+.kb{display:grid;gap:3px;--u:calc((100% - 14 * 3px) / 15)}
+.kb .row{display:flex;gap:3px;height:var(--kh,29px)}
+.kb .row.r4{justify-content:center}
+.kb .k{flex:0 0 calc(var(--u) * var(--w,1) + 3px * (var(--w,1) - 1));border-radius:5px;position:relative;display:flex;align-items:center;justify-content:center;font-style:normal;font-family:var(--f-ui);font-size:14px;font-weight:700;color:rgba(45,41,37,.78);box-shadow:inset 0 0 0 1px rgba(45,41,37,.14);transition:transform .08s,background .08s}
+.kb .k s{position:absolute;right:3px;bottom:1px;font-size:8.5px;font-weight:600;text-decoration:none;color:rgba(45,41,37,.5);line-height:1}
+.kb .k.wide{font-size:9.5px;font-weight:600;color:rgba(45,41,37,.6)}
+.kb .k.bump::after{content:'';position:absolute;left:50%;bottom:3px;width:9px;height:2px;margin-left:-4.5px;border-radius:1px;background:rgba(45,41,37,.45)}
+.kb .k.en b{font-size:12px}
+.kb .k.nx{color:#fff;transform:translateY(-1px);box-shadow:0 0 0 2px var(--ink),0 2px 0 2px var(--ink);z-index:1;animation:fgpulse 1.1s ease-in-out infinite}
+.kb .k.nx s{color:rgba(255,255,255,.85)}
+.kb .k.nx.bump::after{background:#fff}
+@keyframes fgpulse{50%{box-shadow:0 0 0 3px var(--ink),0 2px 0 3px var(--ink)}}
+.f-lp,.f-rp{background:#f7d6d1}.f-lr,.f-rr{background:#f7e3bd}.f-lm,.f-rm{background:#dcebc2}.f-li,.f-ri{background:#d3e5f4}.f-th{background:#e9e3d8}
+.kb .k.nx.f-lp,.kb .k.nx.f-rp{background:#d4604f}.kb .k.nx.f-lr,.kb .k.nx.f-rr{background:#c98a1e}.kb .k.nx.f-lm,.kb .k.nx.f-rm{background:#5f9433}.kb .k.nx.f-li,.kb .k.nx.f-ri{background:#3a7fbf}.kb .k.nx.f-th{background:#7d7264}
+.fghand .fing.on.f-lp,.fghand .fing.on.f-rp{fill:#d4604f}.fghand .fing.on.f-lr,.fghand .fing.on.f-rr{fill:#c98a1e}.fghand .fing.on.f-lm,.fghand .fing.on.f-rm{fill:#5f9433}.fghand .fing.on.f-li,.fghand .fing.on.f-ri{fill:#3a7fbf}.fghand .fing.on.f-th{fill:#7d7264}
+.fg.next .kb{display:none}
+.fg.next{grid-template-columns:88px auto 88px;justify-content:center}
+.fg.next .fgcap{grid-column:2;grid-row:1/3;align-self:center;font-size:14px}
+@media (max-height:820px){ .kb{--kh:24px} .kb .k{font-size:12.5px} .fghand{width:68px} .fg{grid-template-columns:68px 1fr 68px} }
+@media (max-height:700px){ .kb{--kh:19px} .kb .k{font-size:10.5px} .kb .k s{display:none} .fghand{width:52px} .fg{grid-template-columns:52px 1fr 52px} }
+@media (max-width:760px){ .fghand{width:46px} .fg{grid-template-columns:46px 1fr 46px;column-gap:4px} .kb .k s{display:none} .kb{--kh:21px} .kb .k{font-size:10.5px} .kb .k.wide{font-size:8px} }
 /* dock */
+.recallq{font-family:var(--f-ui);font-size:20px;font-weight:700;color:var(--ink);margin:-4px 0 2px}
+.tx .meaning{margin-top:2px}
 .dock{position:absolute;left:50%;bottom:var(--gb);transform:translateX(-50%);width:min(780px,calc(100% - 32px));background:var(--paper);border-radius:var(--r-surface);box-shadow:var(--shadow);padding:12px 18px 12px;z-index:5}
 .dock.shake{animation:shake .22s}
 @keyframes shake{25%{transform:translateX(calc(-50% - 5px))}60%{transform:translateX(calc(-50% + 4px))}}
@@ -590,6 +624,7 @@ body:has(#duel:not([hidden])) #map{filter:brightness(.55) saturate(.75);transiti
       <input id="typer" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="타자 입력">
       <div id="txBody"></div>
     </div>
+    <div class="fg" id="fg" hidden aria-hidden="true"></div>
     <div class="dbot">
       <div class="nums" id="nums"></div>
       <div class="hint" id="hint"></div>
@@ -610,11 +645,14 @@ body:has(#duel:not([hidden])) #map{filter:brightness(.55) saturate(.75);transiti
     <div class="set"><label>배경 음악<small>잔잔한 오르골 반주</small></label><button class="tog" id="setMusic" aria-pressed="true" aria-label="배경 음악"></button></div>
     <p class="locknote" id="lockNote" hidden>선생님이 정한 수업 설정이 있어서 일부 항목은 바꿀 수 없어요.</p>
     <div class="set"><label>글감 주제<small>단어, 문장, 긴 글, 영단어에 나오는 내용</small></label><div class="seg" id="setTopic"><button data-v="mix">섞기</button><button data-v="virtue">미덕</button><button data-v="study">교과</button><button data-v="village">마을</button><button data-v="teacher" id="topTeacher">선생님</button></div></div>
+    <div class="set"><label>타자 언어<small>영어로 하면 단어·문장·긴 글이 영어로 나오고, 영단어 칸은 「뜻 보고 쓰기」가 돼요. 캠페인 이야기와 원정은 한글로 나와요</small></label><div class="seg" id="setLang"><button data-v="ko">한글</button><button data-v="en">영어</button></div></div>
+    <div class="set"><label>영어 수준<small>영어로 할 때 나오는 단어와 문장의 수준</small></label><div class="seg" id="setEnLv"><button data-v="low">3·4학년</button><button data-v="high">5·6학년</button></div></div>
     <div class="set"><label>난이도<small>자원 보상의 양이 달라져요</small></label><div class="seg" id="setDiff"><button data-v="easy">쉬움</button><button data-v="normal">보통</button><button data-v="hard">어려움</button></div></div>
     <div class="set"><label>평화 모드<small>밤 침공이 오지 않아요</small></label><button class="tog" id="setPeace" aria-pressed="false" aria-label="평화 모드"></button></div>
     <div class="set"><label>화면 흔들림<small>건설과 증축 연출</small></label><button class="tog" id="setShake" aria-pressed="true" aria-label="화면 흔들림"></button></div>
     <div class="set"><label>가벼운 그래픽<small>느린 컴퓨터나 크롬북에서 더 부드럽게 (흔들림, 효과, 주민 수 줄임)</small></label><button class="tog" id="setLite" aria-pressed="false" aria-label="가벼운 그래픽"></button></div>
     <div class="set"><label>큰 글씨<small>타자 글자를 더 크게 보여줘요</small></label><button class="tog" id="setBig" aria-pressed="false" aria-label="큰 글씨"></button></div>
+    <div class="set"><label>손가락 자리<small>다음에 누를 키와 손가락을 타자 칸 아래에 보여줘요</small></label><div class="seg" id="setFinger"><button data-v="full">키보드</button><button data-v="next">손가락만</button><button data-v="off">끄기</button></div></div>
     <div class="set"><label>고스트 캐럿<small>문장과 긴 글에서 내 최고 속도를 보여줘요</small></label><button class="tog" id="setGhost" aria-pressed="true" aria-label="고스트 캐럿"></button></div>
     <div class="set"><label>내 기록<small id="setWho">선생님께 기록과 소감을 보내요</small></label><div style="display:flex;gap:6px"><button class="btn sm" id="btnFb">소감 남기기</button><button class="btn sm" id="btnExport">기록 내보내기</button></div></div>
     <div class="set"><label>다른 컴퓨터로 옮기기<small>내 마을과 진행을 파일로 담아 가요</small></label><button class="btn sm" id="btnMove">옮기기 파일</button></div>
@@ -645,7 +683,9 @@ body:has(#duel:not([hidden])) #map{filter:brightness(.55) saturate(.75);transiti
       <label>낱말 (띄어쓰기나 줄바꿈으로 구분)<textarea id="pkWords" placeholder="갯벌 평야 하천 산지 해안"></textarea></label>
       <label>문장 (한 줄에 하나, 60자 이내)<textarea id="pkSents" placeholder="서해안에는 넓은 갯벌이 있어요."></textarea></label>
       <label>긴 글 (한 줄에 한 행, 40자 이내)<textarea id="pkLines"></textarea></label>
-      <label>영단어 (한 줄에 "단어=뜻")<textarea id="pkEng" placeholder="island=섬"></textarea></label></div>
+      <label>영단어 (한 줄에 "단어=뜻")<textarea id="pkEng" placeholder="island=섬"></textarea></label>
+      <label>영어 문장 (한 줄에 "문장 = 뜻", 뜻은 빼도 돼요)<textarea id="pkEngS" placeholder="What time is it? = 몇 시니?"></textarea></label>
+      <label>영어 긴 글 (한 줄에 한 행, 45자 이내, "행 = 뜻")<textarea id="pkEngL" placeholder="It is seven o'clock. = 일곱 시야."></textarea></label></div>
       <div class="t-actions"><span class="mnote" id="pkMsg"></span><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" id="pkClear">지우기</button><button class="btn sm" id="pkCode">코드 복사</button><button class="btn sm" id="pkLink">학생용 링크 복사</button><button class="btn primary sm" id="pkSave">저장</button></div></div>
       <div class="t-import"><textarea id="pkPaste" placeholder="다른 컴퓨터에서 복사한 글감 코드(TADAKPACK1:...)를 붙여 넣어요."></textarea><button class="btn sm" id="pkPasteGo">코드 불러오기</button></div></div>
   </div>
@@ -907,7 +947,7 @@ function islandSummary(){ const m=profileSummary(P,{num:SLOT&&SLOT.num,name:''})
   proposals:(P.props||[]).filter(x=>x.st==='wait').map(x=>x.t).slice(0,20)}; }
 function syncStatus(){ if(!SLOT||!SLOT.cloud) return ''; if(syncErr==='offline') return '학급 서버에 닿지 않아요. 이 컴퓨터에 저장해 두었다가 다시 보내요'; if(syncErr==='login') return '다시 로그인해야 서버에 저장돼요'; if(syncErr) return '서버 저장 중 문제가 생겼어요. 이 컴퓨터에는 저장돼 있어요'; return lastSyncAt?'학급 서버에 저장됨 '+new Date(lastSyncAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}):'학급 서버와 연결됨'; }
 function applyPackStatus(){ if(!CLOUD_PACK||!P.props) return; const ok=new Set([...(CLOUD_PACK.approved||[])]), no=new Set(CLOUD_PACK.rejected||[]); P.props.forEach(x=>{ if(x.st==='wait'){ if(ok.has(x.t)) x.st='ok'; else if(no.has(x.t)) x.st='no'; } }); }
-async function cloudEnter(ss){ const sl={id:'c_'+ss.student.id,num:ss.student.num,name:'',cloud:true,cls:ss.cls&&ss.cls.name}; await cloudPull(sl); useSlot(sl); }
+async function cloudEnter(ss){ const sl={id:'c_'+ss.student.id,num:ss.student.num,name:'',cloud:true,cls:ss.cls&&ss.cls.name}; await cloudPull(sl); useSlot(sl); packApply(); }
 // 서버 기록을 이 컴퓨터로 가져옴. 6초 안에 안 오면 이 컴퓨터 기록으로 시작하고, 늦게 온 응답은 버림(옛 상태가 서버를 덮지 않게)
 let pullGen=0;
 async function cloudPull(sl){ const g=++pullGen, pre=`tadak@${sl.id}/`;
@@ -917,27 +957,93 @@ async function cloudPull(sl){ const g=++pullGen, pre=`tadak@${sl.id}/`;
  if(L&&L.ok){ let dirty={}; try{ dirty=JSON.parse(LS.get(pre+'_dirty')||'{}'); }catch(e){} for(const part in (L.parts||{})){ if(part!=='summary'&&!dirty[part]) LS.set(pre+part,JSON.stringify(L.parts[part])); } CLOUD_PACK=L.pack||null; for(const k in _pool) delete _pool[k]; packApply(); } }
 async function cloudLogout(){ const ss=cloudSess(); if(SLOT&&SLOT.cloud){ save(); await syncNow(); const id=SLOT.id; if(!Object.keys(cloudDirty()).length){ try{ Object.keys(localStorage).filter(k=>k.startsWith(`tadak@${id}/`)).forEach(k=>LS.del(k)); }catch(e){} } /* 못 보낸 것이 있으면 이 컴퓨터에 남겨 두고 다음 로그인 때 보냄 */ }
  SLOT=null; /* 로그아웃을 기다리는 동안 자동 저장이 캐시를 다시 쓰지 않게 */ if(ss) await ClassLogin.logout(); CLOUD_PACK=null; for(const k in _pool) delete _pool[k]; packApply(); }
-function packGet(){ if(SLOT&&SLOT.cloud&&CLOUD_PACK){ const d=CLOUD_PACK; const n={title:String(d.title||'선생님 글감').replace(/[<>&"']/g,'').slice(0,30),words:d.words||[],sents:d.sents||[],lines:d.lines||[],eng:d.eng||[]}; if(n.words.length||n.sents.length||n.lines.length||n.eng.length) return n; } return packGetLocal(); }
-function packGetLocal(){ try{ const d=JSON.parse(localStorage.getItem(PACK_KEY)||'null'); return d&&(d.words.length||d.sents.length||d.lines.length||d.eng.length)?d:null; }catch(e){ return null; } }
+function packGet(){ if(SLOT&&SLOT.cloud&&CLOUD_PACK){ const d=CLOUD_PACK; const n={title:String(d.title||'선생님 글감').replace(/[<>&"']/g,'').slice(0,30),words:d.words||[],sents:d.sents||[],lines:d.lines||[],eng:d.eng||[],engSents:d.engSents||[],engLines:d.engLines||[]}; if(packHas(n)) return n; } return packGetLocal(); }
+function packGetLocal(){ try{ const d=JSON.parse(localStorage.getItem(PACK_KEY)||'null'); if(d){ d.engSents=d.engSents||[]; d.engLines=d.engLines||[]; } return d&&packHas(d)?d:null; }catch(e){ return null; } }
+function packHas(d){ return !!(d.words.length||d.sents.length||d.lines.length||d.eng.length||d.engSents.length||d.engLines.length); }
+function enPairs(txt,max,n){ return String(txt||'').replace(/[<>]/g,'').split(/\n+/).map(x=>{ const i=x.indexOf('='); return i<0?[x.trim(),'']:[x.slice(0,i).trim(),x.slice(i+1).trim().slice(0,60)]; }).filter(([e])=>e&&/^[\x20-\x7e]+$/.test(e)&&/[a-zA-Z]/.test(e)&&e.length<=max).slice(0,n); }
 function packParse(o){ const clean=t=>String(t||'').replace(/[<>]/g,'').trim(); const words=[...new Set(clean(o.words).split(/[\s,]+/).filter(w=>w&&[...w].length<=12))].slice(0,300);
  const sents=clean(o.sents).split(/\n+/).map(x=>x.trim()).filter(x=>x&&[...x].length<=60).slice(0,200);
  const lines=clean(o.lines).split(/\n+/).map(x=>x.trim()).filter(x=>x&&[...x].length<=40).slice(0,40);
  const eng=clean(o.eng).split(/\n+/).map(x=>x.split(/\s*[=:]\s*/)).filter(x=>/^[a-zA-Z' -]{2,20}$/.test((x[0]||'').trim())).map(x=>[x[0].trim().toLowerCase(),(x[1]||'').trim()]).slice(0,200);
- return {v:1,title:clean(o.title).slice(0,30)||'선생님 글감',words,sents,lines,eng,at:Date.now()}; }
+ return {v:1,title:clean(o.title).slice(0,30)||'선생님 글감',words,sents,lines,eng,engSents:enPairs(o.engSents,60,200),engLines:enPairs(o.engLines,45,40),at:Date.now()}; }
 function packSave(d){ try{ if(d) localStorage.setItem(PACK_KEY,JSON.stringify(d)); else localStorage.removeItem(PACK_KEY); }catch(e){} packApply(); }
-function packApply(){ for(let i=POEMS.length-1;i>=0;i--) if(POEMS[i].topic==='teacher') POEMS.splice(i,1); const d=packGet(); if(d&&d.lines.length) POEMS.push({title:d.title,author:'선생님',topic:'teacher',lines:d.lines}); for(const k in _pool) delete _pool[k]; }
-const packCode=d=>'TADAKPACK1:'+btoa(unescape(encodeURIComponent(JSON.stringify({title:d.title,words:d.words.join(' '),sents:d.sents.join('\n'),lines:d.lines.join('\n'),eng:d.eng.map(x=>x[0]+'='+x[1]).join('\n')}))));
+function packApply(){ for(let i=POEMS.length-1;i>=0;i--) if(POEMS[i].topic==='teacher') POEMS.splice(i,1); const d=packGet(); for(let i=POEMS.length-1;i>=0;i--) if(POEMS[i].topic==='teacheren') POEMS.splice(i,1); if(d&&d.lines.length) POEMS.push({title:d.title,author:'선생님',topic:'teacher',lines:d.lines}); if(d&&d.engLines.length) POEMS.push({title:d.title,author:'선생님 · 영어',topic:'teacheren',lines:d.engLines.map(x=>x[0]),ko:d.engLines.map(x=>x[1])}); for(const k in _pool) delete _pool[k]; }
+const packCode=d=>'TADAKPACK1:'+btoa(unescape(encodeURIComponent(JSON.stringify({title:d.title,words:d.words.join(' '),sents:d.sents.join('\n'),lines:d.lines.join('\n'),eng:d.eng.map(x=>x[0]+'='+x[1]).join('\n'),engSents:(d.engSents||[]).map(x=>x[0]+(x[1]?' = '+x[1]:'')).join('\n'),engLines:(d.engLines||[]).map(x=>x[0]+(x[1]?' = '+x[1]:'')).join('\n')}))));
 function packFromCode(t){ t=t.trim(); const i=t.indexOf('TADAKPACK1:'); if(i<0) throw 0; const raw=t.slice(i+11).split(/[\s&]/)[0]; return packParse(JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(raw)))))); }
 // 선생님이 관리 사이트에서 정한 수업 설정 (학급 로그인일 때만). 값이 없으면 학생 설정을 따름
 function classSet(k){ return (SLOT&&SLOT.cloud&&CLOUD_PACK&&CLOUD_PACK.settings&&CLOUD_PACK.settings[k])||null; }
 function topic(){ const t=classSet('topic')||(S&&S.set&&S.set.topic)||'mix'; return t==='teacher'&&!packGet()?'mix':t; }
-function poolOf(kind){ const t=topic(), key=kind+':'+t; if(_pool[key]) return _pool[key]; let L;
+/* ---- 영어 글감: 직접 쓴 문장과 짧은 이야기 (교과서 문장을 옮기지 않음). [영어, 뜻] ---- */
+const EN_SENT={low:[
+['Hello, I am Mina.','안녕, 나는 미나야.'],['Nice to meet you.','만나서 반가워.'],['How are you today?','오늘 기분 어때?'],['I am fine, thank you.','나는 잘 지내, 고마워.'],
+['What is your name?','네 이름은 뭐니?'],['My name is Junho.','내 이름은 준호야.'],['How old are you?','너는 몇 살이니?'],['I am ten years old.','나는 열 살이야.'],
+['This is my sister.','이 사람은 내 여동생이야.'],['She is very kind.','그녀는 아주 친절해.'],['What is this?','이것은 뭐니?'],['It is a pencil.','그것은 연필이야.'],
+['Is it a cat?','그것은 고양이니?'],['Yes, it is.','응, 맞아.'],['No, it is not.','아니, 그렇지 않아.'],['I like apples.','나는 사과를 좋아해.'],
+['Do you like bananas?','너는 바나나를 좋아하니?'],['Yes, I do.','응, 좋아해.'],["No, I don't.",'아니, 안 좋아해.'],['I can swim.','나는 수영할 수 있어.'],
+['Can you jump?','너는 점프할 수 있니?'],["I can't skate.",'나는 스케이트를 못 타.'],['How many pencils?','연필이 몇 개니?'],['I have two pencils.','나는 연필이 두 개 있어.'],
+['What color is it?','그것은 무슨 색이니?'],['It is blue.','그것은 파란색이야.'],['How is the weather?','날씨가 어때?'],['It is sunny today.','오늘은 맑아.'],
+['It is raining outside.','밖에 비가 와.'],['What time is it?','몇 시니?'],["It is seven o'clock.",'일곱 시야.'],['Time for lunch.','점심 먹을 시간이야.'],
+["Let's play soccer.",'축구 하자.'],['Sit down, please.','앉으세요.'],['Stand up, please.','일어나세요.'],['Open the door, please.','문을 열어 주세요.'],
+["Don't run in the hall.",'복도에서 뛰지 마.'],['Where is my bag?','내 가방이 어디 있지?'],['It is on the desk.','책상 위에 있어.'],['It is under the chair.','의자 아래에 있어.'],
+['I have a dog.','나는 개를 키워.'],['My dog is small.','내 개는 작아.'],['The cat is sleeping.','고양이가 자고 있어.'],['I am hungry.','나는 배고파.'],
+['I am happy.','나는 행복해.'],['Are you tired?','너 피곤하니?'],['Thank you very much.','정말 고마워.'],["You're welcome.",'천만에.'],
+["I'm sorry.",'미안해.'],["That's okay.",'괜찮아.'],['Good morning, everyone.','모두 좋은 아침이야.'],['See you tomorrow.','내일 봐.'],
+['Who is she?','그녀는 누구니?'],['She is my teacher.','그녀는 우리 선생님이야.'],['He is tall.','그는 키가 커.'],['I like spring.','나는 봄을 좋아해.'],
+['The sky is blue.','하늘이 파래.'],['The bird can fly.','새는 날 수 있어.'],['Look at the moon.','달을 봐.'],['I see a rainbow.','무지개가 보여.'],
+['Do you have a ruler?','너 자 있니?'],['Here you are.','여기 있어.'],['How much is it?','그것은 얼마예요?'],["It's five hundred won.",'오백 원이에요.'],
+['What do you want?','너는 무엇을 원하니?'],['I want some milk.','나는 우유를 좀 원해.'],["Let's go to the park.",'공원에 가자.'],['Sounds good!','좋아!'],
+['Wash your hands.','손을 씻어.'],['Brush your teeth.','이를 닦아.'],['I go to school.','나는 학교에 가.'],['We are friends.','우리는 친구야.'],
+['The island is green.','섬이 초록색이야.'],['The boat is on the sea.','배가 바다 위에 있어.'],['I love my town.','나는 우리 마을을 사랑해.']],
+high:[
+['What grade are you in?','너는 몇 학년이니?'],["I'm in the fifth grade.",'나는 5학년이야.'],['Where are you from?','너는 어디에서 왔니?'],["I'm from Korea.",'나는 한국에서 왔어.'],
+['What did you do yesterday?','어제 뭐 했니?'],['I visited my grandmother.','나는 할머니 댁에 갔어.'],['I watched a movie last night.','나는 어젯밤에 영화를 봤어.'],['How was your weekend?','주말 어땠니?'],
+['It was great.','정말 좋았어.'],['What will you do tomorrow?','내일 뭐 할 거니?'],['I will go camping with my family.','나는 가족과 캠핑하러 갈 거야.'],["I'm going to read a book.",'나는 책을 읽을 거야.'],
+['What do you want to be?','너는 무엇이 되고 싶니?'],['I want to be a scientist.','나는 과학자가 되고 싶어.'],['Why do you like it?','너는 그것을 왜 좋아하니?'],['Because it is exciting.','왜냐하면 신나기 때문이야.'],
+['How often do you exercise?','너는 얼마나 자주 운동하니?'],['I exercise three times a week.','나는 일주일에 세 번 운동해.'],["What's wrong?",'무슨 일이야?'],['I have a headache.','나는 머리가 아파.'],
+['You should take some rest.','너는 좀 쉬어야 해.'],['Where is the library?','도서관이 어디에 있니?'],['Go straight and turn left.','곧장 가서 왼쪽으로 돌아.'],["It's next to the bank.",'은행 옆에 있어.'],
+['Can I borrow your eraser?','지우개 좀 빌려도 될까?'],['Sure, go ahead.','물론이지, 그렇게 해.'],['May I come in?','들어가도 될까요?'],['Whose cap is this?','이것은 누구의 모자니?'],
+["It's my brother's.",'그것은 내 남동생 거야.'],['What time do you get up?','너는 몇 시에 일어나니?'],['I get up at seven thirty.','나는 일곱 시 삼십 분에 일어나.'],['When is your birthday?','네 생일은 언제니?'],
+["It's on May fifth.",'5월 5일이야.'],['What season do you like?','너는 어느 계절을 좋아하니?'],['I like winter because I can ski.','나는 스키를 탈 수 있어서 겨울을 좋아해.'],['Which is bigger, a whale or a shark?','고래와 상어 중 어느 것이 더 크니?'],
+['A whale is bigger than a shark.','고래가 상어보다 더 커.'],['Seoul is the biggest city in Korea.','서울은 한국에서 가장 큰 도시야.'],['How tall are you?','너는 키가 몇이니?'],["I'm 150 centimeters tall.",'나는 키가 150센티미터야.'],
+["What's your favorite subject?",'네가 가장 좋아하는 과목은 뭐니?'],['My favorite subject is science.','내가 가장 좋아하는 과목은 과학이야.'],["Let's meet at the park at three.",'세 시에 공원에서 만나자.'],["Sorry, I can't. I have to study.",'미안, 안 돼. 나는 공부해야 해.'],
+['Did you finish your homework?','숙제 다 했니?'],['Yes, I did it an hour ago.','응, 한 시간 전에 했어.'],['We should save water.','우리는 물을 아껴야 해.'],['Please turn off the lights.','불을 꺼 주세요.'],
+["Don't throw trash on the street.",'길에 쓰레기를 버리지 마.'],["Let's help each other.",'서로 돕자.'],["I'm proud of you.",'나는 네가 자랑스러워.'],['Be careful on the stairs.','계단에서 조심해.'],
+['How do you go to school?','너는 학교에 어떻게 가니?'],['I go to school by bus.','나는 버스를 타고 학교에 가.'],['What does your father do?','너희 아버지는 무슨 일을 하시니?'],['He is a firefighter.','아버지는 소방관이셔.'],
+['How was the field trip?','현장 체험 학습은 어땠니?'],['We saw many old houses.','우리는 오래된 집을 많이 봤어.'],["I'm good at drawing.",'나는 그림을 잘 그려.'],['She plays the piano every day.','그녀는 매일 피아노를 쳐.'],
+['Would you like some cookies?','쿠키 좀 먹을래?'],['Yes, please. They look delicious.','응, 줘. 맛있어 보여.'],['What are you doing now?','너는 지금 뭐 하고 있니?'],["I'm writing a letter to my friend.",'나는 친구에게 편지를 쓰고 있어.'],
+['There are four seasons in Korea.','한국에는 네 계절이 있어.'],['The sun rises in the east.','해는 동쪽에서 떠.'],['Reading books makes me happy.','책을 읽으면 나는 행복해.'],['Practice makes perfect.','연습하면 완벽해져.'],
+["Let's keep our island clean.",'우리 섬을 깨끗하게 지키자.'],['The lighthouse keeper waved at us.','등대지기가 우리에게 손을 흔들었어.'],['We built a bridge across the river.','우리는 강을 가로지르는 다리를 지었어.'],['I lost my key, but I found it.','열쇠를 잃어버렸지만 찾았어.'],
+['Thank you for helping me.','도와줘서 고마워.'],["I'll do my best.",'최선을 다할게.'],['Every word can build a town.','낱말 하나하나가 마을을 지을 수 있어.']]};
+const EN_STORY=[
+{lv:'low',title:'My Island',ko:'나의 섬',lines:[['This is my island.','이것은 나의 섬이야.'],['It is small and green.','작고 푸르러.'],['I have a little house.','나에게는 작은 집이 있어.'],['A cat lives with me.','고양이 한 마리가 나와 함께 살아.'],['We watch the sea every day.','우리는 매일 바다를 봐.'],['I love my island.','나는 나의 섬을 사랑해.']]},
+{lv:'low',title:'Rainy Day',ko:'비 오는 날',lines:[['It is raining today.','오늘은 비가 와.'],['I have a yellow umbrella.','나에게는 노란 우산이 있어.'],['My friend has no umbrella.','내 친구는 우산이 없어.'],["Let's go together.",'같이 가자.'],['We walk and sing.','우리는 걸으며 노래해.'],['Rainy days are fun.','비 오는 날은 즐거워.']]},
+{lv:'low',title:'At the Market',ko:'시장에서',lines:[['I go to the market with Mom.','나는 엄마와 시장에 가.'],['I see red apples.','빨간 사과가 보여.'],['How much are they?','그것들은 얼마예요?'],['They are two thousand won.','이천 원이에요.'],['Mom buys five apples.','엄마가 사과 다섯 개를 사.'],['I carry the bag.','내가 가방을 들어.']]},
+{lv:'low',title:'My Dog Bori',ko:'나의 강아지 보리',lines:[['I have a dog.','나는 강아지를 키워.'],['His name is Bori.','이름은 보리야.'],['He is brown and white.','갈색과 흰색이야.'],['He can run fast.','빨리 달릴 수 있어.'],['He likes to play ball.','공놀이를 좋아해.'],['Bori is my best friend.','보리는 나의 가장 친한 친구야.']]},
+{lv:'low',title:'Good Morning',ko:'좋은 아침',lines:[['I wake up at seven.','나는 일곱 시에 일어나.'],['I wash my face.','세수를 해.'],['I eat bread and milk.','빵과 우유를 먹어.'],['I put on my shoes.','신발을 신어.'],['Bye, Mom! See you!','엄마, 안녕! 다녀올게요!'],['I go to school.','나는 학교에 가.']]},
+{lv:'low',title:'Four Seasons',ko:'사계절',lines:[['Spring is warm.','봄은 따뜻해.'],['Flowers are everywhere.','꽃이 여기저기 피어.'],['Summer is hot.','여름은 더워.'],['Fall is cool.','가을은 시원해.'],['Winter is cold and white.','겨울은 춥고 하얘.'],['I like all seasons.','나는 모든 계절이 좋아.']]},
+{lv:'high',title:'The Lighthouse Keeper',ko:'등대지기',lines:[['There was a lighthouse on a small island.','작은 섬에 등대가 하나 있었어.'],['An old keeper lived there alone.','늙은 등대지기가 혼자 살았지.'],['Every night, he turned on the light.','매일 밤 그는 불을 켰어.'],['One night, a big storm came.','어느 날 밤, 큰 폭풍이 왔어.'],['A little boat was lost in the dark.','작은 배 한 척이 어둠 속에서 길을 잃었어.'],['The light showed the way home.','불빛이 집으로 가는 길을 보여 주었지.'],['The sailors said, "Thank you!"','선원들이 "고마워요!"라고 말했어.']]},
+{lv:'high',title:'My Summer Vacation',ko:'나의 여름 방학',lines:[['Last summer, I went to Jeju Island.','지난여름 나는 제주도에 갔어.'],['I swam in the blue sea.','파란 바다에서 수영했어.'],['I climbed Hallasan with my dad.','아빠와 한라산에 올랐어.'],["It was hard, but I didn't give up.",'힘들었지만 포기하지 않았어.'],['The view from the top was amazing.','꼭대기에서 본 경치는 놀라웠어.'],['I took many pictures.','사진을 많이 찍었어.'],['I want to go there again.','그곳에 또 가고 싶어.']]},
+{lv:'high',title:'A Letter to a Friend',ko:'친구에게 쓰는 편지',lines:[['Dear Sora,','소라에게,'],['How are you these days?','요즘 어떻게 지내?'],['I miss you a lot.','네가 많이 보고 싶어.'],['Our class planted trees last week.','우리 반은 지난주에 나무를 심었어.'],['I will send you a photo.','사진을 보내 줄게.'],['Please write back soon.','곧 답장해 줘.'],['Your friend, Minho','너의 친구 민호가']]},
+{lv:'high',title:'The Ant and the Dove',ko:'개미와 비둘기',lines:[['An ant went to the river to drink.','개미가 물을 마시러 강에 갔어.'],['Suddenly, it fell into the water.','갑자기 물에 빠졌지.'],['A dove saw it and dropped a leaf.','비둘기가 그것을 보고 나뭇잎을 떨어뜨렸어.'],['The ant climbed onto the leaf.','개미는 나뭇잎 위로 올라갔어.'],['Later, a hunter tried to catch the dove.','나중에 사냥꾼이 비둘기를 잡으려고 했어.'],["The ant bit the hunter's foot.",'개미가 사냥꾼의 발을 물었어.'],['The dove flew away safely.','비둘기는 무사히 날아갔어.']]},
+{lv:'high',title:'Saving Our Earth',ko:'지구를 지켜요',lines:[['Our Earth is getting warmer.','지구가 점점 더워지고 있어.'],['We can help in small ways.','우리는 작은 방법으로 도울 수 있어.'],['Turn off the lights when you leave.','나갈 때는 불을 꺼.'],['Use a cup instead of paper cups.','종이컵 대신 컵을 써.'],['Walk or ride a bike to school.','걷거나 자전거를 타고 학교에 가.'],['Recycle cans, bottles, and paper.','캔, 병, 종이를 재활용해.'],['Small actions make a big change.','작은 행동이 큰 변화를 만들어.']]},
+{lv:'high',title:'King Sejong and Hangeul',ko:'세종대왕과 한글',lines:[['Long ago, writing was very hard.','오래전에는 글을 쓰기가 아주 어려웠어.'],['Many people could not read or write.','많은 사람이 읽거나 쓰지 못했어.'],['King Sejong wanted to help them.','세종대왕은 그들을 돕고 싶었어.'],['He created new letters for the people.','그는 백성을 위해 새 글자를 만들었어.'],['The letters were easy to learn.','그 글자는 배우기 쉬웠어.'],['Today we call them Hangeul.','오늘날 우리는 그것을 한글이라고 불러.'],['Hangeul is a gift for everyone.','한글은 모두를 위한 선물이야.']]}];
+EN_STORY.forEach(s=>POEMS.push({title:s.title,author:(s.lv==='low'?'영어 이야기 · 3·4학년':'영어 이야기 · 5·6학년')+' · '+s.ko,topic:'en',lv:s.lv,lines:s.lines.map(x=>x[0]),ko:s.lines.map(x=>x[1])}));
+// 타자 언어: 한글(기본) / 영어. 영어면 단어·문장·긴 글이 영어로 나오고 영단어 칸은 「뜻 보고 쓰기」
+function lang(){ return classSet('lang')||(S&&S.set&&S.set.lang)||'ko'; }
+function enLv(){ return classSet('enLv')||(S&&S.set&&S.set.enLv)||'low'; }
+const enOn=()=>lang()==='en';
+const EN_MODE_NAME={word:'단어',sentence:'문장',long:'긴 글',eng:'뜻 보고 쓰기'};
+const modeName=m=>enOn()?EN_MODE_NAME[m]:MODES[m].name;
+function poolOf(kind){ const t=topic(), key=kind+':'+t+':'+lang()+':'+enLv(); if(_pool[key]) return _pool[key]; let L;
  const pk=t==='teacher'?packGet():null;
+ if(kind==='ew'){ if(pk&&pk.eng.length) return _pool[key]=pk.eng; const seen=new Set(), all=[]; [...EN_WORDS,...STUDY_EN].forEach(x=>{ if(!seen.has(x[0])&&(enLv()==='high'||x[0].length<=6)){ seen.add(x[0]); all.push(x); } }); return _pool[key]=all; }
+ if(kind==='es') return _pool[key]=(pk&&pk.engSents.length)?pk.engSents:EN_SENT[enLv()];
+ if(kind==='p'&&enOn()){ const tp=(pk&&pk.engLines.length)?'teacheren':'en'; L=POEMS.map((P,i)=>i).filter(i=>POEMS[i].topic===tp&&(tp!=='en'||POEMS[i].lv===enLv())); return _pool[key]=L; }
  if(pk){ L=kind==='w'?(pk.words.length?pk.words:KO_WORDS):kind==='s'?(pk.sents.length?pk.sents:SENTENCES):kind==='e'?(pk.eng.length?pk.eng:EN_WORDS):POEMS.map((P,i)=>i).filter(i=>POEMS[i].topic===(pk.lines.length?'teacher':'village')); return _pool[key]=L; }
  if(kind==='w') L=t==='virtue'?VIRTUE_WORDS:t==='study'?STUDY_WORDS:t==='village'?KO_WORDS:[...KO_WORDS,...VIRTUE_WORDS,...STUDY_WORDS];
  else if(kind==='s') L=t==='virtue'?VIRTUE_SENT:t==='study'?STUDY_SENT:t==='village'?SENTENCES:[...SENTENCES,...VIRTUE_SENT,...STUDY_SENT];
  else if(kind==='e'){ const seen=new Set(), all=[]; const src=t==='village'?EN_WORDS:t==='mix'?[...EN_WORDS,...STUDY_EN]:STUDY_EN; src.forEach(x=>{ if(!seen.has(x[0])){ seen.add(x[0]); all.push(x); } }); L=all; }
- else L=POEMS.map((P,i)=>i).filter(i=>t==='mix'||POEMS[i].topic===t);
+ else L=POEMS.map((P,i)=>i).filter(i=>(t==='mix'||POEMS[i].topic===t)&&!/^(en|teacheren)$/.test(POEMS[i].topic));
  return _pool[key]=L; }
 function randomPoem(not){ const L=poolOf('p'); const c=L.filter(i=>i!==not); const a=c.length?c:L; return a[Math.floor(Math.random()*a.length)]; }
 
@@ -1628,7 +1734,11 @@ const T={mode:'word', special:null, queue:[], target:'', meaning:'', startAt:0, 
  spans:[], curEl:null, caret:null, ghostEl:null, extraEl:null, recent:{word:[],sentence:[],long:[],eng:[]}, lastSubmit:0, lastAcc:100};
 const bags={};
 function draw(list,key){ if(!bags[key]||!bags[key].length){ bags[key]=list.map((_,i)=>i); for(let i=bags[key].length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [bags[key][i],bags[key][j]]=[bags[key][j],bags[key][i]]; } } return list[bags[key].pop()]; }
-function makeItem(m){ if(m==='word'&&T.weak){ const pool=KO_WORDS.filter(w=>[...w].some(c=>keysOf(c).some(k=>T.weak.includes(k)))); if(pool.length) return {text:pool[Math.floor(Math.random()*pool.length)]}; }
+function makeItem(m){ if(enOn()&&m!=='long'){ const k=topic()+enLv();
+  if(m==='sentence'){ const [e,ko]=draw(poolOf('es'),'es'+k); return {text:e,meaning:ko}; }
+  let L=poolOf('ew'); if(m==='word'&&T.weak){ const f=L.filter(([w])=>[...w].some(c=>T.weak.includes(c.toLowerCase()))); if(f.length){ const x=f[Math.floor(Math.random()*f.length)]; return {text:x[0],meaning:x[1]}; } }
+  const [w,mm]=draw(L,'ew'+k); return {text:w,meaning:mm}; }
+ if(m==='word'&&T.weak){ const pool=KO_WORDS.filter(w=>[...w].some(c=>keysOf(c).some(k=>T.weak.includes(k)))); if(pool.length) return {text:pool[Math.floor(Math.random()*pool.length)]}; }
  if(m==='word') return {text:draw(poolOf('w'),'w'+topic())}; if(m==='eng'){ const [w,mm]=draw(poolOf('e'),'e'+topic()); return {text:w,meaning:mm}; } return {text:draw(poolOf('s'),'s'+topic())}; }
 function fillQueue(){ const need=T.mode==='sentence'?2:6; while(T.queue.length<need) T.queue.push(makeItem(T.mode)); }
 const longPoem=()=>{ if(S.long.p==null||!POEMS[S.long.p]||!poolOf('p').includes(S.long.p)){ S.long.p=randomPoem(); S.long.l=0; } return POEMS[S.long.p]; };
@@ -1638,7 +1748,7 @@ function renderDockTop(){
  dock.classList.remove('raid');
  if (['story','restore','stone','duel'].includes(T.special)){ $('dtop').innerHTML=`<div class="raidtag" style="color:var(--ink)">${T.special==='duel'?PH.sword:PH.pen}${T.special==='duel'?'필경 결투':T.special==='restore'?'복원하기':T.special==='stone'?'비석 깨우기':'이야기'}</div><div class="preview">${T.special==='story'?'':`<button class="btn sm" id="askCancel">${T.special==='duel'?'물러나기':'취소'}</button>`}</div>`; const ac=$('askCancel'); if(ac) ac.onclick=()=>{ cancelAsk(); refocus(); }; return; }
  if (T.special==='dungeon'||T.special==='riddle'){ $('dtop').innerHTML=`<div class="raidtag" style="color:var(--ink)">${PH.compass}원정 · 잊힌 말의 동굴</div><div class="preview">${T.special==='riddle'?'수수께끼':'시간 안에 정확하게'}</div>`; return; }
- $('dtop').innerHTML=`<div class="seg" role="tablist">${MODE_KEYS.map(m=>`<button data-mode="${m}" class="${T.mode===m?'on':''}" role="tab" aria-selected="${T.mode===m}">${MODES[m].res.map(r=>ICON[r]).join('')}<span>${MODES[m].name}</span></button>`).join('')}</div><div class="preview">${T.weak&&T.mode==='word'?`<button class="btn sm" id="weakOff">약한 키 연습 중 ${PH.x}</button>`:''}<span id="preview" class="preview"></span></div>`;
+ $('dtop').innerHTML=`<div class="seg" role="tablist">${MODE_KEYS.map(m=>`<button data-mode="${m}" class="${T.mode===m?'on':''}" role="tab" aria-selected="${T.mode===m}">${MODES[m].res.map(r=>ICON[r]).join('')}<span>${modeName(m)}</span></button>`).join('')}</div><div class="preview">${T.weak&&T.mode==='word'?`<button class="btn sm" id="weakOff">약한 키 연습 중 ${PH.x}</button>`:''}<span id="preview" class="preview"></span></div>`;
  const wo=$('weakOff'); if(wo) wo.onclick=()=>{ T.weak=null; T.queue=[]; renderDockTop(); loadTarget(); refocus(); };
  $('dtop').querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{ setMode(b.dataset.mode); refocus(); });
 }
@@ -1657,14 +1767,17 @@ function buildSpans(container){
 }
 function loadTarget(){
  const m=T.mode; let html='';
- if (m==='long'){ const P=longPoem(), L=P.lines, i=S.long.l; T.target=L[i]; T.meaning='';
-  html=`<div class="head"><span><b>${esc(P.title)}</b> ${esc(P.author)}</span><span>${i+1} / ${L.length}행</span></div>`+(i>0?`<div class="prev">${esc(L[i-1])}</div>`:'')+`<div class="cur" id="cur"></div><div class="next">${L.slice(i+1,i+3).map(esc).join('\n')||'마지막 행이에요'}</div>`;
+ clearTimeout(T.hintT); T.recall=enOn()&&m==='eng'&&!T.special; T.hintAt=0;
+ if (m==='long'){ const P=longPoem(), L=P.lines, i=S.long.l; T.target=L[i]; T.meaning=(P.ko&&P.ko[i])||'';
+  html=`<div class="head"><span><b>${esc(P.title)}</b> ${esc(P.author)}</span><span>${i+1} / ${L.length}행</span></div>`+(i>0?`<div class="prev">${esc(L[i-1])}</div>`:'')+`<div class="cur" id="cur"></div>${T.meaning?`<div class="meaning">${esc(T.meaning)}</div>`:''}<div class="next">${L.slice(i+1,i+3).map(esc).join('\n')||'마지막 행이에요'}</div>`;
   txBody.className=''; }
  else { fillQueue(); const it=T.queue[0]; T.target=it.text; T.meaning=it.meaning||'';
-  if (m==='sentence'){ html=`<div class="cur" id="cur"></div><div class="next">다음: ${esc(T.queue[1].text)}</div>`; txBody.className=''; }
-  else { html=`<div class="line"><div class="cur" id="cur"></div><div class="up">${T.queue.slice(1).map(q=>`<span>${esc(q.text)}</span>`).join('')}</div></div><div class="meaning">${m==='eng'?esc(T.meaning):''}</div>`; txBody.className='wordy'; } }
- txBody.innerHTML=html; buildSpans($('cur')); renderTyped(); renderPreview(); renderNums();
+  if (m==='sentence'){ html=`<div class="cur" id="cur"></div>${T.meaning?`<div class="meaning">${esc(T.meaning)}</div>`:''}<div class="next">다음: ${esc(T.queue[1].text)}</div>`; txBody.className=''; }
+  else if (T.recall){ html=`<div class="recallq">${esc(T.meaning||'?')}</div><div class="line"><div class="cur" id="cur"></div><div class="up">${T.queue.slice(1).map(q=>`<span>${esc(q.meaning||'')}</span>`).join('')}</div></div><div class="meaning">뜻을 보고 영어로 써요. 막히면 잠시 기다려요, 한 글자씩 알려 줘요</div>`; txBody.className='wordy'; }
+  else { html=`<div class="line"><div class="cur" id="cur"></div><div class="up">${T.queue.slice(1).map(q=>`<span>${esc(q.text)}</span>`).join('')}</div></div><div class="meaning">${m==='eng'||enOn()?esc(T.meaning):''}</div>`; txBody.className='wordy'; } }
+ txBody.innerHTML=html; buildSpans($('cur')); renderTyped(); renderPreview(); renderNums(); if(T.recall) recallTimer();
 }
+function recallTimer(){ clearTimeout(T.hintT); T.hintT=setTimeout(()=>{ if(!T.recall) return; const n=[...typer.value].length; if(T.hintAt<[...T.target].length){ T.hintAt=Math.max(T.hintAt,n)+1; renderTyped(); recallTimer(); } }, T.hintAt>[...typer.value].length?2500:4000); }
 function renderTyped(){
  if (T.special==='raid'){ renderRaidTyped(); return; }
  if (T.special==='riddle'){ renderRiddleTyped(); return; }
@@ -1673,14 +1786,16 @@ function renderTyped(){
   if (i<v.length){
    if (i===v.length-1&&comp){ cls+=composeOK(v[i],t[i])?' comp':' bad'; s.textContent=v[i]; }
    else if (v[i]===t[i]){ cls+=' ok'; s.textContent=t[i]; }
-   else { cls+=' bad'; s.textContent=(v[i]===' '||t[i]===' ')?' ':v[i]; if(i<committed&&!T.wrong.has(i)){ T.wrong.add(i); T.errors++; newErr=true; noteKeys([t[i]],true); } }
-  } else s.textContent=t[i];
+   else { cls+=' bad'; s.textContent=(v[i]===' '||t[i]===' ')?' ':v[i]; if(i<committed&&!T.wrong.has(i)&&!imeMiss(t[i],v[i])){ T.wrong.add(i); T.errors++; newErr=true; noteKeys([t[i]],true); } }
+  } else s.textContent=(T.recall&&i>=T.hintAt&&t[i]!==' ')?'_':t[i];
   s.className=cls; }
  for (const i of [...T.wrong]) if (i>=committed) T.wrong.delete(i);
  const extra=v.slice(t.length).join(''); T.extraEl.className=extra?'ch extra':''; T.extraEl.textContent=extra;
  if (newErr) errorFx();
- placeCaret();
+ placeCaret(); renderFinger();
 }
+const imeMiss=(tc,vc)=>/[A-Za-z]/.test(tc)&&/[ㄱ-ㅣ가-힣]/.test(vc);
+let imeWarnAt=0; function imeCheck(){ const tg=fgTarget()||T.target||''; if(/[A-Za-z]/.test(tg)&&!/[가-힣]/.test(tg)&&/[ㄱ-ㅣ가-힣]/.test(typer.value)&&Date.now()-imeWarnAt>5000){ imeWarnAt=Date.now(); toast('한글로 쳐지고 있어요. 「한/영」 키를 눌러 영어로 바꿔요'); } }
 function placeCaret(){
  const n=[...typer.value].length, ref=T.spans[0]; if(!ref) return; const h=ref.offsetHeight; let x,y;
  if (n<T.spans.length){ x=T.spans[n].offsetLeft; y=T.spans[n].offsetTop; }
@@ -1715,7 +1830,8 @@ function onInput(){
  }
  if (!wordish && !T.composing && / $/.test(v) && [...v.replace(/ +$/,'')].length>=[...T.target].length){ typer.value=v.replace(/ +$/,''); submit(); return; }
  if (!T.startAt && v.length) T.startAt=performance.now();
- renderTyped();
+ if (T.recall) recallTimer();
+ imeCheck(); renderTyped();
 }
 function submit(viaSpace){
  if (T.special==='raid'){ raidSubmit(); return; }
@@ -2015,7 +2131,8 @@ function startRaid(){ if(merchant&&merchant.phase!=='out'){ merchant.phase='out'
  AU.horn(); if(raid.practice) levelBanner('연습 침공','평화 모드라 자원을 빼앗기지 않아요','배 위의 단어를 치고 Space로 막아요'); else levelBanner('밤 침공','바다 도깨비가 몰려와요','배 위의 단어를 치고 Space로 막아요'); shake(4);
  T.prevMode=T.mode; T.special='raid'; resetInput(); renderDockTop(); renderRaidBody(); renderNums(); $('hint').innerHTML='<kbd>Space</kbd> 발사';
 }
-function pickRaidWord(){ const used=new Set(raid.enemies.filter(e=>e.alive).map(e=>e.word)); for(let k=0;k<20;k++){ const w=((S.castle>=3||MAP.engRaid)&&Math.random()<0.35)?draw(EN_WORDS,'re')[0]:draw(RAID_WORDS,'rw'); if(!used.has(w)&&![...used].some(u=>u[0]===w[0])) return w; } return draw(RAID_WORDS,'rw'); }
+function pickRaidWord(){ const used=new Set(raid.enemies.filter(e=>e.alive).map(e=>e.word)); if(enOn()){ const L=poolOf('ew').filter(x=>x[0].length<=7&&!/\s/.test(x[0])); for(let k=0;k<20;k++){ const w=draw(L,'rew'+enLv())[0]; if(!used.has(w)&&![...used].some(u=>u[0]===w[0])) return w; } return draw(L,'rew'+enLv())[0]; }
+ for(let k=0;k<20;k++){ const w=((S.castle>=3||MAP.engRaid)&&Math.random()<0.35)?draw(EN_WORDS,'re')[0]:draw(RAID_WORDS,'rw'); if(!used.has(w)&&![...used].some(u=>u[0]===w[0])) return w; } return draw(RAID_WORDS,'rw'); }
 function spawnEnemy(){ const coast=coastTiles(true); const [tx,ty]=coast[Math.floor(Math.random()*coast.length)]; const ang=Math.atan2(ty-CY,tx-CX)+(Math.random()-.5)*0.3, dist=Math.hypot(tx-CX,ty-CY)+3.2;
  const sx=CX+Math.cos(ang)*dist, sy=CY+Math.sin(ang)*dist, slow=countB('lighthouse')?1.35:1;
  raid.enemies.push({sx,sy,tx,ty,x:sx,y:sy,t:0,dur:(20+Math.random()*6)*slow,word:pickRaidWord(),alive:true,leaving:0,seed:Math.random()*10}); raid.spawned++; renderRaidBody(); }
@@ -2047,7 +2164,7 @@ function renderRaidBody(){ txBody.className='wordy'; const alive=raid?raid.enemi
  T.target=' '; T.curEl=$('cur'); T.spans=[]; T.extraEl=document.createElement('span'); T.curEl.appendChild(T.extraEl); T.caret=document.createElement('i'); T.caret.className='caret idle'; T.curEl.appendChild(T.caret); T.ghostEl=null; renderRaidTyped(); }
 function renderRaidTyped(){ const v=typer.value; T.extraEl.className='ch ok'; T.extraEl.textContent=v||' ';
  const match=raid&&(raid.enemies.some(e=>e.alive&&prefixOK(v,e.word))||SPELLS.some(x=>!(raid.used||{})[x.w]&&prefixOK(v,x.w))); T.extraEl.className='ch '+(v&&!match?'bad':'ok');
- const h=T.extraEl.offsetHeight, x=v?T.extraEl.offsetLeft+T.extraEl.offsetWidth:0; T.caret.style.height=(h*0.78)+'px'; T.caret.style.transform=`translate(${x-1}px,${T.extraEl.offsetTop+h*0.12}px)`; T.caret.classList.toggle('idle',!v); }
+ const h=T.extraEl.offsetHeight, x=v?T.extraEl.offsetLeft+T.extraEl.offsetWidth:0; T.caret.style.height=(h*0.78)+'px'; T.caret.style.transform=`translate(${x-1}px,${T.extraEl.offsetTop+h*0.12}px)`; T.caret.classList.toggle('idle',!v); renderFinger(); }
 function prefixOK(v,w){ if(!v) return true; const a=[...v], b=[...w]; if(a.length>b.length) return false; for(let i=0;i<a.length;i++){ if(a[i]===b[i]) continue; if(i===a.length-1&&T.composing&&composeOK(a[i],b[i])) continue; return false; } return true; }
 const SPELLS=[
  {w:'바람', d:'모든 배를 뒤로 밀어요', cast:()=>{ raid.enemies.forEach(e=>{ if(e.alive) e.t=Math.max(0,e.t-0.3); }); shake(3); }},
@@ -2196,6 +2313,63 @@ const SPLIT={'ㄲ':'ㄱ','ㄸ':'ㄷ','ㅃ':'ㅂ','ㅆ':'ㅅ','ㅉ':'ㅈ','ㅒ':'
 const KEYIDX={}; KEYROWS.forEach((row,r)=>row.forEach((j,i)=>{ KEYIDX[j]=LATIN[r][i]; }));
 function keysOf(c){ if(isSyl(c)){ const d=dec(c), parts=[CHO[d.cho],JUNG_L[d.jung],JONG_L[d.jong]].filter(Boolean); return parts.flatMap(p=>[...(SPLIT[p]||p)]).map(j=>KEYIDX[j]).filter(Boolean); }
  if(KEYIDX[c]) return [KEYIDX[c]]; if(SPLIT[c]) return [...SPLIT[c]].map(j=>KEYIDX[j]); const l=c.toLowerCase(); return /[a-z]/.test(l)?[l]:[]; }
+/* ---- 손가락 자리: 다음에 누를 키와 손가락 ---- */
+const FG_ROWS=[[['`'],['1'],['2'],['3'],['4'],['5'],['6'],['7'],['8'],['9'],['0'],['-'],['='],['bs',2]],
+ [['tab',1.5],['q'],['w'],['e'],['r'],['t'],['y'],['u'],['i'],['o'],['p'],['['],[']'],['\\',1.5]],
+ [['caps',1.75],['a'],['s'],['d'],['f'],['g'],['h'],['j'],['k'],['l'],[';'],["'"],['enter',2.25]],
+ [['lsh',2.25],['z'],['x'],['c'],['v'],['b'],['n'],['m'],[','],['.'],['/'],['rsh',2.75]],
+ [['space',6.5]]];
+const FG_FINGER={}; [['lp','`1qaz',['tab','caps','lsh']],['lr','2wsx'],['lm','3edc'],['li','45rtfgvb'],['ri','67yuhjnm'],['rm','8ik,'],['rr','9ol.'],['rp',"0-=p[]\\;'/",['enter','bs','rsh']],['th','',['space']]].forEach(([f,ks,ex])=>{ [...ks].forEach(k=>FG_FINGER[k]=f); (ex||[]).forEach(k=>FG_FINGER[k]=f); });
+const FG_NAME={lp:'왼손 새끼',lr:'왼손 약지',lm:'왼손 중지',li:'왼손 검지',ri:'오른손 검지',rm:'오른손 중지',rr:'오른손 약지',rp:'오른손 새끼',th:'엄지'};
+const FG_WIDE={bs:'Back',tab:'Tab',caps:'Caps',lsh:'Shift',rsh:'Shift',enter:'Enter',space:'Space'};
+const FG_SHJ={'ㄲ':'ㄱ','ㄸ':'ㄷ','ㅃ':'ㅂ','ㅆ':'ㅅ','ㅉ':'ㅈ','ㅒ':'ㅐ','ㅖ':'ㅔ'}, FG_SHK={q:'ㅃ',w:'ㅉ',e:'ㄸ',r:'ㄲ',t:'ㅆ',o:'ㅒ',p:'ㅖ'};
+const FG_PUNCT={' ':['space'],'.':['.'],',':[','],'/':['/'],';':[';'],"'":["'"],'-':['-'],'=':['='],'[':['['],']':[']'],'`':['`'],'\\':['\\'],
+ '?':['/',1],'!':['1',1],'"':["'",1],':':[';',1],'(':['9',1],')':['0',1],'~':['`',1],'@':['2',1],'#':['3',1],'$':['4',1],'%':['5',1],'^':['6',1],'&':['7',1],'*':['8',1],'_':['-',1],'+':['=',1],'<':[',',1],'>':['.',1],'“':["'",1],'”':["'",1],'‘':["'"],'’':["'"]};
+function jamoStroke(j){ if(FG_SHJ[j]) return [{k:KEYIDX[FG_SHJ[j]],sh:1}]; const sp=SPLIT[j]; if(sp&&sp.length>1) return [...sp].flatMap(jamoStroke); return KEYIDX[j]?[{k:KEYIDX[j],sh:0}]:[]; }
+function fgStrokes(c){ if(isSyl(c)){ const d=dec(c); return [CHO[d.cho],JUNG_L[d.jung],JONG_L[d.jong]].filter(Boolean).flatMap(jamoStroke); }
+ if(KEYIDX[c]||FG_SHJ[c]||SPLIT[c]) return jamoStroke(c);
+ if(/[a-z0-9]/.test(c)) return [{k:c,sh:0}]; if(/[A-Z]/.test(c)) return [{k:c.toLowerCase(),sh:1}];
+ const q=FG_PUNCT[c]; return q?[{k:q[0],sh:q[1]?1:0}]:[]; }
+const FG_TOUCH=matchMedia('(pointer: coarse)').matches&&!matchMedia('(any-pointer: fine)').matches;
+function fingerMode(){ const c=classSet('finger'); if(c) return (c==='full'&&FG_TOUCH)?'next':c; return (S&&S.set&&S.set.finger)||(FG_TOUCH?'off':'full'); }
+function fgTarget(){ if(T.special==='riddle') return null; if(T.recall&&[...typer.value].length>=T.hintAt) return null;
+ if(T.special==='raid'){ if(!raid) return null; const v=typer.value, al=raid.enemies.filter(e=>e.alive).sort((a,b)=>b.t-a.t); const e=al.find(e=>prefixOK(v,e.word)); return e?e.word:(al[0]?al[0].word:null); }
+ if(T.special==='dungeon'&&(!dun||dun.phase!=='room')) return null;
+ return T.target&&T.target.trim()?T.target:null; }
+function fgNext(){ const tg=fgTarget(); if(!tg) return null; const ts=[...tg].flatMap(fgStrokes), vs=[...typer.value].flatMap(fgStrokes);
+ for(let i=0;i<vs.length;i++) if(i>=ts.length||vs[i].k!==ts[i].k||vs[i].sh!==ts[i].sh) return {k:'bs',sh:0,why:'bad'};
+ if(vs.length>=ts.length){ const wordish=T.special==='raid'||(!T.special&&(T.mode==='word'||T.mode==='eng')); return {k:wordish?'space':'enter',sh:0,why:'done'}; }
+ return ts[vs.length]; }
+function fgHand(side){ // side 'l' | 'r' : 왼손 그림을 그리고 오른손은 좌우로 뒤집음
+ const F=side==='l'?['lp','lr','lm','li']:['rp','rr','rm','ri'];
+ const fing=[[5,34,13,32],[20,16,14,48],[36,9,14,54],[52,18,14,46]].map(([x,y,w,h],i)=>`<rect class="fing f-${F[i]}" data-f="${F[i]}" x="${x}" y="${y}" width="${w}" height="${h}" rx="7"/>`).join('');
+ return `<svg class="fghand" viewBox="0 0 92 104" aria-hidden="true"><g${side==='r'?' transform="translate(92 0) scale(-1 1)"':''}><rect class="palm" x="5" y="52" width="63" height="46" rx="16"/>${fing}<rect class="fing f-th" data-f="th" x="66" y="56" width="14" height="34" rx="7" transform="rotate(-38 73 73)"/></g></svg>`; }
+let fgBuilt=false, fgLang='';
+function fgBuild(lang){ const el=$('fg'); fgLang=lang;
+ const kb=FG_ROWS.map((row,ri)=>`<div class="row r${ri}">${row.map(([k,w])=>{ const f=FG_FINGER[k]||'lp', wide=FG_WIDE[k]; const j=lang==='ko'&&/^[a-z]$/.test(k)?keyJamo(k):'';
+  const lab=wide?wide:j?`<b>${j}</b><s>${k.toUpperCase()}</s>`:/^[a-z]$/.test(k)?`<b>${k.toUpperCase()}</b>`:esc(k);
+  return `<i class="k f-${f}${wide?' wide':''}${k==='f'||k==='j'?' bump':''}${j?'':' en'}" data-k="${esc(k)}" style="--w:${w||1}">${lab}</i>`; }).join('')}</div>`).join('');
+ el.innerHTML=`<div class="fgcap" id="fgCap"></div>${fgHand('l')}<div class="kb" id="kb">${kb}</div>${fgHand('r')}`; fgBuilt=true; }
+function renderFinger(){ const el=$('fg'); if(!el) return; const mode=started?fingerMode():'off';
+ const show=mode!=='off'&&!(story&&!(story.typing&&T.special==='story'));
+ el.hidden=!show; if(!show) return; el.classList.toggle('next',mode==='next');
+ const tg=fgTarget()||'', lang=/[가-힣ㄱ-ㅣ]/.test(tg)||(!tg&&T.mode!=='eng')?'ko':'en'; if(!fgBuilt||lang!==fgLang) fgBuild(lang);
+ el.querySelectorAll('.nx').forEach(x=>x.classList.remove('nx')); el.querySelectorAll('.fing.on').forEach(x=>x.classList.remove('on'));
+ el.querySelectorAll('[data-k="q"],[data-k="w"],[data-k="e"],[data-k="r"],[data-k="t"],[data-k="o"],[data-k="p"]').forEach(x=>{ const k=x.dataset.k; if(lang==='ko') x.firstChild.textContent=keyJamo(k); });
+ const cap=$('fgCap'), n=fgNext();
+ if(!n){ if(T.recall&&/[ㄱ-ㅣ가-힣]/.test(typer.value)){ cap.innerHTML='한글로 쳐지고 있어요. <kbd>한/영</kbd> 키를 눌러요'; return; }
+ cap.innerHTML=T.special==='riddle'?'수수께끼 답은 스스로 떠올려 봐요':T.recall?'뜻을 보고 떠올려 봐요. 막히면 잠시 기다려요':'<span style="opacity:.7">손가락을 기본 자리(ㅁㄴㅇㄹ · ㅓㅏㅣ)에 올려요</span>'; return; }
+ const f=FG_FINGER[n.k]||'lp', keyEl=el.querySelector(`.k[data-k="${CSS.escape(n.k)}"]`); if(keyEl) keyEl.classList.add('nx');
+ const on=fk=>el.querySelectorAll(`.fing[data-f="${fk}"]`).forEach(x=>x.classList.add('on')); on(f);
+ const dot=fk=>`<span class="dot f-${fk}" style="background:var(--dot)"></span>`;
+ const lab=k=>FG_WIDE[k]||(lang==='ko'&&/^[a-z]$/.test(k)?keyJamo(k):k.toUpperCase());
+ if(n.sh){ const sk=f[0]==='l'?'rsh':'lsh', sf=FG_FINGER[sk]; const se=el.querySelector(`.k[data-k="${sk}"]`); if(se) se.classList.add('nx'); on(sf);
+  if(lang==='ko'&&FG_SHK[n.k]){ const ke=el.querySelector(`.k[data-k="${n.k}"]`); if(ke) ke.firstChild.textContent=FG_SHK[n.k]; }
+  cap.innerHTML=`<kbd>Shift</kbd>+<kbd>${esc(lab(n.k))}</kbd>${lang==='ko'&&FG_SHK[n.k]?` = <b>${FG_SHK[n.k]}</b>`:''}<span>${FG_NAME[sf]} + <b>${FG_NAME[f]}</b></span>`; return; }
+ if(n.why==='bad'&&/[ㄱ-ㅣ가-힣]/.test(typer.value)&&!/[가-힣]/.test(fgTarget()||'')){ cap.innerHTML=`한글로 쳐지고 있어요. <kbd>한/영</kbd> 키를 눌러 영어로 바꾼 뒤 <kbd>Backspace</kbd>로 지워요`; return; }
+ if(n.why==='bad'){ cap.innerHTML=`틀린 글자를 지워요 <kbd>Backspace</kbd><span>${FG_NAME[f]}</span>`; return; }
+ if(n.why==='done'){ cap.innerHTML=`다 쳤어요 <kbd>${n.k==='space'?'Space':'Enter'}</kbd><span>${FG_NAME[f]}</span>`; return; }
+ cap.innerHTML=`다음 <kbd>${esc(lab(n.k))}</kbd><b>${FG_NAME[f]}</b>`; }
 function noteKeys(chars,isErr){ const tgt=isErr?P.keyErr:P.keyTot; chars.forEach(c=>keysOf(c).forEach(k=>{ tgt[k]=(tgt[k]||0)+1; })); }
 function keyRate(k){ const e=P.keyErr[k]||0, t=P.keyTot[k]||0; return e+t<6?0:e/(e+t); }
 function weakKeys(n=3){ return LATIN.join('').split('').map(k=>[k,keyRate(k)]).filter(([,r])=>r>0).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([k])=>k); }
@@ -2229,7 +2403,7 @@ function dunText(kind){ if(kind==='short') return draw(SENTENCES.filter(s=>[...s
  if(kind==='eng') return draw(EN_WORDS,'d1')[0]+' '+draw(EN_WORDS,'d1')[0];
  if(kind==='sent') return draw(SENTENCES,'d2');
  if(kind==='words3') return [0,1,2].map(()=>draw(KO_WORDS.filter(w=>[...w].length<=4),'d3')).join(' ');
- const P2=POEMS[Math.floor(Math.random()*POEMS.length)]; return P2.lines.filter(l=>[...l].length>=10)[0]||draw(SENTENCES.filter(s=>[...s].length>=16),'d4'); }
+ const KP=POEMS.filter(P=>!/^(en|teacheren)$/.test(P.topic)), P2=KP[Math.floor(Math.random()*KP.length)]; return P2.lines.filter(l=>[...l].length>=10)[0]||draw(SENTENCES.filter(s=>[...s].length>=16),'d4'); }
 function nextRoom(){ const st=dStage();
  if(!st){ dun.phase='choose'; T.prevMode=T.prevMode&&T.special?T.prevMode:T.mode; T.special='dungeon'; T.target=' '; resetInput(); renderDockTop(); $('hint').innerHTML='<kbd>1</kbd> 또는 <kbd>2</kbd> 길 고르기';
   txBody.className=''; txBody.innerHTML=`<div class="head"><span><b>갈림길</b></span><span>3 / 5번째 방</span></div><p class="dg-choose-hint">물길(1)과 바람길(2) 중 하나를 골라요. 숫자를 누르거나 위 그림을 눌러요.</p>`;
@@ -2894,8 +3068,8 @@ function openFeedback(){ if(!SLOT) return; const f={fun:0,feel:'',likes:[],note:
 const COLS=[['num','번호'],['name','이름'],['days','플레이한 날'],['playMin','플레이(분)'],['typeMin','타자(분)'],['cpm','평균 타수'],['best','최고 타수'],['acc','정확도(%)'],['items','입력 수'],['word','단어'],['sentence','문장'],['long','긴 글 줄'],['eng','영단어'],['chapters','끝낸 장'],['stars','별'],['diff','난이도'],['topic','글감'],['weak','자주 틀리는 키'],['fun','재미(1~5)'],['feel','어려움'],['likes','좋았던 것'],['note','소감'],['last','마지막 날']];
 let teacherRows=[];
 function cellOf(r,k){ const v=r[k]; if(k==='diff') return DIFF_KO[v]||v; if(k==='topic') return TOPIC_KO[v]||v; if(k==='feel') return FEEL_KO[v]||v; return v??''; }
-function fillPackForm(){ const d=packGet(); $('pkTitle').value=d?d.title:''; $('pkWords').value=d?d.words.join(' '):''; $('pkSents').value=d?d.sents.join('\n'):''; $('pkLines').value=d?d.lines.join('\n'):''; $('pkEng').value=d?d.eng.map(x=>x[0]+'='+x[1]).join('\n'):''; $('pkMsg').textContent=d?`저장된 글감: 낱말 ${d.words.length}, 문장 ${d.sents.length}, 긴 글 ${d.lines.length}행, 영단어 ${d.eng.length}`:'저장된 글감이 없어요.'; }
-function readPackForm(){ return packParse({title:$('pkTitle').value,words:$('pkWords').value,sents:$('pkSents').value,lines:$('pkLines').value,eng:$('pkEng').value}); }
+function fillPackForm(){ const d=packGet(); $('pkTitle').value=d?d.title:''; $('pkWords').value=d?d.words.join(' '):''; $('pkSents').value=d?d.sents.join('\n'):''; $('pkLines').value=d?d.lines.join('\n'):''; $('pkEng').value=d?d.eng.map(x=>x[0]+'='+x[1]).join('\n'):''; $('pkEngS').value=d?(d.engSents||[]).map(x=>x[0]+(x[1]?' = '+x[1]:'')).join('\n'):''; $('pkEngL').value=d?(d.engLines||[]).map(x=>x[0]+(x[1]?' = '+x[1]:'')).join('\n'):''; $('pkMsg').textContent=d?`저장된 글감: 낱말 ${d.words.length}, 문장 ${d.sents.length}, 긴 글 ${d.lines.length}행, 영단어 ${d.eng.length}`:'저장된 글감이 없어요.'; }
+function readPackForm(){ return packParse({title:$('pkTitle').value,words:$('pkWords').value,sents:$('pkSents').value,lines:$('pkLines').value,eng:$('pkEng').value,engSents:$('pkEngS').value,engLines:$('pkEngL').value}); }
 function renderProps(){ const rows=[]; slotsAll().forEach(sl=>{ let pr; try{ pr=JSON.parse(LS.get(`tadak@${sl.id}/profile`)||'null'); }catch(e){} ((pr&&pr.props)||[]).forEach((x,i)=>{ if(x.st==='wait') rows.push({sl,i,t:x.t}); }); });
  $('tProps').innerHTML=rows.length?`<div class="props">${rows.map((r,k)=>`<span class="wait">${esc(r.t)}<em>${esc(slotLabel(r.sl))}</em><button class="linkbtn" data-pa="${k}">넣기</button><button class="linkbtn" data-pr="${k}">빼기</button></span>`).join('')}</div>`:'<p class="mtext">기다리는 제안이 없어요.</p>';
  const decide=(k,ok)=>{ const r=rows[k]; let pr; try{ pr=JSON.parse(LS.get(`tadak@${r.sl.id}/profile`)||'null'); }catch(e){} if(!pr||!pr.props||!pr.props[r.i]) return; pr.props[r.i].st=ok?'ok':'no'; LS.set(`tadak@${r.sl.id}/profile`,JSON.stringify(pr));
@@ -2998,6 +3172,8 @@ const HELP=[
  ['성은 어떻게 키워요?','<b>성·연구</b>에서 증축 조건(주민 수, 연구, 자원)을 채우면 증축할 수 있어요. 성이 커지면 원정과 밤 침공이 열려요.'],
  ['섬을 넓히고 싶어요','<b>성·연구</b>의 구역 목록이나 바다 위 깃발을 눌러 구역을 사요. 가진 땅과 맞닿은 구역만 살 수 있어요.'],
  ['밤 침공은 어떻게 막아요?','배 위에 적힌 단어를 치고 <kbd>Space</kbd>를 눌러요. 가까운 배부터 치면 좋아요.'],
+ ['손가락 자리 키보드는 뭐예요?','타자 칸 아래 키보드에서 다음에 누를 키가 빛나고, 손 그림에서 그 키를 누르는 손가락이 칠해져요. 쌍자음(ㄲ, ㅆ 등)은 <kbd>Shift</kbd>도 함께 빛나요. <b>설정 → 손가락 자리</b>에서 「손가락만」이나 「끄기」로 바꿀 수 있어요.'],
+ ['영어로 치고 싶어요','<b>설정 → 타자 언어</b>를 「영어」로 바꾸면 단어·문장·긴 글이 영어로 나오고, 영단어 칸은 「뜻 보고 쓰기」가 돼요. 칠 때는 <kbd>한/영</kbd> 키로 영어 입력으로 바꿔요. 「영어 수준」에서 3·4학년, 5·6학년을 고를 수 있어요.'],
  ['캠페인을 처음부터 하고 싶어요','지도에서 장을 고르고 「처음부터」를 누르면 확인 창이 나와요. 지우면 되돌릴 수 없으니, 이어서 하려면 「이어하기」를 눌러요.']];
 function openHelp(){ showModal(`<h2>도움말</h2><div class="helpq">${HELP.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div><div class="foot"><button class="btn sm" data-m="tour">처음 안내 다시 보기</button><button class="btn primary sm" data-m="x">닫기</button></div>`, m=>{ if(m==='tour') setTimeout(()=>startTour(isCamp()?'camp':'free'),200); }); }
 function renderCoach_old(){ const el=$('coachWrap'); if(!S.coach||!started){ el.innerHTML=''; return; }
@@ -3005,11 +3181,15 @@ function renderCoach_old(){ const el=$('coachWrap'); if(!S.coach||!started){ el.
  $('coachOk').onclick=()=>{ S.coach=false; renderCoach(); save(); refocus(); }; }
 // 예전 글 안내 상자 대신, 처음 들어온 학생에게 메뉴를 가리키는 안내를 한 번 보여 줌(학생마다 기록)
 function renderCoach(){ $('coachWrap').innerHTML=''; if(!started||!P) return; const kind=isCamp()?'camp':(S.map==='free'?'free':null); if(!kind||(P.tour&&P.tour[kind])) return; S.coach=false; setTimeout(()=>whenFree(()=>{ const k=isCamp()?'camp':(S.map==='free'?'free':null); if(k===kind&&!(P.tour&&P.tour[kind])) startTour(kind); }),900); }
-function syncDiff(){ const cd=classSet('diff'), ct=classSet('topic'), cp=classSet('peace'); $('setDiff').querySelectorAll('button').forEach(b=>{ b.classList.toggle('on',b.dataset.v===(cd||S.set.diff||'normal')); b.disabled=!!cd; }); $('setTopic').querySelectorAll('button').forEach(b=>b.disabled=!!ct); $('setPeace').disabled=!!cp; if(cp) $('setPeace').setAttribute('aria-pressed',cp==='on'); $('lockNote').hidden=!(cd||ct||cp); $('setTopic').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===topic())); $('topTeacher').hidden=!packGet(); }
+function syncDiff(){ const cd=classSet('diff'), ct=classSet('topic'), cp=classSet('peace'); $('setDiff').querySelectorAll('button').forEach(b=>{ b.classList.toggle('on',b.dataset.v===(cd||S.set.diff||'normal')); b.disabled=!!cd; }); $('setTopic').querySelectorAll('button').forEach(b=>b.disabled=!!ct); $('setPeace').disabled=!!cp; if(cp) $('setPeace').setAttribute('aria-pressed',cp==='on'); $('lockNote').hidden=!(cd||ct||cp); $('setTopic').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===topic())); const cl=classSet('lang'), ce=classSet('enLv'); $('setLang').querySelectorAll('button').forEach(b=>{ b.classList.toggle('on',b.dataset.v===lang()); b.disabled=!!cl; }); $('setEnLv').querySelectorAll('button').forEach(b=>{ b.classList.toggle('on',b.dataset.v===enLv()); b.disabled=!!ce; }); if(cl||ce) $('lockNote').hidden=false; const cf=classSet('finger'); $('setFinger').querySelectorAll('button').forEach(b=>{ b.classList.toggle('on',b.dataset.v===fingerMode()); b.disabled=!!cf; }); if(cf) $('lockNote').hidden=false; $('topTeacher').hidden=!packGet(); }
 function openSettings(){ $('settings').hidden=false; setTimeout(()=>{ const f=$('settings').querySelector('input,button'); if(f) f.focus({preventScroll:true}); },0); syncDiff(); $('setWho').textContent=SLOT?(SLOT.cloud?`${slotLabel(SLOT)} · ${syncStatus()}`:`${slotLabel(SLOT)} · 선생님께 기록과 소감을 보내요`):'손님은 기록이 저장되지 않아요'; $('btnFb').disabled=$('btnExport').disabled=$('btnMove').disabled=!SLOT; $('setVol').value=S.set.vol; ['music','shake','ghost','peace','big','lite'].forEach(k=>$('set'+k[0].toUpperCase()+k.slice(1)).setAttribute('aria-pressed',k==='peace'?peaceOn():!!S.set[k])); $('btnReset').textContent=resetLabel(); $('btnReset').dataset.arm=''; $('btnReset').classList.remove('danger'); }
 function closeSettings(){ $('settings').hidden=true; save(); refocus(); }
 $('btnCloseSet').onclick=closeSettings;
 $('setTopic').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.set.topic=b.dataset.v; syncDiff(); AU.tone(700,'triangle',0.05,0.05); T.queue=[]; S.long.p=null; S.long.l=0; loadTarget(); });
+const langChanged=()=>{ syncDiff(); AU.tone(700,'triangle',0.05,0.05); for(const k in _pool) delete _pool[k]; T.weak=null; T.queue=[]; S.long.p=null; S.long.l=0; if(!T.special){ renderDockTop(); loadTarget(); } };
+$('setLang').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.set.lang=b.dataset.v; langChanged(); });
+$('setEnLv').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.set.enLv=b.dataset.v; langChanged(); });
+$('setFinger').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.set.finger=b.dataset.v; syncDiff(); AU.tone(700,'triangle',0.05,0.05); renderFinger(); });
 $('setDiff').querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.set.diff=b.dataset.v; syncDiff(); AU.tone(700,'triangle',0.05,0.05); renderPreview(); }); $('settings').addEventListener('click',e=>{ if(e.target.id==='settings') closeSettings(); });
 $('setVol').oninput=e=>{ S.set.vol=+e.target.value; devSave(S.set); AU.apply(); AU.tick(false); };
 ['music','shake','ghost','peace','big','lite'].forEach(k=>{ const el=$('set'+k[0].toUpperCase()+k.slice(1)); el.onclick=()=>{ S.set[k]=!S.set[k]; if(DEV_KEYS.includes(k)) devSave(S.set); if(k==='lite'){ S.set.liteAsked=true; resize(); syncFolk(); } el.setAttribute('aria-pressed',S.set[k]); AU.apply(); AU.tone(700,'triangle',0.05,0.05); }; });
@@ -3039,7 +3219,7 @@ function useSlot(sl){ if(!sl) return; if(S&&SLOT) save(); SLOT=sl; const all=slo
 function showTitle(){ started=false; document.body.classList.add('titled'); $('camp').hidden=true; const t=$('title'); t.hidden=false; t.classList.remove('out');
  if(SLOT&&SLOT.cloud) syncNow(); $('btnBackCloud').hidden=!CLOUD.on(); $('btnTeacher').textContent=CLOUD.on()?'이 컴퓨터 기록 (선생님)':'선생님 화면'; $('cloudBox').hidden=!CLOUD.on()||!!SLOT; $('localOpen').hidden=!CLOUD.on()||!!SLOT; if(CLOUD.on()&&!SLOT) $('who').hidden=true; if(!SLOT&&CLOUD.on()) ClassLogin.mountStudentLogin($('clMount'),{code:new URLSearchParams(location.search).get('code')||'',num:new URLSearchParams(location.search).get('num')||'',onLogin:ss=>{ AU.init(); cloudEnter(ss); }}); if(!CLOUD.on()) $('who').hidden=!!SLOT; else if(SLOT) $('who').hidden=true; $('tBtns').hidden=!SLOT; document.querySelector('.t-foot').hidden=!SLOT; $('me').hidden=!SLOT; $('whoNew').hidden=true; if(SLOT){ $('meName').innerHTML=`<b>${esc(slotLabel(SLOT))}</b> 영주님`+(SLOT.cloud?` <small class="cls">${esc(SLOT.cls||'')}</small>`:''); } else renderWho();
  const lastId=P.last&&hasSave(P.last)?P.last:null; $('tFirst').hidden=!SLOT||!!lastId; const cb=$('btnContinue'); cb.hidden=!lastId; if(lastId){ cb.textContent=lastId==='free'?'이어하기 (자유 모드)':lastId==='toy'?'이어하기 (놀이 섬)':`이어하기 (${chapterOf(lastId).no}장 ${chapterOf(lastId).title})`; } renderCoach(); renderObjTrack(); }
-function startGame(){ AU.init(); AU.apply(); document.body.classList.remove('titled'); const t=$('title'); t.classList.add('out'); setTimeout(()=>{ t.hidden=true; },500); started=true; renderCoach(); renderObjTrack(); resize(); refocus(); }
+function startGame(){ AU.init(); AU.apply(); document.body.classList.remove('titled'); const t=$('title'); t.classList.add('out'); setTimeout(()=>{ t.hidden=true; },500); started=true; setTimeout(renderFinger,0); renderCoach(); renderObjTrack(); resize(); refocus(); }
 $('btnCamp').onclick=()=>{ AU.init(); openCampaign(); };
 $('whoNew').onsubmit=e=>{ e.preventDefault(); const name=$('whoName').value.trim().slice(0,10), numRaw=$('whoNum').value.trim(), num=/^\d{1,2}$/.test(numRaw)?+numRaw:null;
  if(!name){ $('whoName').focus(); return; } const all=slotsAll(); if(all.length>=60){ toast('학생 칸이 너무 많아요. 선생님 화면에서 정리해요'); return; }
@@ -3053,7 +3233,7 @@ $('btnTeacher').onclick=openTeacher; $('btnTeacher2').onclick=()=>{ window.open(
 $('btnBackCloud').onclick=()=>{ $('who').hidden=true; $('whoNew').hidden=true; $('cloudBox').hidden=false; $('localOpen').hidden=false; const f=$('clMount').querySelector('input'); if(f) f.focus(); }; $('tClose').onclick=()=>{ $('teacher').hidden=true; if(!SLOT) renderWho(); };
 $('tCsv').onclick=async()=>{ const ok=await download(`이름을쓰는섬_학급기록_${dateKey()}.csv`,teacherCSV(),'text/csv;charset=utf-8'); $('tMsg').textContent=ok?'CSV를 받았어요. 엑셀에서 바로 열 수 있어요.':'파일을 받지 못했어요.'; };
 $('tFiles').onchange=async e=>{ const fs=[...e.target.files]; const texts=await Promise.all(fs.map(f=>f.text())); addTeacherRecords(texts); e.target.value=''; };
-$('pkSave').onclick=()=>{ const d=readPackForm(); if(!(d.words.length||d.sents.length||d.lines.length||d.eng.length)){ $('pkMsg').textContent='넣은 내용이 없어요.'; return; } packSave(d); fillPackForm(); };
+$('pkSave').onclick=()=>{ const d=readPackForm(); if(!packHas(d)){ $('pkMsg').textContent='넣은 내용이 없어요.'; return; } packSave(d); fillPackForm(); };
 $('pkClear').onclick=()=>{ const b=$('pkClear'); if(b.dataset.arm!=='1'){ b.dataset.arm='1'; b.textContent='정말 지우기'; return; } b.dataset.arm=''; b.textContent='지우기'; packSave(null); fillPackForm(); };
 $('pkCode').onclick=async()=>{ const d=packGet(); if(!d){ $('pkMsg').textContent='먼저 저장해요.'; return; } $('pkMsg').textContent=(await copyText(packCode(d)))?'코드를 복사했어요. 다른 컴퓨터의 선생님 화면에 붙여 넣어요.':'복사가 안 됐어요.'; };
 $('pkLink').onclick=async()=>{ const d=packGet(); if(!d){ $('pkMsg').textContent='먼저 저장해요.'; return; } const u=location.href.split('#')[0]+'#pack='+encodeURIComponent(packCode(d).slice(11)); $('pkMsg').textContent=(await copyText(u))?'학생용 링크를 복사했어요. 이 링크로 열면 그 컴퓨터에 글감이 저장되고, 학생이 고르면 "선생님" 글감으로 바뀌어요.':'복사가 안 됐어요.'; };
@@ -3093,7 +3273,7 @@ async function start(data){
  try{ if(location.hash.startsWith('#pack=')){ const d=packFromCode('TADAKPACK1:'+location.hash.slice(6)); packSave(d); history.replaceState(null,'',location.href.split('#')[0]); window.__packJustLoaded=d.title; } }catch(e){}
  packApply();
  if(data&&data.slot){ SLOT=slotsAll().find(x=>x.id===data.slot)||null; if(SLOT) loadProfile(); }
- CLOUD.init(); { const cs=cloudSess(); if(!SLOT&&cs&&cs.student){ const sl={id:'c_'+cs.student.id,num:cs.student.num,name:'',cloud:true,cls:cs.cls&&cs.cls.name}; const tl=$('tLoad'); if(tl){ tl.hidden=false; tl.textContent='학급 서버에서 기록을 불러오는 중이에요'; } await cloudPull(sl); SLOT=sl; loadProfile(); applyPackStatus(); } }
+ CLOUD.init(); { const cs=cloudSess(); if(!SLOT&&cs&&cs.student){ const sl={id:'c_'+cs.student.id,num:cs.student.num,name:'',cloud:true,cls:cs.cls&&cs.cls.name}; const tl=$('tLoad'); if(tl){ tl.hidden=false; tl.textContent='학급 서버에서 기록을 불러오는 중이에요'; } await cloudPull(sl); SLOT=sl; packApply(); loadProfile(); applyPackStatus(); } }
  S=(data&&data.s&&data.s.v>=2)?data.s:((SLOT&&((P.last&&loadSave(P.last))||loadSave('free')))||newState('free'));
  $('story').addEventListener('click',()=>{ advanceStory(); refocus(); });
  $('crest').addEventListener('click',()=>{ if(drawerTab==='town') closeDrawer(); else openDrawer('town'); refocus(); });
@@ -3103,7 +3283,7 @@ async function start(data){
  window.claude?.hot?.snapshot?.(()=>({s:S,slot:SLOT&&SLOT.id}));
  if(data&&data.s&&SLOT) startGame(); else showTitle();
  requestAnimationFrame(frame);
- window.__tadak={get S(){return S;}, get POEMS(){return POEMS;}, startRaid:()=>startRaid(), get raid(){return raid;}, get dun(){return dun;}, startExpedition, setClock:(c)=>{S.clock=c;}, get P(){return P;}, canPlace:(t,x,y)=>canPlace(t,x,y), openCampaign, get story(){return story;}, advanceStory, startDuel, get duel(){return duel;}, checkObjectives, research, upgradeCastle, buyRegion, get REGIONS(){return REGIONS;}, regionState:(i)=>regionState(i), regionCost:(R)=>regionCost(R), get N(){return N;}, get LAND(){return LAND;}, spawnMerchant:()=>spawnMerchant(), get merchant(){return merchant;}, objAt:(x,y)=>objAt(x,y), screenOf:(x,y)=>{ const [a,b]=W(x,y); return [cam.ox+a*cam.s, cam.oy+b*cam.s]; }, afterProgress};
+ window.__tadak={get S(){return S;}, get POEMS(){return POEMS;}, startRaid:()=>startRaid(), get raid(){return raid;}, get dun(){return dun;}, startExpedition, setClock:(c)=>{S.clock=c;}, get P(){return P;}, canPlace:(t,x,y)=>canPlace(t,x,y), openCampaign, get story(){return story;}, advanceStory, startDuel, get duel(){return duel;}, checkObjectives, research, upgradeCastle, buyRegion, get REGIONS(){return REGIONS;}, regionState:(i)=>regionState(i), regionCost:(R)=>regionCost(R), get N(){return N;}, get LAND(){return LAND;}, spawnMerchant:()=>spawnMerchant(), get merchant(){return merchant;}, objAt:(x,y)=>objAt(x,y), screenOf:(x,y)=>{ const [a,b]=W(x,y); return [cam.ox+a*cam.s, cam.oy+b*cam.s]; }, afterProgress, get T(){return T;}, setMode, buildSpans, renderTyped, fgNext, renderFinger, loadTarget};
 }
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 })();

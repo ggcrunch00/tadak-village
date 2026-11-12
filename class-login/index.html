@@ -441,6 +441,9 @@ const LSET = [
   ['peace', '밤 침공', '밤마다 침입자가 와서 단어로 막는 놀이예요. 끄면 평화 모드로 고정돼요.', [['', '학생이 고름'], ['on', '끄기 (평화 모드)'], ['off', '켜기']]],
   ['topic', '글감 주제', '단어, 문장, 긴 글에 나오는 내용이에요. 선생님 글감은 글감 탭에서 저장한 것만 나와요.', [['', '학생이 고름'], ['teacher', '선생님 글감'], ['mix', '섞기'], ['virtue', '미덕'], ['study', '교과'], ['village', '마을 이야기']]],
   ['diff', '난이도', '입력 한 번에 받는 자원의 양이 달라져요.', [['', '학생이 고름'], ['easy', '쉬움'], ['normal', '보통'], ['hard', '어려움']]],
+  ['lang', '타자 언어', '영어로 하면 단어·문장·긴 글이 영어로 나오고, 영단어 칸은 뜻을 보고 영어로 쓰는 연습이 돼요. 캠페인 이야기와 원정은 한글로 나와요.', [['', '학생이 고름'], ['ko', '한글'], ['en', '영어']]],
+  ['enLv', '영어 수준', '영어로 할 때 나오는 단어와 문장의 수준이에요.', [['', '학생이 고름'], ['low', '3·4학년'], ['high', '5·6학년']]],
+  ['finger', '손가락 자리', '타자 칸 아래에 다음에 누를 키와 손가락을 보여줘요. 처음에는 켜져 있어요.', [['', '학생이 고름'], ['full', '키보드와 손가락'], ['next', '손가락만'], ['off', '끄기']]],
   ['toy', '놀이 섬', '자원 걱정 없이 마음대로 짓는 섬이에요.', [['', '그날 100번 입력하면 열림'], ['open', '항상 열기'], ['lock', '잠그기']]]];
 async function viewSettings(c) { const V = $('view');
   V.innerHTML = `${GAMES.length > 1 ? `<div class="bar"><div class="grp">${gameSeg()}</div></div>` : ''}<p class="note">이 반 학생 모두에게 적용돼요. "학생이 고름"은 학생 각자의 설정을 따라요. 저장하면 학생이 다음에 로그인할 때 바뀌어요.</p>
@@ -461,23 +464,28 @@ async function viewSettings(c) { const V = $('view');
 async function getPack(c) { try { const r = await T.get(`/rest/v1/cl_packs?select=data&class_id=eq.${c.id}&app=eq.${APP}`); return r[0] ? r[0].data : null; } catch (e) { return null; } }
 async function putPack(c, d) { await T.post('/rest/v1/cl_packs?on_conflict=class_id,app', {class_id: c.id, app: APP, data: d}, 'resolution=merge-duplicates'); }
 async function viewPack(c) { const V = $('view');
-  V.innerHTML = `${GAMES.length > 1 ? `<div class="bar"><div class="grp">${gameSeg()}</div></div>` : ''}<p class="note">타자 게임에 나올 낱말, 문장, 긴 글, 영단어예요. 저장하면 학생이 다음에 로그인할 때 받아요. 수업 설정의 글감 주제를 "선생님 글감"으로 두면 이것만 나와요.</p>
+  V.innerHTML = `${GAMES.length > 1 ? `<div class="bar"><div class="grp">${gameSeg()}</div></div>` : ''}<p class="note">타자 게임에 나올 낱말, 문장, 긴 글, 영단어, 영어 문장과 영어 긴 글이에요. 저장하면 학생이 다음에 로그인할 때 받아요. 수업 설정의 글감 주제를 "선생님 글감"으로 두면 이것만 나와요.</p>
    <form id="pkF"><div class="pkgrid">
     <label class="f wide">글감 이름<input id="pkT" maxlength="30" placeholder="예: 3단원 낱말" style="max-width:360px"></label>
     <label class="f">낱말 <small>띄어쓰기나 쉼표로 나눠요. 최대 300개</small><textarea id="pkW"></textarea></label>
     <label class="f">문장 <small>한 줄에 한 문장. 최대 200개</small><textarea id="pkS"></textarea></label>
     <label class="f">긴 글 <small>한 줄이 한 행이에요. 최대 40행</small><textarea id="pkL"></textarea></label>
-    <label class="f">영단어 <small>한 줄에 단어=뜻 (예: apple=사과)</small><textarea id="pkE"></textarea></label></div>
+    <label class="f">영단어 <small>한 줄에 단어=뜻 (예: apple=사과)</small><textarea id="pkE"></textarea></label>
+    <label class="f">영어 문장 <small>한 줄에 문장 = 뜻 (뜻은 빼도 돼요). 최대 200개</small><textarea id="pkES" placeholder="What time is it? = 몇 시니?"></textarea></label>
+    <label class="f">영어 긴 글 <small>한 줄이 한 행, 45자 이내. 행 = 뜻. 최대 40행</small><textarea id="pkEL" placeholder="It is seven o'clock. = 일곱 시야."></textarea></label></div>
     <div class="savebar"><button class="btn primary" type="submit">글감 저장</button><span class="dirty" id="pkDirty" hidden>저장하지 않은 변경 사항</span><span class="status" id="pkMsg" role="status">불러오는 중</span></div></form>`;
   bindSeg();
   const prev = await getPack(c); if (TAB !== 'pack' || SEL !== c.id || !$('pkF')) return;
-  const count = d => `낱말 ${(d.words || []).length} · 문장 ${(d.sents || []).length} · 긴 글 ${(d.lines || []).length}행 · 영단어 ${(d.eng || []).length}`;
-  if (prev) { $('pkT').value = prev.title || ''; $('pkW').value = (prev.words || []).join(' '); $('pkS').value = (prev.sents || []).join('\n'); $('pkL').value = (prev.lines || []).join('\n'); $('pkE').value = (prev.eng || []).map(x => x[0] + '=' + x[1]).join('\n'); say($('pkMsg'), '지금 학생에게 가는 글감: ' + count(prev)); }
+  const count = d => `낱말 ${(d.words || []).length} · 문장 ${(d.sents || []).length} · 긴 글 ${(d.lines || []).length}행 · 영단어 ${(d.eng || []).length} · 영어 문장 ${(d.engSents || []).length} · 영어 긴 글 ${(d.engLines || []).length}행`;
+  const pairTxt = a => (a || []).map(x => x[0] + (x[1] ? ' = ' + x[1] : '')).join('\n');
+  const pairs = (t, max, n) => t.split(/\n+/).map(x => { const i = x.indexOf('='); return i < 0 ? [x.trim(), ''] : [x.slice(0, i).trim(), x.slice(i + 1).trim().slice(0, 60)]; }).filter(([e]) => e && /^[\x20-\x7e]+$/.test(e) && /[a-zA-Z]/.test(e) && !/[<>]/.test(e) && e.length <= max).slice(0, n);
+  if (prev) { $('pkT').value = prev.title || ''; $('pkW').value = (prev.words || []).join(' '); $('pkS').value = (prev.sents || []).join('\n'); $('pkL').value = (prev.lines || []).join('\n'); $('pkE').value = (prev.eng || []).map(x => x[0] + '=' + x[1]).join('\n'); $('pkES').value = pairTxt(prev.engSents); $('pkEL').value = pairTxt(prev.engLines); say($('pkMsg'), '지금 학생에게 가는 글감: ' + count(prev)); }
   else say($('pkMsg'), '아직 저장한 글감이 없어요.');
   V.querySelectorAll('#pkF input, #pkF textarea').forEach(x => x.oninput = () => markDirty('pack', $('pkDirty')));
   $('pkF').onsubmit = async e => { e.preventDefault(); const base = await getPack(c) || {};
     const d = {title: $('pkT').value.trim() || '선생님 글감', words: [...new Set($('pkW').value.split(/[\s,]+/).filter(Boolean))].slice(0, 300), sents: $('pkS').value.split(/\n+/).map(x => x.trim()).filter(Boolean).slice(0, 200),
       lines: $('pkL').value.split(/\n+/).map(x => x.trim()).filter(Boolean).slice(0, 40), eng: $('pkE').value.split(/\n+/).map(x => x.split(/\s*[=:]\s*/)).filter(x => /^[a-zA-Z' -]{2,20}$/.test((x[0] || '').trim())).map(x => [x[0].trim().toLowerCase(), (x[1] || '').trim()]).slice(0, 200),
+      engSents: pairs($('pkES').value, 60, 200), engLines: pairs($('pkEL').value, 45, 40),
       approved: base.approved || [], rejected: base.rejected || [], settings: base.settings || {}};
     try { await putPack(c, d); DIRTY = null; $('pkDirty').hidden = true; say($('pkMsg'), '저장했어요. ' + count(d), 'ok'); } catch (e2) { say($('pkMsg'), '저장하지 못했어요: ' + errText(e2) + '. 적은 내용은 그대로 있어요.', 'err'); } }; }
 
