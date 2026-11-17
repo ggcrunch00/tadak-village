@@ -175,16 +175,21 @@ kbd{font-family:var(--f-type);font-size:11px;background:var(--paper);border-radi
 .empty{color:var(--ink-3);font-size:13px;text-align:center;padding:18px 6px}
 
 /* 손가락 자리: 타자 칸 아래 화면 키보드와 두 손 */
-.fg{display:grid;grid-template-columns:88px 1fr 88px;grid-template-rows:auto auto;column-gap:10px;row-gap:6px;margin:2px 0 8px;align-items:end}
+.fg{display:flex;flex-direction:column;align-items:center;gap:6px;margin:2px 0 6px}
 .fg[hidden]{display:none}
-.fgcap{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;color:var(--ink-2);min-height:22px;flex-wrap:wrap}
+.fgcap{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;color:var(--ink-2);min-height:22px;flex-wrap:wrap}
 .fgcap b{color:var(--ink);font-weight:700}
 .fgcap kbd{font-family:var(--f-ui);font-size:12px;font-weight:700;min-width:22px;text-align:center;padding:1px 6px;border-radius:5px;background:var(--paper);box-shadow:0 0 0 1px var(--edge),0 1.5px 0 1px var(--edge);color:var(--ink)}
 .fgcap .dot{width:10px;height:10px;border-radius:50%;display:inline-block;box-shadow:0 0 0 1px rgba(45,41,37,.25)}
-.fghand{width:88px;height:auto;display:block}
-.fghand .fing,.fghand .palm{fill:var(--paper-2);stroke:rgba(45,41,37,.32);stroke-width:1.4}
-.fghand .fing.on{stroke:var(--ink);stroke-width:2}
-.fghand .fing.home{stroke-dasharray:none}
+.kbw{position:relative;width:min(100%,640px);padding-bottom:var(--palm,40px);overflow:hidden;border-radius:0 0 10px 10px}
+.hands{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.hands .hand{opacity:.36}
+.hands .sk{fill:#f0d6bb;stroke:#7a5638;stroke-width:1.3}
+.hands g{transition:transform .16s ease-out}
+.hands rect{transition:width .16s ease-out,opacity .12s}
+.hands .fgo rect{stroke:#2d2925;stroke-width:1.6;opacity:0}
+.hands .fgo.on rect{opacity:.82}
+.hands .fgo.f-lp rect,.hands .fgo.f-rp rect{fill:#d4604f}.hands .fgo.f-lr rect,.hands .fgo.f-rr rect{fill:#c98a1e}.hands .fgo.f-lm rect,.hands .fgo.f-rm rect{fill:#5f9433}.hands .fgo.f-li rect,.hands .fgo.f-ri rect{fill:#3a7fbf}.hands .fgo.f-lt rect,.hands .fgo.f-rt rect{fill:#7d7264}
 .kb{display:grid;gap:3px;--u:calc((100% - 14 * 3px) / 15)}
 .kb .row{display:flex;gap:3px;height:var(--kh,29px)}
 .kb .row.r4{justify-content:center}
@@ -199,13 +204,11 @@ kbd{font-family:var(--f-type);font-size:11px;background:var(--paper);border-radi
 @keyframes fgpulse{50%{box-shadow:0 0 0 3px var(--ink),0 2px 0 3px var(--ink)}}
 .f-lp,.f-rp{background:#f7d6d1}.f-lr,.f-rr{background:#f7e3bd}.f-lm,.f-rm{background:#dcebc2}.f-li,.f-ri{background:#d3e5f4}.f-th{background:#e9e3d8}
 .kb .k.nx.f-lp,.kb .k.nx.f-rp{background:#d4604f}.kb .k.nx.f-lr,.kb .k.nx.f-rr{background:#c98a1e}.kb .k.nx.f-lm,.kb .k.nx.f-rm{background:#5f9433}.kb .k.nx.f-li,.kb .k.nx.f-ri{background:#3a7fbf}.kb .k.nx.f-th{background:#7d7264}
-.fghand .fing.on.f-lp,.fghand .fing.on.f-rp{fill:#d4604f}.fghand .fing.on.f-lr,.fghand .fing.on.f-rr{fill:#c98a1e}.fghand .fing.on.f-lm,.fghand .fing.on.f-rm{fill:#5f9433}.fghand .fing.on.f-li,.fghand .fing.on.f-ri{fill:#3a7fbf}.fghand .fing.on.f-th{fill:#7d7264}
-.fg.next .kb{display:none}
-.fg.next{grid-template-columns:88px auto 88px;justify-content:center}
-.fg.next .fgcap{grid-column:2;grid-row:1/3;align-self:center;font-size:14px}
-@media (max-height:820px){ .kb{--kh:24px} .kb .k{font-size:12.5px} .fghand{width:68px} .fg{grid-template-columns:68px 1fr 68px} }
-@media (max-height:700px){ .kb{--kh:19px} .kb .k{font-size:10.5px} .kb .k s{display:none} .fghand{width:52px} .fg{grid-template-columns:52px 1fr 52px} }
-@media (max-width:760px){ .fghand{width:46px} .fg{grid-template-columns:46px 1fr 46px;column-gap:4px} .kb .k s{display:none} .kb{--kh:21px} .kb .k{font-size:10.5px} .kb .k.wide{font-size:8px} }
+.fg.next .kbw{display:none}
+.fg.next .fgcap{font-size:14px}
+@media (max-height:820px){ .kb{--kh:24px} .kb .k{font-size:12.5px} .kbw{--palm:32px} }
+@media (max-height:700px){ .kb{--kh:19px} .kb .k{font-size:10.5px} .kb .k s{display:none} .kbw{--palm:24px} }
+@media (max-width:760px){ .kbw{--palm:26px} .kb .k s{display:none} .kb{--kh:21px} .kb .k{font-size:10.5px} .kb .k.wide{font-size:8px} }
 /* dock */
 .recallq{font-family:var(--f-ui);font-size:20px;font-weight:700;color:var(--ink);margin:-4px 0 2px}
 .tx .meaning{margin-top:2px}
@@ -642,7 +645,7 @@ body:has(#duel:not([hidden])) #map{filter:brightness(.55) saturate(.75);transiti
     <div class="set"><label>화면 흔들림<small>건설과 증축 연출</small></label><button class="tog" id="setShake" aria-pressed="true" aria-label="화면 흔들림"></button></div>
     <div class="set"><label>가벼운 그래픽<small>느린 컴퓨터나 크롬북에서 더 부드럽게 (흔들림, 효과, 주민 수 줄임)</small></label><button class="tog" id="setLite" aria-pressed="false" aria-label="가벼운 그래픽"></button></div>
     <div class="set"><label>큰 글씨<small>타자 글자를 더 크게 보여줘요</small></label><button class="tog" id="setBig" aria-pressed="false" aria-label="큰 글씨"></button></div>
-    <div class="set"><label>손가락 자리<small>다음에 누를 키와 손가락을 타자 칸 아래에 보여줘요</small></label><div class="seg" id="setFinger"><button data-v="full">키보드</button><button data-v="next">손가락만</button><button data-v="off">끄기</button></div></div>
+    <div class="set"><label>손가락 자리<small>다음에 누를 키와 손가락을 타자 칸 아래에 보여줘요</small></label><div class="seg" id="setFinger"><button data-v="full">키보드와 손</button><button data-v="next">다음 키 글자만</button><button data-v="off">끄기</button></div></div>
     <div class="set"><label>고스트 캐럿<small>문장과 긴 글에서 내 최고 속도를 보여줘요</small></label><button class="tog" id="setGhost" aria-pressed="true" aria-label="고스트 캐럿"></button></div>
     <div class="set"><label>내 기록<small id="setWho">선생님께 기록과 소감을 보내요</small></label><div style="display:flex;gap:6px"><button class="btn sm" id="btnFb">소감 남기기</button><button class="btn sm" id="btnExport">기록 내보내기</button></div></div>
     <div class="set"><label>다른 컴퓨터로 옮기기<small>내 마을과 진행을 파일로 담아 가요</small></label><button class="btn sm" id="btnMove">옮기기 파일</button></div>
@@ -2204,30 +2207,44 @@ function fgNext(){ const tg=fgTarget(); if(!tg) return null; const ts=[...tg].fl
  for(let i=0;i<vs.length;i++) if(i>=ts.length||vs[i].k!==ts[i].k||vs[i].sh!==ts[i].sh) return {k:'bs',sh:0,why:'bad'};
  if(vs.length>=ts.length){ const wordish=T.special==='raid'||(!T.special&&(T.mode==='word'||T.mode==='eng')); return {k:wordish?'space':'enter',sh:0,why:'done'}; }
  return ts[vs.length]; }
-function fgHand(side){ // side 'l' | 'r' : 왼손 그림을 그리고 오른손은 좌우로 뒤집음
- const F=side==='l'?['lp','lr','lm','li']:['rp','rr','rm','ri'];
- const fing=[[5,34,13,32],[20,16,14,48],[36,9,14,54],[52,18,14,46]].map(([x,y,w,h],i)=>`<rect class="fing f-${F[i]}" data-f="${F[i]}" x="${x}" y="${y}" width="${w}" height="${h}" rx="7"/>`).join('');
- return `<svg class="fghand" viewBox="0 0 92 104" aria-hidden="true"><g${side==='r'?' transform="translate(92 0) scale(-1 1)"':''}><rect class="palm" x="5" y="52" width="63" height="46" rx="16"/>${fing}<rect class="fing f-th" data-f="th" x="66" y="56" width="14" height="34" rx="7" transform="rotate(-38 73 73)"/></g></svg>`; }
+// 손: 키보드 위에 반투명하게 겹침. 손가락 끝은 기본 자리(ㅁㄴㅇㄹ · ㅓㅏㅣ;)에, 칠 손가락은 진해지며 그 키로 뻗음
+const FG_HOME={lp:'a',lr:'s',lm:'d',li:'f',ri:'j',rm:'k',rr:'l',rp:';'}, FG_WID={lp:.5,lr:.58,lm:.62,li:.62,ri:.62,rm:.62,rr:.58,rp:.5,lt:.7,rt:.7};
+const FG_ALL=['lp','lr','lm','li','lt','rt','ri','rm','rr','rp'];
+function fgPose(act){ const wrap=$('kbw'), svg=$('hands'); if(!wrap||!svg||!wrap.offsetWidth) return;
+ const W=wrap.getBoundingClientRect(), kc=k=>{ const e=wrap.querySelector(`.k[data-k="${CSS.escape(k)}"]`); if(!e) return null; const r=e.getBoundingClientRect(); return {x:r.left-W.left,y:r.top-W.top,w:r.width,h:r.height,cx:r.left-W.left+r.width/2,cy:r.top-W.top+r.height/2}; };
+ const a=kc('a'), kw=a.w, rh=a.h, ky=$('kb').offsetHeight+rh*0.5, sp=kc('space');
+ const pcL=(kc('s').cx+kc('f').cx)/2, pcR=(kc('j').cx+kc('l').cx)/2, kn={}, home={};
+ for(const f in FG_HOME){ const h=kc(FG_HOME[f]), pc=f[0]==='l'?pcL:pcR; kn[f]=[h.cx+(pc-h.cx)*0.22,ky]; home[f]=h; }
+ kn.lt=[kn.li[0]+kw*0.9,ky+rh*0.7]; kn.rt=[kn.ri[0]-kw*0.9,ky+rh*0.7]; home.lt={cx:sp.x+sp.w*0.3,cy:sp.cy,h:sp.h}; home.rt={cx:sp.x+sp.w*0.7,cy:sp.cy,h:sp.h};
+ if(!svg.firstChild){ const NS='http://www.w3.org/2000/svg', mk=(t,c,par)=>{ const e=document.createElementNS(NS,t); if(c) e.setAttribute('class',c); par.appendChild(e); return e; };
+  const base=mk('g','hand',svg), hi=mk('g','hi',svg); mk('rect','sk palm',base).dataset.p='l'; mk('rect','sk palm',base).dataset.p='r';
+  FG_ALL.forEach(f=>{ const g=mk('g','fgf',base); g.dataset.f=f; mk('rect','sk',g); const o=mk('g','fgo f-'+f,hi); o.dataset.f=f; mk('rect','',o); }); }
+ svg.querySelectorAll('.palm').forEach(r=>{ const L=r.dataset.p==='l', x0=L?kn.lp[0]-kw*FG_WID.lp*0.85:kn.rt[0]-kw*0.45, x1=L?kn.lt[0]+kw*0.45:kn.rp[0]+kw*FG_WID.rp*0.85;
+  r.setAttribute('x',x0); r.setAttribute('y',ky-rh*0.25); r.setAttribute('width',x1-x0); r.setAttribute('height',rh*4); r.setAttribute('rx',kw*0.75); });
+ FG_ALL.forEach(f=>{ const t=act[f]?kc(act[f]):home[f]; if(!t) return; const [x0,y0]=kn[f], w=kw*FG_WID[f], th=f==='lt'||f==='rt';
+  let dx=t.cx-x0, dy=t.cy-y0; const d=Math.hypot(dx,dy)||1, back=th?0:t.h*0.5+w*0.3, L=Math.max(rh*0.5,d-back), ang=Math.atan2(dy,dx)*180/Math.PI;
+  svg.querySelectorAll(`[data-f="${f}"]`).forEach(g=>{ g.style.transform=`translate(${x0}px,${y0}px) rotate(${ang}deg)`; const r=g.firstChild; r.setAttribute('x',-w/2); r.setAttribute('y',-w/2); r.setAttribute('height',w); r.setAttribute('rx',w/2); r.style.width=(L+w)+'px'; if(g.classList.contains('fgo')) g.classList.toggle('on',!!act[f]); }); }); }
+addEventListener('resize',()=>{ if(fgBuilt&&started) renderFinger(); });
 let fgBuilt=false, fgLang='';
 function fgBuild(lang){ const el=$('fg'); fgLang=lang;
  const kb=FG_ROWS.map((row,ri)=>`<div class="row r${ri}">${row.map(([k,w])=>{ const f=FG_FINGER[k]||'lp', wide=FG_WIDE[k]; const j=lang==='ko'&&/^[a-z]$/.test(k)?keyJamo(k):'';
   const lab=wide?wide:j?`<b>${j}</b><s>${k.toUpperCase()}</s>`:/^[a-z]$/.test(k)?`<b>${k.toUpperCase()}</b>`:esc(k);
   return `<i class="k f-${f}${wide?' wide':''}${k==='f'||k==='j'?' bump':''}${j?'':' en'}" data-k="${esc(k)}" style="--w:${w||1}">${lab}</i>`; }).join('')}</div>`).join('');
- el.innerHTML=`<div class="fgcap" id="fgCap"></div>${fgHand('l')}<div class="kb" id="kb">${kb}</div>${fgHand('r')}`; fgBuilt=true; }
+ el.innerHTML=`<div class="fgcap" id="fgCap"></div><div class="kbw" id="kbw"><div class="kb" id="kb">${kb}</div><svg class="hands" id="hands" aria-hidden="true"></svg></div>`; fgBuilt=true; }
 function renderFinger(){ const el=$('fg'); if(!el) return; const mode=started?fingerMode():'off';
  const show=mode!=='off'&&!(story&&!(story.typing&&T.special==='story'));
  el.hidden=!show; if(!show) return; el.classList.toggle('next',mode==='next');
  const tg=fgTarget()||'', lang=/[가-힣ㄱ-ㅣ]/.test(tg)||(!tg&&T.mode!=='eng')?'ko':'en'; if(!fgBuilt||lang!==fgLang) fgBuild(lang);
- el.querySelectorAll('.nx').forEach(x=>x.classList.remove('nx')); el.querySelectorAll('.fing.on').forEach(x=>x.classList.remove('on'));
+ el.querySelectorAll('.nx').forEach(x=>x.classList.remove('nx'));
  el.querySelectorAll('[data-k="q"],[data-k="w"],[data-k="e"],[data-k="r"],[data-k="t"],[data-k="o"],[data-k="p"]').forEach(x=>{ const k=x.dataset.k; if(lang==='ko') x.firstChild.textContent=keyJamo(k); });
- const cap=$('fgCap'), n=fgNext();
+ const cap=$('fgCap'), n=fgNext(), act={};
+ if(n&&mode==='full'){ const f0=FG_FINGER[n.k]||'lp'; act[f0==='th'?'rt':f0]=n.k; if(n.sh){ const sk=f0[0]==='l'?'rsh':'lsh'; act[FG_FINGER[sk]]=sk; } }
+ if(mode==='full') requestAnimationFrame(()=>fgPose(act));
  if(!n){ if(T.recall&&/[ㄱ-ㅣ가-힣]/.test(typer.value)){ cap.innerHTML='한글로 쳐지고 있어요. <kbd>한/영</kbd> 키를 눌러요'; return; }
  cap.innerHTML=T.special==='riddle'?'수수께끼 답은 스스로 떠올려 봐요':T.recall?'뜻을 보고 떠올려 봐요. 막히면 잠시 기다려요':'<span style="opacity:.7">손가락을 기본 자리(ㅁㄴㅇㄹ · ㅓㅏㅣ)에 올려요</span>'; return; }
  const f=FG_FINGER[n.k]||'lp', keyEl=el.querySelector(`.k[data-k="${CSS.escape(n.k)}"]`); if(keyEl) keyEl.classList.add('nx');
- const on=fk=>el.querySelectorAll(`.fing[data-f="${fk}"]`).forEach(x=>x.classList.add('on')); on(f);
- const dot=fk=>`<span class="dot f-${fk}" style="background:var(--dot)"></span>`;
  const lab=k=>FG_WIDE[k]||(lang==='ko'&&/^[a-z]$/.test(k)?keyJamo(k):k.toUpperCase());
- if(n.sh){ const sk=f[0]==='l'?'rsh':'lsh', sf=FG_FINGER[sk]; const se=el.querySelector(`.k[data-k="${sk}"]`); if(se) se.classList.add('nx'); on(sf);
+ if(n.sh){ const sk=f[0]==='l'?'rsh':'lsh', sf=FG_FINGER[sk]; const se=el.querySelector(`.k[data-k="${sk}"]`); if(se) se.classList.add('nx');
   if(lang==='ko'&&FG_SHK[n.k]){ const ke=el.querySelector(`.k[data-k="${n.k}"]`); if(ke) ke.firstChild.textContent=FG_SHK[n.k]; }
   cap.innerHTML=`<kbd>Shift</kbd>+<kbd>${esc(lab(n.k))}</kbd>${lang==='ko'&&FG_SHK[n.k]?` = <b>${FG_SHK[n.k]}</b>`:''}<span>${FG_NAME[sf]} + <b>${FG_NAME[f]}</b></span>`; return; }
  if(n.why==='bad'&&/[ㄱ-ㅣ가-힣]/.test(typer.value)&&!/[가-힣]/.test(fgTarget()||'')){ cap.innerHTML=`한글로 쳐지고 있어요. <kbd>한/영</kbd> 키를 눌러 영어로 바꾼 뒤 <kbd>Backspace</kbd>로 지워요`; return; }
@@ -3036,7 +3053,7 @@ const HELP=[
  ['성은 어떻게 키워요?','<b>성·연구</b>에서 증축 조건(주민 수, 연구, 자원)을 채우면 증축할 수 있어요. 성이 커지면 원정과 밤 침공이 열려요.'],
  ['섬을 넓히고 싶어요','<b>성·연구</b>의 구역 목록이나 바다 위 깃발을 눌러 구역을 사요. 가진 땅과 맞닿은 구역만 살 수 있어요.'],
  ['밤 침공은 어떻게 막아요?','배 위에 적힌 단어를 치고 <kbd>Space</kbd>를 눌러요. 가까운 배부터 치면 좋아요.'],
- ['손가락 자리 키보드는 뭐예요?','타자 칸 아래 키보드에서 다음에 누를 키가 빛나고, 손 그림에서 그 키를 누르는 손가락이 칠해져요. 쌍자음(ㄲ, ㅆ 등)은 <kbd>Shift</kbd>도 함께 빛나요. <b>설정 → 손가락 자리</b>에서 「손가락만」이나 「끄기」로 바꿀 수 있어요.'],
+ ['손가락 자리 키보드는 뭐예요?','타자 칸 아래 키보드에서 다음에 누를 키가 빛나고, 키보드 위에 겹친 손에서 그 키를 누를 손가락이 진해지고 키 쪽으로 뻗어요. 쌍자음(ㄲ, ㅆ 등)은 <kbd>Shift</kbd>로 뻗는 새끼손가락도 함께 보여요. <b>설정 → 손가락 자리</b>에서 「다음 키 글자만」이나 「끄기」로 바꿀 수 있어요.'],
  ['영어로 치고 싶어요','<b>설정 → 타자 언어</b>를 「영어」로 바꾸면 단어·문장·긴 글이 영어로 나오고, 영단어 칸은 「뜻 보고 쓰기」가 돼요. 칠 때는 <kbd>한/영</kbd> 키로 영어 입력으로 바꿔요. 「영어 수준」에서 3·4학년, 5·6학년을 고를 수 있어요.'],
  ['캠페인을 처음부터 하고 싶어요','지도에서 장을 고르고 「처음부터」를 누르면 확인 창이 나와요. 지우면 되돌릴 수 없으니, 이어서 하려면 「이어하기」를 눌러요.']];
 function openHelp(){ showModal(`<h2>도움말</h2><div class="helpq">${HELP.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div><div class="foot"><button class="btn sm" data-m="tour">처음 안내 다시 보기</button><button class="btn primary sm" data-m="x">닫기</button></div>`, m=>{ if(m==='tour') setTimeout(()=>startTour(isCamp()?'camp':'free'),200); }); }
