@@ -56,44 +56,39 @@ fingers = sorted(comps[:4], key=lambda c: c['cx'])  # 왼손: 왼쪽부터 새�
 print('fingers', [(c['x0'], c['x1'], c['top']) for c in fingers], 'others', [(c['x0'], c['x1'], c['top']) for c in comps[4:]])
 
 rgba = np.array(im)
-OVER = 22  # 손바닥과 겹치는 띠(이음새 감춤)
-palm = rgba.copy()
+# 손은 자르지 않고 원본 그대로 쓴다(이음새 없음). 손가락마다 '강조용' 조각만 만든다:
+# 손가락 부분 + 손등 쪽으로 FADE 줄 동안 점점 투명해지는 꼬리(색이 손등으로 자연스럽게 스며들게)
+FADE = 30
 parts = []
 for c in fingers:
-    m = np.zeros_like(A)
-    m[:yk + 1] = lab == c['i']
-    # 손가락 뿌리 아래로 조금 더(손바닥 쪽) 같은 열 범위를 붙임
+    m = np.zeros(A.shape, float)
+    m[:yk + 1][lab == c['i']] = 1
     rs = [r for r in runs(A[yk]) if r[1] - r[0] > 6]
     rr = min(rs, key=lambda r: abs((r[0] + r[1]) / 2 - c['cx']))
-    m[yk + 1:yk + 1 + OVER, rr[0]:rr[1]] = A[yk + 1:yk + 1 + OVER, rr[0]:rr[1]]
-    yy, xx = np.where(m)
+    for k in range(FADE):
+        y = yk + 1 + k
+        if y >= Hh: break
+        m[y, rr[0]:rr[1]] = A[y, rr[0]:rr[1]] * (1 - (k + 1) / FADE) ** 1.5
+    # 손가락 뿌리 쪽도 미리 조금씩 옅게(색 경계가 딱 끊기지 않게)
+    for k in range(12):
+        y = yk - k
+        m[y][lab[y] == c['i']] *= 0.55 + 0.45 * k / 12
+    yy, xx = np.where(m > 0)
     x0, x1, y0, y1 = xx.min(), xx.max() + 1, yy.min(), yy.max() + 1
-    f = rgba.copy(); f[~m] = 0
-    # 겹치는 띠는 아래로 갈수록 투명하게
-    for k in range(OVER - 6, OVER):  # 끝 몇 줄만 살짝 흐리게(겹침 띠는 불투명하게 둬서 이음새가 비치지 않게)
-        f[yk + 1 + k, :, 3] = (f[yk + 1 + k, :, 3].astype(float) * (OVER - k) / 7).astype(np.uint8)
-    KEEP = 34  # 손등 쪽에 손가락 뿌리를 남겨 두어 손가락과 위아래로 겹치게(틈이 보이지 않게)
-    cut = lab == c['i']; cut[yk + 1 - KEEP:] = False
-    palm[:yk + 1][cut] = 0
-    bx = (rr[0] + rr[1]) / 2; by = yk
+    f = rgba.copy().astype(float); f[:, :, 3] *= m; f = f.astype(np.uint8)
     tyy = yy.min(); txx = xx[yy == tyy].mean()
-    parts.append(dict(img=Image.fromarray(f[y0:y1, x0:x1]), x=int(x0), y=int(y0), bx=float(bx), by=float(by), tx=float(txx), ty=float(tyy), w=float(rr[1] - rr[0])))
-pimg = Image.fromarray(palm)
+    parts.append(dict(img=Image.fromarray(f[y0:y1, x0:x1]), x=int(x0), y=int(y0), tx=float(txx), ty=float(tyy)))
+himg = Image.fromarray(rgba)
 
 def uri(img):
     b = io.BytesIO(); img.save(b, 'WEBP', quality=86, method=6); return 'data:image/webp;base64,' + base64.b64encode(b.getvalue()).decode()
 
 def side(flip):
     def F(img): return img.transpose(Image.FLIP_LEFT_RIGHT) if flip else img
-    def X(x, w=0): return (Ww - x - w) if flip else x
-    fs = []
-    for p in parts:
-        fs.append(dict(img=uri(F(p['img'])), iw=p['img'].width, ih=p['img'].height, x=X(p['x'], p['img'].width), y=p['y'], bx=(Ww - p['bx']) if flip else p['bx'], by=p['by'], tx=(Ww - p['tx']) if flip else p['tx'], ty=p['ty'], w=p['w']))
-    if flip: fs = fs  # 오른손도 [새끼, 약지, 중지, 검지] 순서 유지
-    return dict(palm=dict(img=uri(F(pimg)), x=0, y=0), f=fs)
+    fs = [dict(img=uri(F(p['img'])), iw=p['img'].width, ih=p['img'].height, x=(Ww - p['x'] - p['img'].width) if flip else p['x'], y=p['y'], tx=(Ww - p['tx']) if flip else p['tx'], ty=p['ty']) for p in parts]
+    return dict(hand=uri(F(himg)), f=fs)  # 손가락 순서: [새끼, 약지, 중지, 검지]
 
 data = dict(W=Ww, H=Hh, yk=int(yk), L=side(False), R=side(True))
 json.dump(data, open(out, 'w'))
-pimg.save(out.replace('.json', '_palm.png'))
 for i, p in enumerate(parts): p['img'].save(out.replace('.json', f'_f{i}.png'))
 print('size KB', round(len(json.dumps(data)) / 1024))
