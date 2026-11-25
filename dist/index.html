@@ -276,6 +276,12 @@ body.big .tx .next,body.big .tx .prev{font-size:18px}
 .nums b{font-family:var(--f-type);font-size:17px;color:var(--ink);font-variant-numeric:tabular-nums}
 .nums .combo b{color:var(--accent-ink);background:var(--accent-soft);padding:0 6px;border-radius:6px}
 .hint{display:flex;gap:6px;align-items:center}
+.fgtog{appearance:none;border:0;cursor:pointer;display:flex;align-items:center;gap:5px;padding:4px 10px 4px 8px;border-radius:var(--r-pill);background:var(--paper-2);color:var(--ink-2);font:600 12px var(--f-ui)}
+.fgtog svg{width:16px;height:16px}
+.fgtog::after{content:'끔';font-weight:700;opacity:.7}
+.fgtog.on{background:var(--accent-soft);color:var(--accent-ink);box-shadow:0 0 0 1px var(--edge)}
+.fgtog.on::after{content:'켬';opacity:1}
+.fgtog:disabled{cursor:default;opacity:.6}
 #typer{position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;font-size:16px;border:0;padding:0;background:transparent;color:transparent;caret-color:transparent;z-index:1}
 .grade{position:absolute;right:20px;top:-14px;font-family:var(--f-ui);font-weight:700;font-size:15px;pointer-events:none;opacity:0;color:var(--ink-2)}
 .grade.show{animation:gradefade .8s ease-out forwards}
@@ -637,6 +643,7 @@ body:has(#duel:not([hidden])) #map{filter:brightness(.55) saturate(.75);transiti
     <div class="fg" id="fg" hidden aria-hidden="true"></div>
     <div class="dbot">
       <div class="nums" id="nums"></div>
+      <button class="fgtog" id="fgTog" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 10h1.5M9.5 10H11M13 10h1.5M16.5 10H18M8 14h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>손가락 자리</span></button>
       <div class="hint" id="hint"></div>
     </div>
   </section>
@@ -2384,7 +2391,10 @@ function fgBuild(lang){ const el=$('fg'); fgLang=lang;
   const lab=wide?wide:j?`<b>${j}</b><s>${k.toUpperCase()}</s>`:/^[a-z]$/.test(k)?`<b>${k.toUpperCase()}</b>`:esc(k);
   return `<i class="k f-${f}${wide?' wide':''}${k==='f'||k==='j'?' bump':''}${j?'':' en'}" data-k="${esc(k)}" style="--w:${w||1}">${lab}</i>`; }).join('')}</div>`).join('');
  el.innerHTML=`<div class="fgcap" id="fgCap"></div><div class="kbw" id="kbw"><div class="kb" id="kb">${kb}</div><div class="hands" id="hands" aria-hidden="true"></div></div>`; fgBuilt=true; }
-function renderFinger(){ const el=$('fg'); if(!el) return; const mode=started?fingerMode():'off';
+function syncFgTog(){ const b=$('fgTog'); if(!b) return; const on=fingerMode()!=='off', lock=!!classSet('finger'); b.classList.toggle('on',on); b.setAttribute('aria-pressed',on); b.disabled=lock; b.title=lock?'선생님이 정한 수업 설정이에요':(on?'손가락 자리 끄기':'손가락 자리 켜기'); }
+function fgToggle(){ if(classSet('finger')) return; const m=fingerMode(); if(m==='off') S.set.finger=S.set.fingerLast||'full'; else { S.set.fingerLast=m; S.set.finger='off'; } save(); AU.tone(700,'triangle',0.05,0.05); renderFinger(); refocus(); }
+$('fgTog').addEventListener('click',fgToggle); $('fgTog').addEventListener('mousedown',e=>e.preventDefault());
+function renderFinger(){ syncFgTog(); const el=$('fg'); if(!el) return; const mode=started?fingerMode():'off';
  const show=mode!=='off'&&!(story&&!(story.typing&&T.special==='story'));
  el.hidden=!show; if(!show) return; el.classList.toggle('next',mode==='next');
  const tg=fgTarget()||'', lang=/[가-힣ㄱ-ㅣ]/.test(tg)||(!tg&&T.mode!=='eng')?'ko':'en'; if(!fgBuilt||lang!==fgLang) fgBuild(lang);
@@ -3206,7 +3216,7 @@ const HELP=[
  ['성은 어떻게 키워요?','<b>성·연구</b>에서 증축 조건(주민 수, 연구, 자원)을 채우면 증축할 수 있어요. 성이 커지면 원정과 밤 침공이 열려요.'],
  ['섬을 넓히고 싶어요','<b>성·연구</b>의 구역 목록이나 바다 위 깃발을 눌러 구역을 사요. 가진 땅과 맞닿은 구역만 살 수 있어요.'],
  ['밤 침공은 어떻게 막아요?','배 위에 적힌 단어를 치고 <kbd>Space</kbd>를 눌러요. 가까운 배부터 치면 좋아요.'],
- ['손가락 자리 키보드는 뭐예요?','타자 칸 아래 키보드에서 다음에 누를 키가 빛나고, 키보드 위에 겹친 손에서 그 키를 누를 손가락이 색으로 칠해지고, 손가락 끝에서 그 키까지 점선 화살표가 이어져요. 쌍자음(ㄲ, ㅆ 등)은 <kbd>Shift</kbd>를 누를 새끼손가락도 함께 칠해져요. <b>설정 → 손가락 자리</b>에서 「다음 키 글자만」이나 「끄기」로 바꿀 수 있어요.'],
+ ['손가락 자리 키보드는 뭐예요?','타자 칸 아래 키보드에서 다음에 누를 키가 빛나고, 키보드 위에 겹친 손에서 그 키를 누를 손가락이 색으로 칠해지고, 손가락 끝에서 그 키까지 점선 화살표가 이어져요. 쌍자음(ㄲ, ㅆ 등)은 <kbd>Shift</kbd>를 누를 새끼손가락도 함께 칠해져요. 타자 칸 아래 <b>손가락 자리</b> 단추로 바로 켜고 끌 수 있고, <b>설정 → 손가락 자리</b>에서 「다음 키 글자만」으로 바꿀 수도 있어요.'],
  ['영어로 치고 싶어요','<b>설정 → 타자 언어</b>를 「영어」로 바꾸면 단어·문장·긴 글이 영어로 나오고, 영단어 칸은 「뜻 보고 쓰기」가 돼요. 칠 때는 <kbd>한/영</kbd> 키로 영어 입력으로 바꿔요. 「영어 수준」에서 3·4학년, 5·6학년을 고를 수 있어요.'],
  ['캠페인을 처음부터 하고 싶어요','지도에서 장을 고르고 「처음부터」를 누르면 확인 창이 나와요. 지우면 되돌릴 수 없으니, 이어서 하려면 「이어하기」를 눌러요.']];
 function openHelp(){ showModal(`<h2>도움말</h2><div class="helpq">${HELP.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div><div class="foot"><button class="btn sm" data-m="tour">처음 안내 다시 보기</button><button class="btn primary sm" data-m="x">닫기</button></div>`, m=>{ if(m==='tour') setTimeout(()=>startTour(isCamp()?'camp':'free'),200); }); }
