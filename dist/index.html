@@ -931,9 +931,11 @@ function packFromCode(t){ t=t.trim(); const i=t.indexOf('TADAKPACK1:'); if(i<0) 
 // 선생님이 관리 사이트에서 정한 수업 설정 (학급 로그인일 때만). 값이 없으면 학생 설정을 따름
 function classSet(k){ return (SLOT&&SLOT.cloud&&CLOUD_PACK&&CLOUD_PACK.settings&&CLOUD_PACK.settings[k])||null; }
 function topic(){ const t=classSet('topic')||(S&&S.set&&S.set.topic)||'mix'; return t==='teacher'&&!packGet()?'mix':t; }
+// 선생님 글감이 너무 적으면 같은 낱말만 계속 나오지 않게 기본 글감과 섞음(선생님 것이 약 1/3)
+function packMix(own,base,min){ if(own.length>=min) return own; if(!own.length) return base; const rep=Math.max(1,Math.round(base.length/2/own.length)); const L=[...base]; for(let r=0;r<rep;r++) L.push(...own); return L; }
 function poolOf(kind){ const t=topic(), key=kind+':'+t; if(_pool[key]) return _pool[key]; let L;
  const pk=t==='teacher'?packGet():null;
- if(pk){ L=kind==='w'?(pk.words.length?pk.words:KO_WORDS):kind==='s'?(pk.sents.length?pk.sents:SENTENCES):kind==='e'?(pk.eng.length?pk.eng:EN_WORDS):POEMS.map((P,i)=>i).filter(i=>POEMS[i].topic===(pk.lines.length?'teacher':'village')); return _pool[key]=L; }
+ if(pk){ L=kind==='w'?packMix(pk.words,[...KO_WORDS,...VIRTUE_WORDS,...STUDY_WORDS],12):kind==='s'?packMix(pk.sents,[...SENTENCES,...VIRTUE_SENT,...STUDY_SENT],6):kind==='e'?packMix(pk.eng,[...EN_WORDS,...STUDY_EN],10):POEMS.map((P,i)=>i).filter(i=>POEMS[i].topic===(pk.lines.length?'teacher':'village')); return _pool[key]=L; }
  if(kind==='w') L=t==='virtue'?VIRTUE_WORDS:t==='study'?STUDY_WORDS:t==='village'?KO_WORDS:[...KO_WORDS,...VIRTUE_WORDS,...STUDY_WORDS];
  else if(kind==='s') L=t==='virtue'?VIRTUE_SENT:t==='study'?STUDY_SENT:t==='village'?SENTENCES:[...SENTENCES,...VIRTUE_SENT,...STUDY_SENT];
  else if(kind==='e'){ const seen=new Set(), all=[]; const src=t==='village'?EN_WORDS:t==='mix'?[...EN_WORDS,...STUDY_EN]:STUDY_EN; src.forEach(x=>{ if(!seen.has(x[0])){ seen.add(x[0]); all.push(x); } }); L=all; }
@@ -1627,10 +1629,10 @@ const canPay=cost=>(MAP&&MAP.toy)||Object.entries(cost).every(([k,n])=>S.res[k]>
 const T={mode:'word', special:null, queue:[], target:'', meaning:'', startAt:0, errors:0, wrong:new Set(), composing:false, pending:false,
  spans:[], curEl:null, caret:null, ghostEl:null, extraEl:null, recent:{word:[],sentence:[],long:[],eng:[]}, lastSubmit:0, lastAcc:100};
 const bags={};
-function draw(list,key){ if(!bags[key]||!bags[key].length){ bags[key]=list.map((_,i)=>i); for(let i=bags[key].length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [bags[key][i],bags[key][j]]=[bags[key][j],bags[key][i]]; } } return list[bags[key].pop()]; }
+function draw(list,key){ if(!bags[key]||!bags[key].length||bags[key].src!==list){ bags[key]=list.map((_,i)=>i); bags[key].src=list; for(let i=bags[key].length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [bags[key][i],bags[key][j]]=[bags[key][j],bags[key][i]]; } } const b=bags[key]; const v=list[b.pop()]; if(!b.length) delete bags[key]; return v; }
 function makeItem(m){ if(m==='word'&&T.weak){ const pool=KO_WORDS.filter(w=>[...w].some(c=>keysOf(c).some(k=>T.weak.includes(k)))); if(pool.length) return {text:pool[Math.floor(Math.random()*pool.length)]}; }
  if(m==='word') return {text:draw(poolOf('w'),'w'+topic())}; if(m==='eng'){ const [w,mm]=draw(poolOf('e'),'e'+topic()); return {text:w,meaning:mm}; } return {text:draw(poolOf('s'),'s'+topic())}; }
-function fillQueue(){ const need=T.mode==='sentence'?2:6; while(T.queue.length<need) T.queue.push(makeItem(T.mode)); }
+function fillQueue(){ const need=T.mode==='sentence'?2:6; while(T.queue.length<need){ let it=makeItem(T.mode); const last=T.queue[T.queue.length-1]; for(let k=0;k<4&&last&&it&&it.text===last.text;k++) it=makeItem(T.mode); T.queue.push(it); } }
 const longPoem=()=>{ if(S.long.p==null||!POEMS[S.long.p]||!poolOf('p').includes(S.long.p)){ S.long.p=randomPoem(); S.long.l=0; } return POEMS[S.long.p]; };
 
 function renderDockTop(){
